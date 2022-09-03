@@ -1,16 +1,16 @@
 #include "gamelevel.h"
 struct {
-    id_t quitButton;
-    id_t clickButton;
-    id_t restore = -1;
-    id_t text;
+    ID quitButton;
+    ID clickButton;
+    ID restore = -1;
+    ID text;
 } mids;
 
 NavMesh navigation(1000, 1000);
 
 GameLevel::GameLevel() : Level("ZNake Game Level") {}
 
-void callback(const id_t& uid, void* userData) {
+void callback(const ID& uid, void* userData) {
     if (uid == mids.quitButton)
         Application::RequestQuit();
     else if (uid == mids.clickButton) {
