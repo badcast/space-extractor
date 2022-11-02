@@ -1,24 +1,24 @@
 #include "gamelevel.h"
 struct {
-    ID quitButton;
-    ID clickButton;
-    ID restore = -1;
-    ID text;
+    uid quitButton;
+    uid clickButton;
+    uid restore = -1;
+    uid text;
 } mids;
 
 NavMesh navigation(1000, 1000);
 
 GameLevel::GameLevel() : Level("ZNake Game Level") {}
 
-void callback(const ID& uid, void* userData) {
-    if (uid == mids.quitButton)
+void callback(uid id, void* userData) {
+    if (id == mids.quitButton)
         Application::RequestQuit();
-    else if (uid == mids.clickButton) {
-        Rect r = guiInstance->Rect(uid);
+    else if (id == mids.clickButton) {
+        Rect r = guiInstance->getRect(id);
         r.w = 200;
-        guiInstance->Rect(uid, r);
+        guiInstance->setRect(id, r);
         auto damaged = Level::matrixCheckDamaged();
-        guiInstance->Text(uid, "Damaged: " + std::to_string(damaged.size()));
+        guiInstance->setText(id, "Damaged: " + std::to_string(damaged.size()));
 
         if (mids.restore == -1) {
             r.x += r.w;
@@ -26,10 +26,10 @@ void callback(const ID& uid, void* userData) {
             mids.restore = guiInstance->Push_Button("Restore", r);
         }
 
-        guiInstance->Visible(mids.restore, true);
+        guiInstance->setVisible(mids.restore, true);
 
-    } else if (uid == mids.restore) {
-        guiInstance->Visible(mids.restore, false);
+    } else if (id == mids.restore) {
+        guiInstance->setVisible(mids.restore, false);
         Level::matrixRestore();
     }
 }
@@ -66,7 +66,7 @@ void GameLevel::start() {
     view->setSpriteFromTextureToGC(floorTexture);
     view->size = Vec2::one * 7;
     // view->renderType = SpriteRenderType::Tile;
-    view->renderTilePresent = SpriteRenderPresentTiles::Place;
+    view->renderPresentMode = SpriteRenderPresentMode::Place;
     view->transform()->position(Vec2::infinity);
 
     GameObject* playerGameObject = CreateGameObject("Player");
@@ -74,7 +74,7 @@ void GameLevel::start() {
     // player->playerCamera->visibleObjects = true;  // show objects in level
     player->spriteRenderer->setSpriteFromTextureToGC(snakeheadTexture);
     player->spriteRenderer->size = Vec2::one * 0.5f;
-    player->spriteRenderer->zOrder = 1;
+    player->spriteRenderer->transform()->layer = 1;
 
     SpriteRenderer* tail = CreateGameObject("Tail")->addComponent<SpriteRenderer>();
     Texture* curTexture = GC::GetTexture("snake-tail");
@@ -119,11 +119,11 @@ void GameLevel::update() {
 
     int culled, full;
     Level::render_info(&culled, &full);
-    guiInstance->Text(mids.text, "Render: " + std::to_string(full - culled));
+    guiInstance->setText(mids.text, "Render: " + std::to_string(full - culled));
 
     if (Time::frame() % 30 == 0) {
         auto xx = matrixCheckDamaged().size();
-        guiInstance->Text(mids.clickButton, "Damaged " + std::to_string(xx));
+        guiInstance->setText(mids.clickButton, "Damaged " + std::to_string(xx));
     }
     auto cmpnt = player->gameObject()->getComponents<SpriteRenderer>();
     // cmpnt.back()->offsetFromWorldPosition(Camera2D::ScreenToWorldPoint(input::getMousePointF()));
@@ -131,7 +131,7 @@ void GameLevel::update() {
     std::string t;
     t = "Score: ";
     t += std::to_string(score);
-    guiInstance->Text(mids.text, t);
+    guiInstance->setText(mids.text, t);
 
     return;
     apples[0]->transform()->position(Camera2D::ScreenToWorldPoint(input::getMousePointF()));
@@ -157,7 +157,7 @@ void GameLevel::onDrawGizmos() {
         finded.merge( Physics2D::sphereCast(player->transform()->position(), distance));
     }
 
-    for (int x = 0; x < Mathf::min((int)finded.size(), 8); ++x) {
+    for (int x = 0; x < Math::min((int)finded.size(), 8); ++x) {
         Transform* t = nullptr;
         Transform* f = finded.front();
         finded.pop_front();
@@ -171,12 +171,12 @@ void GameLevel::onDrawGizmos() {
             Vec2 newPoint;
             Vec2 j = Camera::ViewportToWorldPoint(Vec2::zero);
             Vec2 k = Camera::ViewportToWorldPoint(Vec2::one);
-            newPoint.x = Mathf::outside(Random::range(-50.f, 50.f), j.x, k.x);
-            newPoint.y = Mathf::outside(Random::range(-50.f, 50.f), j.y, k.y);
+            newPoint.x = Math::outside(Random::range(-50.f, 50.f), j.x, k.x);
+            newPoint.y = Math::outside(Random::range(-50.f, 50.f), j.y, k.y);
             t->position(newPoint);
             ++score;
         }
     }
     // return;
-    Gizmos::DrawStorm(Vec2::zero, Mathf::number(Mathf::ceil(distance)));
+    Gizmos::DrawStorm(Vec2::zero, Math::number(Math::ceil(distance)));
 }

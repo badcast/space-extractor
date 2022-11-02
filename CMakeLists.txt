@@ -23,7 +23,7 @@ add_executable(SpaceExtractor ${HEADERS} ${SOURCES})
 #set the executable name
 set_target_properties(SpaceExtractor PROPERTIES OUTPUT_NAME game)
 
-target_link_libraries(SpaceExtractor PUBLIC RoninEngine)
+target_link_libraries(SpaceExtractor PUBLIC RoninEngineLibrary)
 
 #create link resources "data:resources"
 file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
