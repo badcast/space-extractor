@@ -198,7 +198,7 @@ void GameLevel::onDrawGizmos() {
     sidePoint.x += Math::cos(angle * Math::Deg2Rad) * distance;
     sidePoint.y += Math::sin(angle * Math::Deg2Rad) * distance;
     radar->transform()->angle(angle);
-    angle -= 2;
+    angle -= 1;
 
     Gizmos::setColor(target_n ? Color::red : Color::green);
     Gizmos::DrawLine(player->transform()->position(), sidePoint);
