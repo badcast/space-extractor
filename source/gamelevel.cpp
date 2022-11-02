@@ -36,6 +36,7 @@ void callback(uid id, void* userData) {
 
 std::vector<GameObject*> apples;
 Player* player;
+SpriteRenderer* radar;
 void GameLevel::start() {
     // create a menu
     Texture* appleTexture = GC::GetTexture("apple");
@@ -59,7 +60,6 @@ void GameLevel::start() {
     }
     // instance games
     Texture* floorTexture = GC::GetTexture("concrete");
-    Texture* snakeheadTexture = GC::GetTexture("snake-head");
 
     GameObject* floor = CreateGameObject("Floor");
     SpriteRenderer* view = floor->addComponent<SpriteRenderer>();
@@ -72,37 +72,38 @@ void GameLevel::start() {
     GameObject* playerGameObject = CreateGameObject("Player");
     player = playerGameObject->addComponent<Player>();
     // player->playerCamera->visibleObjects = true;  // show objects in level
-    player->spriteRenderer->setSpriteFromTextureToGC(snakeheadTexture);
-    player->spriteRenderer->size = Vec2::one * 0.5f;
-    player->spriteRenderer->transform()->layer = 1;
+    player->spriteRenderer->transform()->layer = 100;
+
+    GameObject * radarObject = CreateGameObject("Radar");
+    radarObject->transform()->setParent(player->transform());
+    radar = radarObject->addComponent<SpriteRenderer>();
+    radar->setSpriteFromTextureToGC(GC::GetTexture("radar"));
+    radar->size = Vec2::one *1;
 
     SpriteRenderer* tail = CreateGameObject("Tail")->addComponent<SpriteRenderer>();
-    Texture* curTexture = GC::GetTexture("snake-tail");
-    tail->setSpriteFromTextureToGC(curTexture);
-    tail->size = player->spriteRenderer->size;
-    tail->transform()->setParent(playerGameObject->transform());
-    tail->transform()->position(Vec2::minusOne / 2);
 
-    Transform* t = Instantiate(playerGameObject)->transform();
-    t->position(Vec2::one);
-    t->angle(135);
-    t = Instantiate(playerGameObject)->transform();
-    t->position(Vec2::minusOne);
-    t->angle(360 - 135);
-    t = Instantiate(playerGameObject)->transform();
-    t->position(Vec2::up + Vec2::left);
-    t->angle(270);
-    t = Instantiate(playerGameObject)->transform();
-    t->position(Vec2::down + Vec2::right);
-    t->angle(90);
+//    Transform* t = Instantiate(playerGameObject)->transform();
+//    t->position(Vec2::one);
+//    t->angle(135);
+//    t = Instantiate(playerGameObject)->transform();
+//    t->position(Vec2::minusOne);
+//    t->angle(360 - 135);
+//    t = Instantiate(playerGameObject)->transform();
+//    t->position(Vec2::up + Vec2::left);
+//    t->angle(270);
+//    t = Instantiate(playerGameObject)->transform();
+//    t->position(Vec2::down + Vec2::right);
+//    t->angle(90);
 
     // Создаем N яблоко
     int n = 10000;
     int x;
-    float range = 50;
+    float range = 15;
     GameObject* appleObject = CreateGameObject("apple");
     SpriteRenderer* view2 = appleObject->addComponent<SpriteRenderer>();
     view2->setSpriteFromTextureToGC(appleTexture);
+    view2->renderPresentMode = SpriteRenderPresentMode::Fixed;
+    view2->size = Vec2::one * 2;
     apples.reserve(n + 1);
     apples.emplace_back(appleObject);
     for (x = 0; x < n; ++x) {
@@ -133,6 +134,10 @@ void GameLevel::update() {
     t += std::to_string(score);
     guiInstance->setText(mids.text, t);
 
+    auto v = Camera::mainCamera()->transform()->position();
+
+    Camera::mainCamera()->transform()->position(Vec2::Lerp(v, player->transform()->position(), 0.05f * Time::deltaTime()));
+
     return;
     apples[0]->transform()->position(Camera2D::ScreenToWorldPoint(input::getMousePointF()));
 
@@ -149,12 +154,11 @@ void GameLevel::onDrawGizmos() {
     float distance = 3;
     Gizmos::setColor(0x88241dff);
 
-    Gizmos::DrawCircle(player->transform()->position(), distance);
-
     static std::list<Transform*> finded;
+    int target_n = 0;
 
-    if(finded.size() < 8){
-        finded.merge( Physics2D::sphereCast(player->transform()->position(), distance));
+    if (finded.size() < 8) {
+        finded.merge(Physics2D::sphereCast(player->transform()->position(), distance));
     }
 
     for (int x = 0; x < Math::min((int)finded.size(), 8); ++x) {
@@ -163,9 +167,12 @@ void GameLevel::onDrawGizmos() {
         finded.pop_front();
         if (f->gameObject()->name() != "apple (clone)") continue;
 
-        f->transform()->position(Vec2::MoveTowards(f->transform()->position(), player->transform()->position(), 0.1f));
+        f->transform()->position(
+            Vec2::MoveTowards(f->transform()->position(), player->transform()->position(), 1 * Time::deltaTime()));
         if (!t && Vec2::Distance(player->transform()->position(), f->position()) < 0.3f) t = f;
-        Gizmos::DrawLine(f->position(), player->transform()->position());
+
+        // Draw point destroyer
+        // Gizmos::DrawLine(f->position(), player->transform()->position());
 
         if (t) {
             Vec2 newPoint;
@@ -175,8 +182,27 @@ void GameLevel::onDrawGizmos() {
             newPoint.y = Math::outside(Random::range(-50.f, 50.f), j.y, k.y);
             t->position(newPoint);
             ++score;
+        } else {
+            ++target_n;
         }
     }
-    // return;
+
+    // draw line
+
+    static float angle = 360;
+
+    if (angle < 1) angle += 360;
+
+    Vec2 sidePoint = player->transform()->position();
+    ;
+    sidePoint.x += Math::cos(angle * Math::Deg2Rad) * distance;
+    sidePoint.y += Math::sin(angle * Math::Deg2Rad) * distance;
+    radar->transform()->angle(angle);
+    angle -= 2;
+
+    Gizmos::setColor(target_n ? Color::red : Color::green);
+    Gizmos::DrawLine(player->transform()->position(), sidePoint);
+    Gizmos::DrawCircle(player->transform()->position(), distance);
+
     Gizmos::DrawStorm(Vec2::zero, Math::number(Math::ceil(distance)));
 }
