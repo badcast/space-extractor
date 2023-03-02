@@ -5,14 +5,14 @@ struct {
     uid restore = -1;
     uid text;
 } mids;
-
+int maxWidth = 25;
 NavMesh navigation(1000, 1000);
 
-GameLevel::GameLevel() : Level("ZNake Game Level") {}
+GameLevel::GameLevel() : Level("Space Extractor") {}
 
 void callback(uid id, void* userData) {
     if (id == mids.quitButton)
-        Application::RequestQuit();
+        Application::requestQuit();
     else if (id == mids.clickButton) {
         Rect r = guiInstance->getRect(id);
         r.w = 200;
@@ -39,7 +39,7 @@ Player* player;
 SpriteRenderer* radar;
 void GameLevel::start() {
     // create a menu
-    Texture* appleTexture = GC::GetTexture("apple");
+    auto appleTexture = GC::GetSurface("apple");
     if (true) {
         Rect t(0, 0, 100, 32);
         mids.quitButton = guiInstance->Push_Button("Quit", t);
@@ -49,7 +49,7 @@ void GameLevel::start() {
 
         t.w = t.h = 32;
 
-        guiInstance->Push_TextureStick(appleTexture, t);
+        //guiInstance->Push_TextureStick(appleTexture, t);
 
         guiInstance->Register_Callback(&callback, nullptr);
 
@@ -59,7 +59,7 @@ void GameLevel::start() {
         mids.text = guiInstance->Push_Button("", t);
     }
     // instance games
-    Texture* floorTexture = GC::GetTexture("concrete");
+    auto floorTexture = GC::GetSurface("concrete");
 
     GameObject* floor = CreateGameObject("Floor");
     SpriteRenderer* view = floor->addComponent<SpriteRenderer>();
@@ -77,7 +77,7 @@ void GameLevel::start() {
     GameObject * radarObject = CreateGameObject("Radar");
     radarObject->transform()->setParent(player->transform());
     radar = radarObject->addComponent<SpriteRenderer>();
-    radar->setSpriteFromTextureToGC(GC::GetTexture("radar"));
+    radar->setSpriteFromTextureToGC(GC::GetSurface("radar"));
     radar->size = Vec2::one *1;
 
     SpriteRenderer* tail = CreateGameObject("Tail")->addComponent<SpriteRenderer>();
@@ -98,11 +98,10 @@ void GameLevel::start() {
     // Создаем N яблоко
     int n = 10000;
     int x;
-    float range = 15;
+    float range = maxWidth;
     GameObject* appleObject = CreateGameObject("apple");
     SpriteRenderer* view2 = appleObject->addComponent<SpriteRenderer>();
     view2->setSpriteFromTextureToGC(appleTexture);
-    view2->renderPresentMode = SpriteRenderPresentMode::Fixed;
     view2->size = Vec2::one * 2;
     apples.reserve(n + 1);
     apples.emplace_back(appleObject);
@@ -116,8 +115,6 @@ void GameLevel::start() {
 int score = 0;
 
 void GameLevel::update() {
-    char mv[100];
-
     int culled, full;
     Level::render_info(&culled, &full);
     guiInstance->setText(mids.text, "Render: " + std::to_string(full - culled));
@@ -129,10 +126,10 @@ void GameLevel::update() {
     auto cmpnt = player->gameObject()->getComponents<SpriteRenderer>();
     // cmpnt.back()->offsetFromWorldPosition(Camera2D::ScreenToWorldPoint(input::getMousePointF()));
 
-    std::string t;
-    t = "Score: ";
-    t += std::to_string(score);
-    guiInstance->setText(mids.text, t);
+    std::string temp;
+    temp = "Score: ";
+    temp += std::to_string(score);
+    guiInstance->setText(mids.text, temp);
 
     auto v = Camera::mainCamera()->transform()->position();
 
@@ -144,7 +141,7 @@ void GameLevel::update() {
     if (apples.size() == 1) return;
 
     for (int i = 1; false && i < apples.size(); ++i) {
-        apples[i]->transform()->position(Vec2(Random::range(-10, 10), Random::range(-10, 10)));
+        apples[i]->transform()->position(Vec2(Random::range(-maxWidth, maxWidth), Random::range(-maxWidth, maxWidth)));
     }
 }
 
@@ -178,8 +175,8 @@ void GameLevel::onDrawGizmos() {
             Vec2 newPoint;
             Vec2 j = Camera::ViewportToWorldPoint(Vec2::zero);
             Vec2 k = Camera::ViewportToWorldPoint(Vec2::one);
-            newPoint.x = Math::outside(Random::range(-50.f, 50.f), j.x, k.x);
-            newPoint.y = Math::outside(Random::range(-50.f, 50.f), j.y, k.y);
+            newPoint.x = Math::outside(Random::range((float)-maxWidth, (float)maxWidth), j.x, k.x);
+            newPoint.y = Math::outside(Random::range((float)-maxWidth, (float)maxWidth), j.y, k.y);
             t->position(newPoint);
             ++score;
         } else {
