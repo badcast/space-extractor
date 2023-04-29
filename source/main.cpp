@@ -5,10 +5,17 @@
 
 using namespace std;
 
-int main() {
+#if WIN32
+int WinMain(void*, void*, void*, int)
+#else
+int main()
+#endif
+{
     using namespace RoninEngine;
 
-    Application::init(1366, 768);
+    Application::init();
+
+    Application::createWindow(1366, 768, 1);
 
     GameLevel level;
     Application::loadLevel(&level);
