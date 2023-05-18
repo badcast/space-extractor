@@ -4,25 +4,23 @@
 #include "gamelevel.h"
 
 using namespace std;
-
+using namespace RoninEngine;
 #if WIN32
 int WinMain(void*, void*, void*, int)
 #else
 int main()
 #endif
 {
-    using namespace RoninEngine;
-
     Application::init();
 
-    Application::createWindow(1366, 768, 1);
+    Application::create_window(1024, 600, 0);
 
     GameLevel level;
-    Application::loadLevel(&level);
+    Application::load_level(&level);
 
     Application::simulate();
 
-    Application::Quit();
+    Application::quit();
 
     return 0;
 }

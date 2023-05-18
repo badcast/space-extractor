@@ -8,7 +8,6 @@ using namespace RoninEngine::UI;
 
 class GameLevel : public Level {
    public:
-
     void start() override;
     void update() override;
     void onDrawGizmos() override;
