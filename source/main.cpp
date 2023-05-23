@@ -20,7 +20,5 @@ int main()
 
     Application::simulate();
 
-    Application::quit();
-
     return 0;
 }

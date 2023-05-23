@@ -12,24 +12,23 @@ public:
     void OnUpdate()
     {
         if (transform()->position() == target) {
-            target = Random::randomVector() * 10;
+            target = Random::randomVector() * 1000;
         }
 
-        transform()->position(Vec2::MoveTowards(transform()->position(), target, TimeEngine::deltaTime() * 0.09f));
+        transform()->position(Vec2::MoveTowards(transform()->position(), target, TimeEngine::deltaTime() * 1));
 
         transform()->look_at(target);
     }
 };
 
-std::vector<GameObject*> vectorx(1);
+std::vector<GameObject*> vectorx(10);
 void fabricate()
 {
     float t = 0;
     for (int x = 0; x < vectorx.size(); ++x) {
         vectorx[x] = instantiate(referenceObject);
-        Movement* m = new Movement;
-        vectorx[x]->add_component(m);
-        destroy(vectorx[x], 5);
+        vectorx[x]->add_component<Movement>();
+        destroy(vectorx[x], 10);
     }
 }
 uid slider;
@@ -79,7 +78,7 @@ void GameLevel::start()
     auto spr = referenceObject->add_component<SpriteRenderer>();
     spr->set_sprite(Primitive::create_sprite2D({ 5, 5 }, Color::antiquewhite));
 
-    slider = ui->push_slider(vectorx.size(), 1.f, 100.f, Vec2Int(0, 30));
+    slider = ui->push_slider(vectorx.size(), 1.f, 1000.f, Vec2Int(0, 30));
 
     but = ui->push_button("center camera", { 700, 0, 90, 20 });
     butSave = ui->push_button("save", { 792, 0, 80, 20 });
