@@ -93,6 +93,6 @@ void GameLevel::on_update()
     }
 }
 
-void GameLevel::on_gizmo() { }
+void GameLevel::on_gizmo() { Gizmos::draw_2D_world_space(); }
 
 void GameLevel::on_unloading() { int x = 0; }

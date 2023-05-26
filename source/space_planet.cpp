@@ -18,7 +18,7 @@ void fabricate(SpacePlanet* planet, SpacePilot* reference, int countCell)
 
 void SpacePlanet::OnStart()
 {
-
+    static bool f = false;
     // find target
     std::list<SpacePlanet*> planets = Level::self()->find_objects_with_type<SpacePlanet>();
     planets.remove(this);
@@ -26,7 +26,8 @@ void SpacePlanet::OnStart()
     if (planets.empty()) {
         return;
     }
-    Color playerColor = Random::value() >= 0.3 ? Color::blue : Color::red;
+    playerColor = f == false ? Color::blue : Color::red;
+    f = !f;
 
     target = planets.front();
 
@@ -43,6 +44,7 @@ void SpacePlanet::OnUpdate()
         return;
     }
     lastTimeFab = TimeEngine::time() + 3;
+
     fabricate(this, referencePilot, startWith);
 }
 
@@ -54,6 +56,17 @@ void SpacePlanet::OnGizmos()
     Gizmos::draw_text(pos + Vec2::down / 1.5, "Health " + std::to_string(health));
 
     Gizmos::draw_circle(pos, 0.5f);
+
+    Gizmos::set_color(playerColor);
+    for (float& f : damaged_lines) {
+        Gizmos::draw_circle(pos, f);
+        f += 0.2f;
+    }
+
+    if (!damaged_lines.empty()) {
+        if (damaged_lines.back() > 3)
+            damaged_lines.pop_back();
+    }
 }
 
 void SpacePlanet::damage(SpacePilot* p)
@@ -61,6 +74,8 @@ void SpacePlanet::damage(SpacePilot* p)
     if (!--health)
         this->game_object()->destroy();
     p->game_object()->destroy();
+    if (TimeEngine::frame() % 3 == 0)
+        damaged_lines.emplace_back(0);
 }
 
 void SpacePilot::OnUpdate()

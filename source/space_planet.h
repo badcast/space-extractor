@@ -20,12 +20,15 @@ public:
 
 class SpacePlanet : public Behaviour
 {
+    std::list<float> damaged_lines;
+
 public:
     SpacePlanet* target;
-    int startWith = 5;
+    int startWith = 30;
     int health = 1000;
     int resources = 1000;
     float lastTimeFab = 0;
+    Color playerColor;
     SpacePilot* referencePilot;
 
     SpacePlanet();
@@ -33,7 +36,7 @@ public:
     void OnUpdate();
     void OnGizmos();
 
-    void damage(SpacePilot *p);
+    void damage(SpacePilot* p);
 };
 
 #endif // SPACEPLANET_H
