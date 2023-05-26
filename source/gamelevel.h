@@ -6,9 +6,11 @@ using namespace RoninEngine::Runtime;
 using namespace RoninEngine::AIPathFinder;
 using namespace RoninEngine::UI;
 
-class GameLevel : public Level {
-   public:
-    void start() override;
-    void update() override;
-    void onDrawGizmos() override;
+class GameLevel : public Level
+{
+public:
+    void on_start();
+    void on_update();
+    void on_gizmo();
+    void on_unloading();
 };

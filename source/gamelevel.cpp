@@ -1,51 +1,23 @@
 #include "gamelevel.h"
 #include <fstream>
 
-GameObject* referenceObject;
+#include "space_planet.h"
 
-class Movement : public Behaviour
-{
-public:
-    float angle = 0;
-    Vec2 target;
-    void OnStart() { target = transform()->position(); }
-    void OnUpdate()
-    {
-        if (transform()->position() == target) {
-            target = Random::randomVector() * 1000;
-        }
-
-        transform()->position(Vec2::MoveTowards(transform()->position(), target, TimeEngine::deltaTime() * 1));
-
-        transform()->look_at(target);
-    }
-};
-
-std::vector<GameObject*> vectorx(10);
-void fabricate()
-{
-    float t = 0;
-    for (int x = 0; x < vectorx.size(); ++x) {
-        vectorx[x] = instantiate(referenceObject);
-        vectorx[x]->add_component<Movement>();
-        destroy(vectorx[x], 10);
-    }
-}
-uid slider;
 uid but;
-uid textDestr;
-uid textDestr2;
 uid textGameTime;
 uid butSave, butLoad;
-const char* fsave = "./pointer.txt";
+const char* fsave = "./pointer.dat";
 void callback(uid id, void* userData)
 {
     if (id == but) {
         Camera::main_camera()->transform()->position(Vec2::zero);
     } else if (id == butSave) {
         Vec2 p = Camera::main_camera()->transform()->position();
-        std::fstream f { fsave, std::ios_base::out};
-
+        std::fstream f { fsave, std::ios_base::out };
+        if (!f) {
+            Application::show_message("failed saving file");
+            return;
+        }
         f.write((char*)&p.x, sizeof p.x);
         f.write((char*)&p.y, sizeof p.y);
         f.close();
@@ -64,64 +36,63 @@ void callback(uid id, void* userData)
     }
 }
 
-void GameLevel::start()
+std::vector<Transform*> stars(100, nullptr);
+Runtime::Vec2 dmgReg { -6, 6 };
+void GameLevel::on_start()
 {
     auto camera = Primitive::create_camera2D(Vec2::zero);
-    // camera->visibleNames = true;
     camera->visibleGrids = false;
     camera->visibleBorders = false;
     camera->visibleNames = false;
-    camera->game_object()->add_component<Player>();
+    camera->game_object()->add_component<MoveController2D>();
 
-    referenceObject = Primitive::create_empty_game_object();
+    GameObject* referencePlanet = Primitive::create_empty_game_object(Vec2::up * 2);
+    referencePlanet->add_component<SpacePlanet>();
 
-    auto spr = referenceObject->add_component<SpriteRenderer>();
-    spr->set_sprite(Primitive::create_sprite2D({ 5, 5 }, Color::antiquewhite));
+    SpriteRenderer* lastSpr = referencePlanet->add_component<SpriteRenderer>();
+    lastSpr->size = Vec2::one / 5;
+    lastSpr->set_sprite(Primitive::create_sprite2D_circle(Vec2::one, 1, Color::red));
+    lastSpr = referencePlanet->add_component<SpriteRenderer>();
+    lastSpr->size = Vec2::one / 2;
+    lastSpr->set_sprite(Primitive::create_sprite2D_circle(Vec2::one, 1, Color::darkgray));
 
-    slider = ui->push_slider(vectorx.size(), 1.f, 1000.f, Vec2Int(0, 30));
-
+    GameObject* referencePlanet2 = instantiate(referencePlanet, Vec2::down * 2);
+    referencePlanet2->add_component<SpacePlanet>();
+    // UI
+    ui->register_callback(callback, nullptr);
     but = ui->push_button("center camera", { 700, 0, 90, 20 });
     butSave = ui->push_button("save", { 792, 0, 80, 20 });
     butLoad = ui->push_button("load", { 874, 0, 80, 20 });
+    textGameTime = ui->push_label("", Vec2Int(0, (Application::get_resolution()).height - 17));
 
-    ui->register_callback(callback, nullptr);
-
-    textDestr = ui->push_label("", Vec2Int::zero);
-    textDestr2 = ui->push_label("", Vec2Int(0, 15));
-    auto res = Application::get_resolution();
-    textGameTime = ui->push_label("", Vec2Int(0, res.height - 17));
+    stars[0] = Primitive::create_empty_game_object()->transform();
+    lastSpr = stars[0]->game_object()->add_component<SpriteRenderer>();
+    lastSpr->set_sprite(Primitive::create_sprite2D_triangle());
+    lastSpr->size /= 32;
+    stars[0]->angle(90);
+    for (int x = 1; x < stars.size(); ++x) {
+        stars[x] = instantiate(stars[0]->game_object())->transform();
+        stars[x]->position(Camera::viewport_2_world(Random::randomVector()));
+    }
 }
 
-void GameLevel::update()
+void GameLevel::on_update()
 {
-    //    static Vec2 t;
-    //    Vec2 pos = obj->transform()->position();
-
-    //    if(obj->transform()->position(Vec2::MoveTowards(pos,t,TimeEngine::deltaTime()*.05f)) == t){
-    //        t = Camera::ViewportToWorldPoint(Random::randomVector()/2);
-    //    }
-    static float t = 0;
-    static int v = 0;
-    static int n = 0;
-    float* sv = (float*)ui->get_resources(slider);
-    if (*sv != static_cast<float>(vectorx.size())) {
-        vectorx.resize(static_cast<int>(*sv));
-    }
-    if (TimeEngine::time() > t) {
-        fabricate();
-        t = TimeEngine::time() + 0.3;
-    }
-
-    if (get_destroyed_frames() != 0)
-        n += (v = get_destroyed_frames());
-    if (TimeEngine::frame() % 60 == 0) {
-        n = v;
-    }
-
     int time = TimeEngine::time();
-    ui->set_text(textDestr, std::string("Destroyed queue: ") + std::to_string(object_destruction_count()));
-    ui->set_text(textDestr2, std::string("Destroyed 1(frame): ") + std::to_string(v) + " destroyed 60(frames): " + std::to_string(n));
     ui->set_text(textGameTime, "Game time: " + std::string((time / 60 < 10) ? "0" : "") + std::to_string(time / 60) + std::string(":") + std::string((time % 60 < 10) ? "0" : "") + std::to_string(time % 60));
+
+    for (int x = 0; x < stars.size(); ++x) {
+        Transform* t = stars[x];
+        Vec2 v = t->position();
+        if (t->position().x <= dmgReg.x) {
+            v.x = -dmgReg.x;
+            t->position(v);
+            continue;
+        }
+        t->position(Vec2::move_towards(v, { dmgReg.x, v.y }, TimeEngine::deltaTime() * 4));
+    }
 }
 
-void GameLevel::onDrawGizmos() { }
+void GameLevel::on_gizmo() { }
+
+void GameLevel::on_unloading() { int x = 0; }
