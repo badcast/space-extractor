@@ -38,7 +38,7 @@ void callback(uid id, void* userData)
 
 std::vector<Transform*> stars(100, nullptr);
 Runtime::Vec2 dmgReg { -6, 6 };
-void GameLevel::on_start()
+void SpaceExtractorLevel::on_start()
 {
     auto camera = Primitive::create_camera2D(Vec2::zero);
     camera->visibleGrids = false;
@@ -76,7 +76,7 @@ void GameLevel::on_start()
     }
 }
 
-void GameLevel::on_update()
+void SpaceExtractorLevel::on_update()
 {
     int time = TimeEngine::time();
     ui->set_text(textGameTime, "Game time: " + std::string((time / 60 < 10) ? "0" : "") + std::to_string(time / 60) + std::string(":") + std::string((time % 60 < 10) ? "0" : "") + std::to_string(time % 60));
@@ -93,6 +93,6 @@ void GameLevel::on_update()
     }
 }
 
-void GameLevel::on_gizmo() { Gizmos::draw_2D_world_space(); }
+void SpaceExtractorLevel::on_gizmo() {  }
 
-void GameLevel::on_unloading() { int x = 0; }
+void SpaceExtractorLevel::on_unloading() { }

@@ -1,7 +1,7 @@
 #include <exception>
 #include <iostream>
 
-#include "gamelevel.h"
+#include "gamemainmenu.h"
 
 using namespace std;
 using namespace RoninEngine;
@@ -15,7 +15,7 @@ int main()
 
     Application::create_window(1024, 600, 0);
 
-    GameLevel level;
+    GameMainMenu level;
     Application::load_level(&level);
 
     Application::simulate();
