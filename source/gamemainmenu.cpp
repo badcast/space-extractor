@@ -21,6 +21,7 @@ void main_menu_callback(uid but, void*)
     for (Level* _destr : __inited_levels) {
         RoninMemory::free(_destr);
     }
+    __inited_levels.clear();
 
     if (but == but_run_planet_game) {
         lev = RoninMemory::alloc<SpaceExtractorLevel>();
@@ -30,11 +31,16 @@ void main_menu_callback(uid but, void*)
         lev = RoninMemory::alloc<OverlayLevel>();
     }
 
+    if (!lev)
+        return;
+
     Application::load_level(__inited_levels.emplace_back(lev));
 }
 
 void GameMainMenu::on_start()
 {
+    main_menu = this;
+
     ui->register_callback(main_menu_callback, nullptr);
 
     Resolution res = Application::get_resolution();
@@ -52,3 +58,17 @@ void GameMainMenu::on_start()
 }
 
 void GameMainMenu::on_update() { }
+static uid button;
+void __call_backmenu(uid but, void* userdata)
+{
+    if (but == button) {
+        Application::load_level(main_menu);
+    }
+}
+
+void switch_game_level(Level* level)
+{
+
+    button = level->get_gui()->push_button("В главное меню", Vec2Int::zero, (ui_callback*)&__call_backmenu);
+    level->get_gui()->set_resources(button,level);
+}

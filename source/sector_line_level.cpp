@@ -1,3 +1,4 @@
+#include "gamemainmenu.h"
 #include "sector_line_level.h"
 
 using namespace RoninEngine::Runtime;
@@ -21,6 +22,7 @@ SectorLine::SectorLine()
 ai::NavMesh navMesh(128, 128);
 void SectorLine::on_start()
 {
+switch_game_level(this);
     Primitive::create_camera2D()->game_object()->add_component<MoveController2D>();
     navMesh.worldScale = Vec2::scale(navMesh.worldScale, navMeshSchemes.cellSize);
 

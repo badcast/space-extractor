@@ -1,3 +1,5 @@
+#include "gamemainmenu.h"
+
 #include "OverlayLevel.h"
 
 using namespace RoninEngine;
@@ -7,6 +9,7 @@ void OverlayLevel::on_awake() { }
 
 void OverlayLevel::on_start()
 {
+    switch_game_level(this);
     create_game_object()->add_component<Camera2D>();
 }
 
@@ -43,7 +46,7 @@ void OverlayLevel::on_gizmo()
         plane = getRandomPoint();
     }
 
-    cursor = Vec2::move_towards(cursor, plane, TimeEngine::deltaTime() *speed);
+    cursor = Vec2::move_towards(cursor, plane, TimeEngine::deltaTime() * speed);
 
     bool inter = Vec2::has_intersection({ cursor, bodySize }, { bublePos, bodySize });
     if (!inter)
@@ -63,7 +66,7 @@ void OverlayLevel::on_gizmo()
     Gizmos::set_color(Color::red);
     Gizmos::draw_position(plane, 0.1);
 
-    bublePos = Vec2::move_towards(bublePos, targetPos, TimeEngine::deltaTime()*speed);
+    bublePos = Vec2::move_towards(bublePos, targetPos, TimeEngine::deltaTime() * speed);
 }
 
 void OverlayLevel::on_unloading() { }

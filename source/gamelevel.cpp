@@ -40,6 +40,8 @@ std::vector<Transform*> stars(100, nullptr);
 Runtime::Vec2 dmgReg { -6, 6 };
 void SpaceExtractorLevel::on_start()
 {
+    switch_game_level(this);
+
     auto camera = Primitive::create_camera2D(Vec2::zero);
     camera->visibleGrids = false;
     camera->visibleBorders = false;
@@ -93,6 +95,6 @@ void SpaceExtractorLevel::on_update()
     }
 }
 
-void SpaceExtractorLevel::on_gizmo() {  }
+void SpaceExtractorLevel::on_gizmo() { }
 
 void SpaceExtractorLevel::on_unloading() { }
