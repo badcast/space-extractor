@@ -16,7 +16,8 @@ int main()
     Application::create_window(1024, 600, 0);
 
     GameMainMenu level;
-    Application::load_level(&level);
+
+    Application::load_world(&level);
 
     Application::simulate();
 

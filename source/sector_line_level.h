@@ -6,8 +6,12 @@ using namespace RoninEngine::Runtime;
 using namespace RoninEngine::AIPathFinder;
 using namespace RoninEngine::UI;
 
-class SectorLine : public Level {
-   public:
+class SectorLine : public World
+{
+
+    NavMesh navMesh { 128, 128 };
+
+public:
     SectorLine();
     ~SectorLine() = default;
     void on_start() override;

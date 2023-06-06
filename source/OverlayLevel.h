@@ -3,7 +3,7 @@
 
 #include <ronin/framework.h>
 
-class OverlayLevel : public Level
+class OverlayLevel : public World
 {
 public:
     void on_awake();

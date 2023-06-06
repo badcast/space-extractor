@@ -5,7 +5,7 @@
 
 using namespace RoninEngine::Runtime;
 
-class GameMainMenu : public Level
+class GameMainMenu : public World
 {
 public:
     GameMainMenu() = default;
@@ -16,6 +16,6 @@ public:
 
 static GameMainMenu* main_menu = nullptr;
 
-void switch_game_level(Level* level);
+void switch_game_level(World* level);
 
 #endif // GAMEMAINMENU_H

@@ -6,9 +6,15 @@ using namespace RoninEngine::Runtime;
 using namespace RoninEngine::AIPathFinder;
 using namespace RoninEngine::UI;
 
-class SpaceExtractorLevel : public Level
+class SpaceExtractorLevel : public World
 {
+
+    std::vector<Transform*> stars{100, nullptr};
+    Runtime::Vec2 dmgReg { -6, 6 };
+
 public:
+    SpaceExtractorLevel() = default;
+
     void on_start();
     void on_update();
     void on_gizmo();

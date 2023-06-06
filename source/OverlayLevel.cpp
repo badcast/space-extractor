@@ -17,12 +17,12 @@ void OverlayLevel::on_update() { }
 
 void OverlayLevel::on_late_update() { }
 
-Vec2 getRandomPoint() { return Camera::viewport_2_world({ Random::value(), Random::value() }); }
+Vec2 getRandomPoint() { return Camera::viewport_to_world({ Random::value(), Random::value() }); }
 
 Vec2 getRandomPointOutSide(const Vec2& bodySize)
 {
-    Vec2 alpha = Camera::viewport_2_world(Vec2::zero);
-    Vec2 beta = Camera::viewport_2_world(Vec2::one);
+    Vec2 alpha = Camera::viewport_to_world(Vec2::zero);
+    Vec2 beta = Camera::viewport_to_world(Vec2::one);
     Vec2 pt = getRandomPoint();
     pt.x = Math::outside(pt.x, alpha.x + bodySize.x / 2, beta.x - bodySize.x / 2);
     pt.y = Math::outside(pt.y, alpha.y - bodySize.y / 2, beta.y + bodySize.y / 2);
@@ -33,7 +33,7 @@ void OverlayLevel::on_gizmo()
 {
     // Gizmos::setColor(Color::red);
     static Vec2 bodySize = { 1, 1.f / 2 };
-    static Vec2 bublePos = Camera::viewport_2_world(Vec2::zero) + Vec2(bodySize.x, bodySize.y * -1);
+    static Vec2 bublePos = Camera::viewport_to_world(Vec2::zero) + Vec2(bodySize.x, bodySize.y * -1);
     static Vec2 targetPos = bublePos;
     static int trigger = 0;
     static Vec2 cursor, plane;

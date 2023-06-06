@@ -38,7 +38,7 @@ void SpacePlanet::OnStart()
     worker->owner_planet = this;
 
     // find target
-    std::list<SpacePlanet*> planets = Level::self()->find_objects_with_type<SpacePlanet>();
+    std::list<SpacePlanet*> planets = World::self()->find_objects_with_type<SpacePlanet>();
     planets.remove(this);
 
     if (planets.empty()) {
@@ -170,6 +170,6 @@ void SpaceWorker::OnGizmos()
 
     Gizmos::set_color(Color::gray);
     Gizmos::draw_rectangle_rounded(pos, size.x, size.y, 5);
-
-    Gizmos::draw_fill_rect_rounded(pos, Math::map<float>(resources, 0, maximumResources, 0, size.x), size.y / 2, 5);
+    if (resources)
+        Gizmos::draw_fill_rect_rounded(pos, Math::map<float>(resources, 0, maximumResources, 0, size.x), size.y / 2, 5);
 }

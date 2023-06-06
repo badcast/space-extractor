@@ -15,77 +15,45 @@ struct {
 } navMeshSchemes;
 
 SectorLine::SectorLine()
-    : Level("Level")
+    : World("Level")
 {
 }
-
-ai::NavMesh navMesh(128, 128);
+void rrandom_space(uid but, NavMesh* navMesh)
+{
+    // do
+    navMesh->randomize(Random::range(0, 12034124214ul));
+}
 void SectorLine::on_start()
 {
-switch_game_level(this);
+    switch_game_level(this);
     Primitive::create_camera2D()->game_object()->add_component<MoveController2D>();
     navMesh.worldScale = Vec2::scale(navMesh.worldScale, navMeshSchemes.cellSize);
 
+    get_gui()->set_resources(get_gui()->push_button("random", Vec2Int(0, 48), (ui_callback*)&rrandom_space), &navMesh);
     navMesh.randomize(Random::range(323, 45));
 }
 
 void SectorLine::on_update() { }
 
-void Plot()
-{
-    Vec2 lastPoint, a, b;
-    AIPathFinder::Neuron* p;
-    Runtime::Vec2Int p1, p2;
-    Resolution res;
-    Color prev, next;
-    int yDefault;
-
-    res = Application::get_resolution();
-    prev = Gizmos::get_color();
-    Gizmos::set_color(next = navMeshSchemes.defaultNeuron);
-    p1 = navMesh.WorldPointToPoint(Camera::screen_2_world(Vec2::minusOne));
-    p2 = navMesh.WorldPointToPoint(Camera::viewport_2_world(Vec2::one));
-    yDefault = p1.y;
-    // select draw from viewport neurons
-    while (p1.x <= p2.x) {
-        while (p1.y <= p2.y) {
-            p = navMesh.get_neuron(p1);
-            lastPoint = navMesh.PointToWorldPosition(p1);
-            if (!p || navMesh.neuronLocked(p1)) {
-                next.r = 255;
-                next.g = 0;
-                next.b = 0;
-            } else {
-                next.r = 53;
-                next.g = navMesh.neuronGetTotal(p1) ? 200 : 0;
-                next.b = 246;
-            }
-            Gizmos::set_color(next);
-            Gizmos::draw_fill_rect(lastPoint, navMesh.worldScale.x - navMeshSchemes.cellThickness, navMesh.worldScale.y - navMeshSchemes.cellThickness);
-            ++p1.y;
-        }
-        p1.y = yDefault;
-        ++p1.x;
-    }
-    Gizmos::set_color(prev);
-}
-
 void SectorLine::on_gizmo()
 {
     static Vec2 alpha = (Vec2::up + Vec2::right) * 2;
     static float angle = 0;
+    static bool draw = true;
 
-    ai::NavResult result;
-    Vec2 first = Camera::viewport_2_world(Vec2::half);
-    Vec2 last = Vec2::rotate_around(first, alpha, angle * Math::deg2rad);
-
-    if (Input::is_mouse_down()) {
-        auto ner = navMesh.neuronGetPoint(navMesh.get_neuron(Camera::screen_2_world(Input::get_mouse_pointf())));
-        navMesh.neuronLock(ner, !navMesh.neuronLocked(ner));
+    if (Input::is_mouse_up(2)) {
+        draw = !draw;
     }
 
+    if (!draw)
+        return;
+
+    ai::NavResult result;
+    Vec2 first = Camera::viewport_to_world(Vec2::half);
+    Vec2 last = Vec2::rotate_around(first, alpha, angle * Math::deg2rad);
+
     if (TimeEngine::frame() % 10 == 0) {
-        angle += 13;
+        angle += TimeEngine::deltaTime() * 300;
         if (angle > 360)
             angle -= 360;
 
@@ -98,7 +66,8 @@ void SectorLine::on_gizmo()
         neuron->h = 1;
 
     // Draw nav mesh
-    Plot();
+    Gizmos::draw_nav_mesh(&navMesh);
+
     Gizmos::set_color(Color::red);
     Gizmos::draw_circle(first, 0.3f);
 
@@ -107,13 +76,13 @@ void SectorLine::on_gizmo()
 
     Gizmos::set_color(Color::red);
     if (result.status == ai::NavStatus::Opened) {
-        first = navMesh.PointToWorldPosition(result.firstNeuron);
+        first = navMesh.point_to_world_position(result.firstNeuron);
         Gizmos::set_color(navMeshSchemes.pointStart);
         Gizmos::draw_circle(first, navMesh.worldScale.x);
         Gizmos::set_color(navMeshSchemes.line);
         for (auto n = ++result.RelativePaths.begin(); n != result.RelativePaths.end(); ++n) {
-            Gizmos::draw_line(first, navMesh.PointToWorldPosition(*n));
-            first = navMesh.PointToWorldPosition(*n);
+            Gizmos::draw_line(first, navMesh.point_to_world_position(*n));
+            first = navMesh.point_to_world_position(*n);
         }
     }
 
