@@ -3,16 +3,18 @@
 #include "gamelevel.h"
 #include "sector_line_level.h"
 #include "OverlayLevel.h"
+#include "BunkerGame.h"
 
 using namespace RoninEngine;
 using namespace RoninEngine::Runtime;
 
 static std::list<World*> __inited_levels;
-std::array<const char*, 3> strings { "Воспроизвести игру", "Воспроизвести секторы", "Воспроизвести Overlay" };
+std::array<const char*, 4> strings { "Воспроизвести игру", "Воспроизвести секторы", "Воспроизвести Overlay", "Воспроизвести игру Bunker" };
 
 uid but_run_planet_game;
 uid but_run_sector;
 uid but_run_overlay;
+uid but_run_bunker_play;
 
 void main_menu_callback(uid but, void*)
 {
@@ -24,6 +26,8 @@ void main_menu_callback(uid but, void*)
         lev = RoninMemory::alloc<SectorLine>();
     } else if (but == but_run_overlay) {
         lev = RoninMemory::alloc<OverlayLevel>();
+    } else if (but == but_run_bunker_play) {
+        lev = RoninMemory::alloc<BunkerWorld>();
     }
 
     if (!lev)
@@ -58,9 +62,13 @@ void GameMainMenu::on_start()
 
     but_run_overlay = get_gui()->push_button(strings[2], _but_pos);
     _but_pos.y += height;
+
+    but_run_bunker_play = get_gui()->push_button(strings[3], _but_pos);
+    _but_pos.y += height;
 }
 
 void GameMainMenu::on_update() { }
+
 static uid button;
 void __call_backmenu(uid but, void* userdata)
 {
@@ -71,7 +79,6 @@ void __call_backmenu(uid but, void* userdata)
 
 void switch_game_level(World* level)
 {
-
     button = level->get_gui()->push_button("В главное меню", Vec2Int::zero, (ui_callback*)&__call_backmenu);
     level->get_gui()->set_resources(button, level);
 }

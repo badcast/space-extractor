@@ -3,19 +3,19 @@
 #include "OverlayLevel.h"
 
 using namespace RoninEngine;
-#include <iostream>
-
-void OverlayLevel::on_awake() { }
 
 void OverlayLevel::on_start()
 {
     switch_game_level(this);
     create_game_object()->add_component<Camera2D>();
+
+    bodySize = { 1, 1.f / 2 };
+    bublePos = Camera::viewport_to_world(Vec2::zero) + Vec2(bodySize.x, bodySize.y * -1);
+    targetPos = bublePos;
+    trigger = 0;
+    cursor, plane;
+    speed = 5;
 }
-
-void OverlayLevel::on_update() { }
-
-void OverlayLevel::on_late_update() { }
 
 Vec2 getRandomPoint() { return Camera::viewport_to_world({ Random::value(), Random::value() }); }
 
@@ -31,14 +31,6 @@ Vec2 getRandomPointOutSide(const Vec2& bodySize)
 
 void OverlayLevel::on_gizmo()
 {
-    // Gizmos::setColor(Color::red);
-    static Vec2 bodySize = { 1, 1.f / 2 };
-    static Vec2 bublePos = Camera::viewport_to_world(Vec2::zero) + Vec2(bodySize.x, bodySize.y * -1);
-    static Vec2 targetPos = bublePos;
-    static int trigger = 0;
-    static Vec2 cursor, plane;
-    static float speed = 5;
-
     if (trigger % 3 == 0) {
         Gizmos::set_color(Color::gray);
         plane = bublePos;
@@ -68,5 +60,3 @@ void OverlayLevel::on_gizmo()
 
     bublePos = Vec2::move_towards(bublePos, targetPos, TimeEngine::deltaTime() * speed);
 }
-
-void OverlayLevel::on_unloading() { }

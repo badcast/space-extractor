@@ -5,13 +5,17 @@
 
 class OverlayLevel : public World
 {
+protected:
+    Vec2 bodySize;
+    Vec2 bublePos;
+    Vec2 targetPos;
+    int trigger;
+    Vec2 cursor, plane;
+    float speed;
+
 public:
-    void on_awake();
     void on_start();
-    void on_update();
-    void on_late_update();
     void on_gizmo();
-    void on_unloading();
 };
 
 #endif // GAME_H
