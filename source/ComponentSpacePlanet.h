@@ -1,7 +1,7 @@
 #ifndef SPACEPLANET_H
 #define SPACEPLANET_H
 
-#include "gamemainmenu.h"
+#include "SpaceMainMenu.h"
 
 using namespace RoninEngine::Runtime;
 

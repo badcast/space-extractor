@@ -1,7 +1,7 @@
 #include <exception>
 #include <iostream>
 
-#include "gamemainmenu.h"
+#include "SpaceMainMenu.h"
 
 using namespace std;
 using namespace RoninEngine;

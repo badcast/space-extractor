@@ -1,6 +1,4 @@
-#include "gamemainmenu.h"
-
-#include "OverlayLevel.h"
+#include "SpaceMainMenu.h"
 
 using namespace RoninEngine;
 

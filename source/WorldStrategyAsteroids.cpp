@@ -1,7 +1,7 @@
-#include "gamelevel.h"
 #include <fstream>
 
-#include "space_planet.h"
+#include "SpaceMainMenu.h"
+#include "ComponentSpacePlanet.h"
 
 uid but;
 uid textGameTime;
@@ -18,8 +18,8 @@ void callback(uid id, void* userData)
             Application::show_message("failed saving file");
             return;
         }
-        f.write((char*)&p.x, sizeof p.x);
-        f.write((char*)&p.y, sizeof p.y);
+        f.write((char*)&p, sizeof p);
+
         f.close();
     } else if (id == butLoad) {
         Vec2 p;
@@ -28,8 +28,8 @@ void callback(uid id, void* userData)
             Application::show_message("failed load file");
             return;
         }
-        f.read((char*)&p.x, sizeof p.x);
-        f.read((char*)&p.y, sizeof p.y);
+        f.read((char*)&p, sizeof p);
+
         f.close();
 
         Camera::main_camera()->transform()->position(p);
@@ -42,7 +42,7 @@ void SpaceExtractorLevel::on_start()
 
     auto camera = Primitive::create_camera2D(Vec2::zero);
     camera->visibleGrids = false;
-    camera->visibleBorders = false;
+    camera->visibleBorders = true;
     camera->visibleNames = false;
     camera->game_object()->add_component<MoveController2D>();
 
@@ -95,7 +95,4 @@ void SpaceExtractorLevel::on_update()
 
 void SpaceExtractorLevel::on_gizmo() { }
 
-void SpaceExtractorLevel::on_unloading() {
-
-    Application::show_message("Unloading");
-}
+void SpaceExtractorLevel::on_unloading() { Application::show_message("Unloading"); }

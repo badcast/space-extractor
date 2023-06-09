@@ -3,6 +3,11 @@
 
 #include <ronin/framework.h>
 
+#include "AISectorLine.h"
+#include "WorldStrategyAsteroids.h"
+#include "BunkerGameShooter.h"
+#include "OverlayLevel.h"
+
 using namespace RoninEngine::Runtime;
 
 class GameMainMenu : public World

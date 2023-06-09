@@ -1,4 +1,4 @@
-#include "space_planet.h"
+#include "ComponentSpacePlanet.h"
 
 SpacePlanet::SpacePlanet()
     : Behaviour("SpacePlanet")

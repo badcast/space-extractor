@@ -1,5 +1,4 @@
-#include "gamemainmenu.h"
-#include "sector_line_level.h"
+#include "SpaceMainMenu.h"
 
 using namespace RoninEngine::Runtime;
 namespace ai = RoninEngine::AIPathFinder;
@@ -15,13 +14,13 @@ struct {
 } navMeshSchemes;
 
 SectorLine::SectorLine()
-    : World("Level")
+    : World("Sector Line Level")
 {
 }
 void rrandom_space(uid but, NavMesh* navMesh)
 {
     // do
-    navMesh->randomize(Random::range(0, 12034124214ul));
+    navMesh->randomize(Random::range(0, 1201214ul));
 }
 void SectorLine::on_start()
 {
@@ -54,8 +53,8 @@ void SectorLine::on_gizmo()
 
     if (TimeEngine::frame() % 10 == 0) {
         angle += TimeEngine::deltaTime() * 300;
-        if (angle > 360)
-            angle -= 360;
+        if (angle > 360.f)
+            angle -= 360.f;
 
     } else
         navMesh.clear();
