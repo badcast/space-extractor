@@ -13,10 +13,6 @@ struct {
     float cellThickness = 0.05f;
 } navMeshSchemes;
 
-SectorLine::SectorLine()
-    : World("Sector Line Level")
-{
-}
 void rrandom_space(uid but, NavMesh* navMesh)
 {
     // do

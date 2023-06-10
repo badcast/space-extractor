@@ -14,6 +14,10 @@ protected:
     float speed;
 
 public:
+    OverlayLevel()
+        : World("Overlay target")
+    {
+    }
     void on_start();
     void on_gizmo();
 };

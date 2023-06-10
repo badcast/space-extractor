@@ -9,11 +9,14 @@ using namespace RoninEngine::UI;
 class SpaceExtractorLevel : public World
 {
 
-    std::vector<Transform*> stars{100, nullptr};
+    std::vector<Transform*> stars { 100, nullptr };
     Runtime::Vec2 dmgReg { -6, 6 };
 
 public:
-    SpaceExtractorLevel() = default;
+    SpaceExtractorLevel()
+        : World(std::string("Space Extractor Strategy game"))
+    {
+    }
 
     void on_start();
     void on_update();

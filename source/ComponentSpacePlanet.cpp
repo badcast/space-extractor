@@ -10,7 +10,7 @@ void fabricate(SpacePlanet* planet, SpacePilot* reference, int count)
     for (; count--;) {
         SpacePilot* pilot = instantiate(reference->game_object(), planet->transform()->position())->add_component<SpacePilot>();
         pilot->owner_planet = planet;
-        pilot->toWarn = Vec2::rotate_around(planet->transform()->position(), Vec2::one, Random::randomAngle() * Math::deg2rad);
+        pilot->toWarn = Vec2::rotate_around(planet->transform()->position(), Vec2::one, Random::random_angle_deg() * Math::deg2rad);
     }
 }
 

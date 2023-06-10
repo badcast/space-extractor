@@ -13,9 +13,16 @@ namespace RoninEngine::Runtime
 {
     class BunkerWorld : public World
     {
-        GameObject* turret;
+        float last_time = 0;
+        GameObject* bulTempl;
+        std::list<Transform*> turrets;
+        std::list<Transform*> bullets;
 
     public:
+        BunkerWorld()
+            : World("2D Shooter")
+        {
+        }
         void on_start();
         void on_update();
         void on_gizmo();

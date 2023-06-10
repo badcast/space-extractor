@@ -13,7 +13,7 @@ int main()
 {
     Application::init();
 
-    Application::create_window(1024, 600, 0);
+    Application::create_window(1024, 600);
 
     GameMainMenu level;
 

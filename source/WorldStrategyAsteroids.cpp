@@ -72,7 +72,7 @@ void SpaceExtractorLevel::on_start()
     stars[0]->angle(90);
     for (int x = 1; x < stars.size(); ++x) {
         stars[x] = instantiate(stars[0]->game_object())->transform();
-        stars[x]->position(Camera::viewport_to_world(Random::randomVector()));
+        stars[x]->position(Camera::viewport_to_world(Random::random_vector()));
     }
 }
 

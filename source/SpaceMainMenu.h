@@ -13,7 +13,8 @@ using namespace RoninEngine::Runtime;
 class GameMainMenu : public World
 {
 public:
-    GameMainMenu() = default;
+    GameMainMenu()
+        : World("Game Menu") {};
 
     void on_start();
     void on_update();

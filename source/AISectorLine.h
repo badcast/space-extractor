@@ -12,8 +12,10 @@ class SectorLine : public World
     NavMesh navMesh { 128, 128 };
 
 public:
-    SectorLine();
-    ~SectorLine() = default;
+    SectorLine()
+        : World("Sector Line")
+    {
+    }
     void on_start() override;
     void on_update() override;
     void on_gizmo() override;
