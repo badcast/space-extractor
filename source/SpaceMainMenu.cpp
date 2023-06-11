@@ -41,6 +41,7 @@ void GameMainMenu::on_start()
 
     if (main_menu)
         return;
+
     main_menu = this;
 
     get_gui()->register_callback(main_menu_callback, nullptr);
@@ -60,6 +61,10 @@ void GameMainMenu::on_start()
 
     but_run_bunker_play = get_gui()->push_button(strings[3], _but_pos);
     _but_pos.y += height;
+
+    auto a = create_game_object()->add_component<AudioSource>();
+    a->clip(Resources::load_clip("./data/main_trailer.mp3"));
+    a->play();
 }
 
 void GameMainMenu::on_update() { }
