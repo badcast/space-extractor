@@ -15,7 +15,7 @@ int main()
 
     Application::create_window(1024, 600);
 
-    GameMainMenu level;
+    BunkerWorld level;
 
     Application::load_world(&level);
 
