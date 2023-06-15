@@ -3,7 +3,7 @@
 
 using namespace RoninEngine::Runtime;
 
-constexpr float bullet_destroy_after = 4; // seconds
+constexpr float bullet_destroy_after = 444; // seconds
 
 float bullet_threshold = 3;
 float bullet_delay_shot = 0.35;
@@ -22,21 +22,18 @@ Camera2D* camera;
 AudioClip *gunClip, *hitClip;
 bool auto_target = true;
 
-void __sel_tar(uid id, void*)
-{
-    auto_target = !auto_target;
-    std::string s = BunkerWorld::self()->get_gui()->get_text(id);
-    s[1] = (auto_target ? '+' : '-');
-    BunkerWorld::self()->get_gui()->set_text(id, s);
-}
-
 void BunkerWorld::on_start()
 {
     switch_game_level(this);
 
     Vec2Int _u = { 0, 90 };
     Vec2Int of { 0, 18 };
-    get_gui()->push_button("[+] Авто-атака", { _u, { 150, 16 } }, (ui_callback*)&__sel_tar);
+    get_gui()->push_button("[+] Авто-атака", { _u, { 150, 16 } }, [](uid id, void*) {
+        auto_target = !auto_target;
+        std::string s = BunkerWorld::self()->get_gui()->get_text(id);
+        s[1] = (auto_target ? '+' : '-');
+        BunkerWorld::self()->get_gui()->set_text(id, s);
+    });
     _u += of;
     sldr_thrsh = get_gui()->push_slider(bullet_threshold, 1, 100, _u);
     _u += of;
@@ -59,12 +56,12 @@ void BunkerWorld::on_start()
     //    camera->visibleGrids = true;
     AudioSource* aus = camera->game_object()->add_component<AudioSource>();
 
-    gunClip = Resources::load_clip("./data/gun-thud.wav");
-    hitClip = Resources::load_clip("./data/hit-impact.wav");
+    gunClip = Resources::get_audio_clip(Resources::load_audio_clip("./data/gun-thud.wav"));
+    hitClip = Resources::get_audio_clip(Resources::load_audio_clip("./data/hit-impact.wav"));
 
     aus->clip(gunClip);
 
-    constexpr int max_tur = 4;
+    constexpr int max_tur = 1;
     Random::srand(43690);
     for (int x = 0; x < max_tur; ++x) {
         GameObject* turret = Primitive::create_empty_game_object();
@@ -72,7 +69,7 @@ void BunkerWorld::on_start()
         turret->transform()->position(Camera::viewport_to_world(Vec2::one * Random::value())); // set position to Turret
         aus = turret->add_component<AudioSource>();
         aus->clip(gunClip);
-        aus->volume(0.1f);
+        aus->volume(0.01f);
         turrets.push_back(turret->transform());
     }
 
@@ -86,16 +83,16 @@ void BunkerWorld::on_start()
     target->get_sprite_renderer()->size /= 2;
     aus = target->add_component<AudioSource>();
     aus->clip(hitClip);
-    aus->volume(0.3f);
+    aus->volume(0.1f);
 }
 
 void BunkerWorld::on_update()
 {
     Vec2 ms { Camera::screen_to_world(Input::get_mouse_pointf()) };
     Vec2 __target = auto_target ? target->transform()->position() : ms;
-    bullet_delay_shot = *(float*)get_gui()->get_resources(sldr_delay_shot);
-    bullet_speed = *(float*)get_gui()->get_resources(sldr_speed);
-    turret_rotate_speed = *(float*)get_gui()->get_resources(sldr_turret_rot);
+    bullet_delay_shot = get_gui()->get_slider_value(sldr_delay_shot);
+    bullet_speed = get_gui()->get_slider_value(sldr_speed);
+    turret_rotate_speed = get_gui()->get_slider_value(sldr_turret_rot);
 
     for (Transform* turret : turrets) {
         turret->look_at_lerp(__target, TimeEngine::deltaTime() * turret_rotate_speed);
@@ -115,7 +112,7 @@ void BunkerWorld::on_update()
     {
         last_time = bullet_delay_shot + TimeEngine::time();
 
-        bullet_threshold = *(float*)get_gui()->get_resources(sldr_thrsh);
+        bullet_threshold = get_gui()->get_slider_value(sldr_thrsh);
         for (Transform* turret : turrets) {
 
             if (!turret->look_of_angle(__target, 10))
@@ -135,13 +132,13 @@ void BunkerWorld::on_update()
     std::list<Transform*> accept = Physics2D::sphere_cast(target->transform()->position(), 0.3);
     bool accepted = false;
     for (Transform* t : accept) {
-        if (t->game_object()->name().find_first_of("bullet")) {
+        if (!t->exists() || t->game_object()->name().find_first_of("bullet")) {
             continue;
         }
 
         if (target_health-- == 0)
             target_health = target_health_max;
-        t->destroy_cancel();
+
         t->game_object()->destroy();
         accepted = true;
     }

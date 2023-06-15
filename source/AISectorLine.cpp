@@ -24,7 +24,7 @@ void SectorLine::on_start()
     Primitive::create_camera2D()->game_object()->add_component<MoveController2D>();
     navMesh.worldScale = Vec2::scale(navMesh.worldScale, navMeshSchemes.cellSize);
 
-    get_gui()->set_resources(get_gui()->push_button("random", Vec2Int(0, 48), (ui_callback*)&rrandom_space), &navMesh);
+    get_gui()->set_resources(get_gui()->push_button("random", Vec2Int(0, 48), (ui_callback)rrandom_space), &navMesh);
     navMesh.randomize(Random::range(323, 45));
 }
 

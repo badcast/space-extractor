@@ -2,6 +2,7 @@
 #define GAMEMAINMENU_H
 
 #include <ronin/framework.h>
+#include <initializer_list>
 
 #include "AISectorLine.h"
 #include "WorldStrategyAsteroids.h"

@@ -1,5 +1,5 @@
+#include <array>
 #include "SpaceMainMenu.h"
-
 using namespace RoninEngine;
 using namespace RoninEngine::Runtime;
 
@@ -44,7 +44,7 @@ void GameMainMenu::on_start()
 
     main_menu = this;
 
-    get_gui()->register_callback(main_menu_callback, nullptr);
+    get_gui()->register_general_callback(main_menu_callback, nullptr);
 
     Resolution res = Application::get_resolution();
     float width = 200;
@@ -63,7 +63,7 @@ void GameMainMenu::on_start()
     _but_pos.y += height;
 
     auto a = create_game_object()->add_component<AudioSource>();
-    a->clip(Resources::load_clip("./data/main_trailer.mp3"));
+    a->clip(Resources::get_audio_clip(Resources::load_audio_clip("./data/main_trailer.mp3")));
     a->play();
 }
 
@@ -96,7 +96,7 @@ inline int indexof(World* world)
 
 void switch_game_level(World* level)
 {
-    button = level->get_gui()->push_button("В главное меню", Vec2Int::zero, (ui_callback*)&__call_backmenu);
+    button = level->get_gui()->push_button("В главное меню", Vec2Int::zero, __call_backmenu);
     level->get_gui()->push_label(string_info[indexof(level)], Vec2Int { 392, 16});
     level->get_gui()->set_resources(button, level);
 }

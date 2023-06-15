@@ -59,7 +59,7 @@ void SpaceExtractorLevel::on_start()
     GameObject* referencePlanet2 = instantiate(referencePlanet, Vec2::down * 2);
     referencePlanet2->add_component<SpacePlanet>();
     // UI
-    get_gui()->register_callback(callback, nullptr);
+    get_gui()->register_general_callback(callback, nullptr);
     but = get_gui()->push_button("center camera", { 700, 0, 90, 20 });
     butSave = get_gui()->push_button("save", { 792, 0, 80, 20 });
     butLoad = get_gui()->push_button("load", { 874, 0, 80, 20 });
