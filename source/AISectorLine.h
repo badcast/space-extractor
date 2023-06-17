@@ -16,7 +16,7 @@ public:
         : World("Sector Line")
     {
     }
-    void on_start() override;
-    void on_update() override;
-    void on_gizmo() override;
+    void on_start();
+    void on_update();
+    void on_gizmo();
 };

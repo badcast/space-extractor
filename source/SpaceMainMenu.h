@@ -13,12 +13,14 @@ using namespace RoninEngine::Runtime;
 
 class GameMainMenu : public World
 {
+
 public:
     GameMainMenu()
         : World("Game Menu") {};
 
-    void on_start();
-    void on_update();
+    void on_start() override;
+    void on_update() override;
+    void on_unloading() override;
 };
 
 static GameMainMenu* main_menu = nullptr;

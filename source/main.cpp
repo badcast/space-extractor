@@ -13,13 +13,16 @@ int main()
 {
     Application::init();
 
-    Application::create_window(1024, 600);
+    Resolution resolution{1024, 600};
+    Application::show(resolution, false);
 
-    BunkerWorld level;
-
-    Application::load_world(&level);
-
+    GameMainMenu* level;
+    RoninEngine::Runtime::RoninMemory::alloc_self(level);
+    Application::load_world(level);
     Application::simulate();
+    RoninEngine::Runtime::RoninMemory::free(level);
+
+    Application::utilize();
 
     return 0;
 }

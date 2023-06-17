@@ -10,6 +10,7 @@ uid but_run_planet_game;
 uid but_run_sector;
 uid but_run_overlay;
 uid but_run_bunker_play;
+uid sldr_set_resolution;
 
 void main_menu_callback(uid but, void*)
 {
@@ -28,7 +29,7 @@ void main_menu_callback(uid but, void*)
     if (!lev)
         return;
 
-    Application::load_world(__inited_levels.emplace_back(lev));
+    Application::load_world(__inited_levels.emplace_back(lev), false);
 }
 
 void GameMainMenu::on_start()
@@ -46,7 +47,7 @@ void GameMainMenu::on_start()
 
     get_gui()->register_general_callback(main_menu_callback, nullptr);
 
-    Resolution res = Application::get_resolution();
+    Resolution res = Application::get_current_resolution();
     float width = 200;
     float height = 30;
     Rect _but_pos = { res.width / 2 - width / 2, 200, width, height };
@@ -62,12 +63,34 @@ void GameMainMenu::on_start()
     but_run_bunker_play = get_gui()->push_button(strings[3], _but_pos);
     _but_pos.y += height;
 
-    auto a = create_game_object()->add_component<AudioSource>();
-    a->clip(Resources::get_audio_clip(Resources::load_audio_clip("./data/main_trailer.mp3")));
-    a->play();
+    std::list<std::string> __list_res;
+    std::list<Resolution> resolutions = Application::get_display_resolutions();
+    for(Resolution & res : resolutions){
+        __list_res.push_back(std::to_string(res.width) + "x" + std::to_string(res.height) + " " + std::to_string(res.hz) + "hz");
+    }
+    sldr_set_resolution = get_gui()->push_drop_down(__list_res,0, _but_pos, [](uid id, int index) {
+
+        int xx = 0;
+
+        Application::show_message(std::to_string(index));
+
+    });
+
+    MusicPlayer::clip(Resources::get_music_clip(Resources::load_music_clip("./data/main_trailer.mp3", false)));
+    MusicPlayer::play();
+    MusicPlayer::volume(0.6f);
 }
 
 void GameMainMenu::on_update() { }
+
+void GameMainMenu::on_unloading()
+{
+    main_menu = nullptr;
+    for (World* _destr : __inited_levels) {
+        RoninMemory::free(_destr);
+    }
+    __inited_levels.clear();
+}
 
 static uid button;
 void __call_backmenu(uid but, void* userdata)
@@ -97,6 +120,6 @@ inline int indexof(World* world)
 void switch_game_level(World* level)
 {
     button = level->get_gui()->push_button("В главное меню", Vec2Int::zero, __call_backmenu);
-    level->get_gui()->push_label(string_info[indexof(level)], Vec2Int { 392, 16});
+    level->get_gui()->push_label(string_info[indexof(level)], Vec2Int { 392, 16 });
     level->get_gui()->set_resources(button, level);
 }

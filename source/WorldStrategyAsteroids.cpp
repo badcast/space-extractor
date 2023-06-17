@@ -63,7 +63,7 @@ void SpaceExtractorLevel::on_start()
     but = get_gui()->push_button("center camera", { 700, 0, 90, 20 });
     butSave = get_gui()->push_button("save", { 792, 0, 80, 20 });
     butLoad = get_gui()->push_button("load", { 874, 0, 80, 20 });
-    textGameTime = get_gui()->push_label("", Vec2Int(0, (Application::get_resolution()).height - 17));
+    textGameTime = get_gui()->push_label("", Vec2Int(0, (Application::get_current_resolution()).height - 17));
 
     stars[0] = Primitive::create_empty_game_object()->transform();
     lastSpr = stars[0]->game_object()->add_component<SpriteRenderer>();
@@ -95,4 +95,4 @@ void SpaceExtractorLevel::on_update()
 
 void SpaceExtractorLevel::on_gizmo() { }
 
-void SpaceExtractorLevel::on_unloading() { Application::show_message("Unloading"); }
+void SpaceExtractorLevel::on_unloading() { }

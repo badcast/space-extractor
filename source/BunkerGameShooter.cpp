@@ -56,8 +56,8 @@ void BunkerWorld::on_start()
     //    camera->visibleGrids = true;
     AudioSource* aus = camera->game_object()->add_component<AudioSource>();
 
-    gunClip = Resources::get_audio_clip(Resources::load_audio_clip("./data/gun-thud.wav"));
-    hitClip = Resources::get_audio_clip(Resources::load_audio_clip("./data/hit-impact.wav"));
+    gunClip = Resources::get_audio_clip(Resources::load_audio_clip("./data/gun-thud.wav", true));
+    hitClip = Resources::get_audio_clip(Resources::load_audio_clip("./data/hit-impact.wav", true));
 
     aus->clip(gunClip);
 
