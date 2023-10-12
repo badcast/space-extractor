@@ -1,0 +1,69 @@
+{
+  "resource_type": "Sprite",
+  "resources": [
+    {
+      "name": "player_target",
+      "ref": "player-target.png"
+    },
+    {
+      "name": "background",
+      "ref": "main-menu-background.png"
+    },
+    {
+      "name": "muzzle-flash",
+      "ref": "muzzle-flash.png"
+    },
+    {
+      "name": "cursor-target",
+      "ref": "cursor-target.png"
+    },
+    {
+      "name": "player-weapon",
+      "ref": "player-weapon-v1.png"
+    },
+    {
+      "name": "player-platform",
+      "ref": "player-platform-v1.png"
+    },
+    {
+      "name": "player-weapon-blob",
+      "ref": "player-weapon-v1-blob.png"
+    },
+    {
+      "name": "player-weapon-2",
+      "ref": "player-weapon-v2.png"
+    },
+    {
+      "name": "player-platform-2",
+      "ref": "player-platform-v2.png"
+    },
+    {
+      "name": "player-weapon-blob-2",
+      "ref": "player-weapon-v2-blob.png"
+    },
+    {
+      "name": "enemy-low",
+      "ref": "enemy-low.png"
+    },
+    {
+      "name": "player-shield",
+      "ref": "player-shield.png"
+    },
+    {
+      "name": "smoke",
+      "ref": "smoke-texture-small.png"
+    },
+    {
+      "name": "explode-v1",
+      "ref" : "explode-v1.png"
+      },
+      {
+      "name" : "alert-enemy",
+      "ref": "alert-enemy-point.png"
+      },
+      {
+      "name" : "alert-place-flow",
+      "ref": "alert-place-flow.png"
+      }
+  ]
+}
