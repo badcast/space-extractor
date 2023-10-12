@@ -6,6 +6,8 @@ WGame *WGame::current = nullptr;
 constexpr int ememyCount = 10;
 void make_simple_enemy();
 
+AudioSource * explodeAudio;
+
 void WGame::OnUnloading()
 {
     current = nullptr;
@@ -61,6 +63,10 @@ void WGame::OnStart()
     smoke_particle->startColor.a = 0;
     smoke_particle->endColor.a = 0;
     smoke_particle->transform()->position(Camera::ViewportToWorldPoint({1, 0.5f}));
+
+    //Make Audio Explode
+    explodeAudio = Primitive::create_empty_game_object()->AddComponent<AudioSource>();
+    explodeAudio->setClip(soundAsset->GetAudioClip("space-explode"));
 }
 
 void WGame::OnUpdate()
@@ -91,6 +97,13 @@ void make_simple_enemy()
         kamikadze->gameObject()->name("EKamikadze");
         Collision *collision = kamikadze->AddComponent<Collision>();
         collision->targetLayer = static_cast<int>(Layers::PlayerOrBullet);
+
+        kamikadze->RegisterOnDestroy([](Component * self) {
+
+            AudioClip * clip = WGame::current->soundAsset->GetAudioClip("space-explode");
+            AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.3f);
+
+        } );
 
         WGame::current->enemies.push_back(kamikadze);
 

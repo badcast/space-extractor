@@ -85,6 +85,7 @@ void Player::OnStart()
     sprRender = playerShield->AddComponent<SpriteRenderer>();
     sprRender->setSprite(Primitive::create_sprite2d_from(srcImagePlayerShield));
     sprRender->setSize(sprRender->getSize() / 4);
+    sprRender->gameObject()->SetActive(false);
     playerShield = playerShieldPivot;
 }
 
@@ -146,7 +147,7 @@ void Player::OnUpdate()
         turret->spriteRenderer()->flip = bulletFireStep ? SpriteRenderFlip::FlipNone : SpriteRenderFlip::FlipHorizontal;
 
         // Shaking camera on fire
-        shaking.force |= 4;
+        shaking.force |= 2;
         shaking.time = TimeEngine::time() + 0.3f;
 
         // Update last shot time
@@ -172,7 +173,7 @@ void Player::applyDamage(int damage)
     healthPoint = Math::Max(0, healthPoint - damage);
 
     shaking.time = TimeEngine::time() + 0.7f;
-    shaking.force |= 7;
+    shaking.force |= 5;
 }
 
 void Player::OnGizmos()
