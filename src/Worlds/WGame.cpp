@@ -3,7 +3,7 @@
 Asset *WGame::spriteAsset = nullptr;
 Asset *WGame::soundAsset = nullptr;
 WGame *WGame::current = nullptr;
-constexpr int ememyCount = 10;
+constexpr int ememyCount = 2;
 void make_simple_enemy();
 
 AudioSource * explodeAudio;

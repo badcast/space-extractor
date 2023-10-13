@@ -41,6 +41,7 @@ void Collision::OnStart()
         return;
 
     SpriteRenderer *from = GetComponent<SpriteRenderer>();
+    // Get size from SpriteRenderer
     if(from && from->getSprite())
         collideSize = Vec2::Scale(from->getSprite()->size(), from->getSize());
     else
@@ -74,9 +75,7 @@ void Collision::OnUpdate()
         r2.h = target->collideSize.y;
         r2.x = target->transform()->position().x - r2.w / 2;
         r2.y = target->transform()->position().y - r2.h / 2;
-        if(
-            // CheckCollision(r1, r2)
-            CheckCollision(r1, a, r2, b))
+        if(CheckCollision(r1, a, r2, b))
         {
             if(!onCollision(this, target)) // awake collision
             {

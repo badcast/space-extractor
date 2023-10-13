@@ -121,7 +121,7 @@ void Particle::OnUpdate()
             }
         }
     }
-    else if(maked == maxParticles && !m_particles.size() && destroyAfter)
+    else if(maked == maxParticles && m_particles.empty() && destroyAfter)
     {
         gameObject()->Destroy();
     }

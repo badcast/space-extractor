@@ -4,8 +4,8 @@ void WeaponMachineGun::setDefaultValues()
 {
     this->rotateSpeed = 20;
     this->weight = 125;
-    this->bulletSpeed = 10;
-    this->bulletDelayShot = 0.04f;
+    this->bulletSpeed = 15;
+    this->bulletDelayShot = 0.1f;
     this->bulletThreshold = 10;
     this->damage = 6;
 
@@ -16,6 +16,6 @@ void WeaponMachineGun::setDefaultValues()
         bulletPrefab->transform()->layer(-1);
         bulletPrefab->SetActive(false);
         SpriteRenderer *sprRender = bulletPrefab->AddComponent<SpriteRenderer>();
-        sprRender->setSprite(Primitive::create_sprite2D_box({0.02f, 0.19f}, Color::gold));
+        sprRender->setSprite(Primitive::create_sprite2D_box({0.02f, 0.4f}, Color::gold));
     }
 }
