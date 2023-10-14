@@ -36,7 +36,7 @@ Particle *putParticleExplode(Vec2 position)
     particle->interval = 0.1f;
     particle->maxParticles = 4;
     particle->setInterpolates(1);
-    particle->setColors(Color::black, Color::darkgray, Color::transparent);
+    particle->setColors({Color::white,100}, Color::darkgray, Color::transparent);
     particle->setSizes(Vec2::one / 16, Vec2::one / 14);
 
     // PARTICLE RECTANGLE

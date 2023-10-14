@@ -1,9 +1,10 @@
 #include "Particle.hpp"
 
+
 void Particle::make_particles(int n)
 {
     ParticleDrain drain;
-    maked = std::max(maxParticles, maked + n);
+    maked = std::min(maxParticles, maked + n);
     std::string particle_name;
     for(; n-- > 0;)
     {
@@ -18,11 +19,11 @@ void Particle::make_particles(int n)
             [this](Component *comp)
             {
                 // Remove old's
-                auto iter = std::find_if(
-                    std::begin(this->m_particles),
-                    std::end(this->m_particles),
-                    [comp](ParticleDrain &__drain__) { return comp->transform() == __drain__.render->transform(); });
 
+
+                ParticleDrain drain{};
+                drain.render=comp->GetComponent<SpriteRenderer>();
+                auto iter = m_particles.find(drain);
                 if(iter != std::end(this->m_particles))
                 {
                     this->m_particles.erase(iter);
@@ -33,7 +34,10 @@ void Particle::make_particles(int n)
         if(rotate)
             t->angle(Random::AngleDegress());
 
+        // Set Layer
         t->layer(Layers::ParticleClass);
+
+        // Set Sprite Source
         spriteRender->setSprite(source);
 
         // Set Start Size
@@ -47,7 +51,7 @@ void Particle::make_particles(int n)
         if(duration > 0)
             Destroy(spriteRender->gameObject(), duration);
 
-        m_particles.emplace_back(drain);
+        m_particles.insert(drain);
     }
 }
 
@@ -65,57 +69,58 @@ void Particle::OnUpdate()
     if(!emit)
         return;
 
-    if(loop || maked < maxParticles || m_particles.size())
+    if(loop || maked < maxParticles || !m_particles.empty())
     {
         float t = TimeEngine::time();
         // Make new particle (interval)
-        if(m_particles.size() < maxParticles && _timing < TimeEngine::time())
+        if(_timing < t)
         {
             // update interval
             make_particles(Math::Min(startWith, static_cast<int>(maxParticles - m_particles.size())));
             _timing = t + interval;
         }
 
-#define STATE_PROPERTY(BEGIN, ANY, END) (drif.state == SIMULATE_STATE ? (ANY) : drif.state == BEGIN_STATE ? (BEGIN) : (END))
+#define STATE_PROPERTY(BEGIN, ANY, END) (drain.state == SIMULATE_STATE ? (ANY) : drain.state == BEGIN_STATE ? (BEGIN) : (END))
 
         // Particle draw
-        for(ParticleDrain &drif : m_particles)
+        for(const ParticleDrain &drain : m_particles)
         {
             // calc drif state
-            float drif_duration = t - drif.initTime;
-            float drif_speed = TimeEngine::deltaTime() * speed;
-            if(drif_duration <= durationStartRange)
+            float drain_duration = t - drain.initTime;
+            float drain_speed = TimeEngine::deltaTime() * speed;
+            if(drain_duration <= durationStartRange)
             {
-                drif.state = BEGIN_STATE;
+                drain.state = BEGIN_STATE;
             }
-            else if(drif_duration >= durationEndRange)
+            else if(drain_duration >= durationEndRange)
             {
-                drif.state = END_STATE;
+                drain.state = END_STATE;
             }
             else
             {
-                drif.state = SIMULATE_STATE;
+                drain.state = SIMULATE_STATE;
             }
 
             // Colorize
             if(colorable)
             {
-                drif.render->setColor(Color::Lerp(drif.render->getColor(), STATE_PROPERTY(startColor, centerColor, endColor), drif_speed));
+                drain.render->setColor(
+                    Color::Lerp(drain.render->getColor(), STATE_PROPERTY(startColor, centerColor, endColor), drain_speed));
             }
 
             // Scaling
             if(scalable)
             {
-                drif.render->setSize(Vec2::Lerp(drif.render->getSize(), STATE_PROPERTY(startSize, centerSize, endSize), drif_speed));
+                drain.render->setSize(Vec2::Lerp(drain.render->getSize(), STATE_PROPERTY(startSize, centerSize, endSize), drain_speed));
             }
 
             // Move, rotate
-            Transform *tr = drif.render->transform();
-            tr->Translate(drif.direction * drif_speed);
+            Transform *tr = drain.render->transform();
+            tr->Translate(drain.direction * drain_speed);
 
             if(rotate)
             {
-                tr->angle(tr->angle() + rotatePerSecond * drif_speed);
+                tr->angle(tr->angle() + rotatePerSecond * drain_speed);
             }
         }
     }

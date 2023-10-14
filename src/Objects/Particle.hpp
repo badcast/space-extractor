@@ -19,16 +19,23 @@ enum ParticleState
 struct ParticleDrain
 {
     SpriteRenderer *render;
-    int state;
+    mutable int state;
     float initTime;
     Vec2 direction;
 };
+
+static bool IsLowerParticleDrain(const ParticleDrain& lhs, const ParticleDrain& rhs )
+{
+    return lhs.render < rhs.render;
+}
+
+using LowerParticleDrain = std::integral_constant<decltype(&IsLowerParticleDrain), &IsLowerParticleDrain>;
 
 // It's base class for Particles
 class Particle : public Behaviour
 {
 private:
-    std::list<ParticleDrain> m_particles;
+    std::set<ParticleDrain, LowerParticleDrain> m_particles;
     float _timing;
     int maked;
     void OnStart();
