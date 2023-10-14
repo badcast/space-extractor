@@ -16,34 +16,41 @@ Particle *putParticleExplode(Vec2 position)
         sprite_explode_flow = Primitive::create_sprite2d_from(WGame::spriteAsset->GetImage("alert-place-flow"));
     }
 
+    // PARTICLE FIRE
     Particle *particle = Primitive::create_empty_game_object(position)->AddComponent<Particle>();
     particle->loop = false;
-    particle->scalable = false;
     particle->speed = 2;
     particle->source = sprite_explode;
-    particle->startSize = Vec2::half / 2;
     particle->direction = Vec2::zero;
     particle->maxParticles = 1;
-    particle->endColor = Color::transparent;
-    particle->duration = 2;
-    particle->durationStartPercentage = 0.05f;
-    particle->durationEndPercentage = 0.3f;
+    particle->setInterpolates(2, 0.05f, 0.3f);
+    particle->setColors(Color::white, Color::transparent);
+    particle->setSizes(Vec2::half / 4, Vec2::half / 2);
 
-    // FLOW PARTICLE AFTER
+    // PARTICLE DROPS DRAINS
+    particle = Primitive::create_empty_game_object(position)->AddComponent<Particle>();
+    particle->loop = false;
+    particle->randomDirection = true;
+    particle->speed = 0.4f;
+    particle->source = Primitive::create_sprite2D_box(Vec2::one, Color::white);
+    particle->interval = 0.1f;
+    particle->maxParticles = 4;
+    particle->setInterpolates(1);
+    particle->setColors(Color::black, Color::darkgray, Color::transparent);
+    particle->setSizes(Vec2::one / 16, Vec2::one / 14);
+
+    // PARTICLE RECTANGLE
     particle = Primitive::create_empty_game_object(position)->AddComponent<Particle>();
     particle->loop = false;
     particle->rotate = false;
-    particle->colorable = true;
     particle->destroyAfter = true;
     particle->source = sprite_explode_flow;
-    particle->endColor = Color::transparent;
     particle->direction = Vec2::zero;
     particle->maxParticles = 1;
-    particle->duration = 0.3f;
-    particle->startSize = Vec2::zero;
-    particle->durationEndPercentage = 0.5f;
-    particle->endSize = particle->size = Vec2::one * 2;
     particle->speed = 5;
+    particle->setInterpolates(0.3f, 0.1f, 0.5f);
+    particle->setColors(Color::transparent, Color::white, Color::transparent);
+    particle->setSizes(Vec2::zero, Vec2::one * 2);
     return particle;
 }
 

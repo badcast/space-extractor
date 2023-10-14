@@ -2,12 +2,24 @@
   "resource_type": "AudioClip",
   "resources": [
     {
-      "name": "machinegun",
-      "ref": "machinegun-1.ogg"
+      "name": "space-explode",
+      "ref": "sounds/space-explode.ogg"
     },
     {
-      "name": "space-explode",
-      "ref": "space-explode.ogg"
+      "name": "machinegun-1",
+      "ref": "sounds/shot-machinegun-1.ogg"
+    },
+    {
+      "name": "machinegun-2",
+      "ref": "sounds/shot-machinegun-2.ogg"
+    },
+    {
+      "name": "shot-lazer-1",
+      "ref": "sounds/shot-lazer-1.ogg"
+    },
+    {
+      "name": "shot-lazer-2",
+      "ref": "sounds/shot-lazer-2.ogg"
     }
   ]
 }

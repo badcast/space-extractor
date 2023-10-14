@@ -25,7 +25,8 @@ void Player::OnStart()
     Image *srcImagePlayerPlatform = WGame::spriteAsset->GetImage("player-platform");
     Image *srcImageMuzzleFlash = WGame::spriteAsset->GetImage("muzzle-flash");
     Image *srcImagePlayerShield = WGame::spriteAsset->GetImage("player-shield");
-    AudioClip *srcAudioMachineGun = WGame::soundAsset->GetAudioClip("machinegun");
+
+    AudioClip *srcAudioMachineGun = WGame::soundAsset->GetAudioClip("shot-lazer-1");
 
     // Make player weapon object
     weapon = RoninMemory::alloc<WeaponMachineGun>();
@@ -87,6 +88,8 @@ void Player::OnStart()
     sprRender->setSize(sprRender->getSize() / 4);
     sprRender->gameObject()->SetActive(false);
     playerShield = playerShieldPivot;
+
+    InitPlayerGUI();
 }
 
 void Player::OnUpdate()
@@ -111,9 +114,6 @@ void Player::OnUpdate()
     // Append new bullet on fire
     if(lastShotTime < TimeEngine::time() && Input::GetMouseDown(MouseState::MouseLeft))
     {
-        if(playerAudio->isPlaying() == false)
-            playerAudio->Play(true);
-
         Transform *originObject = ((bulletFireStep % 2 == 0) ? gunPoint1 : gunPoint2);
         Vec2 origin = originObject->position();
         if(++bulletFireStep == 2)
@@ -150,12 +150,14 @@ void Player::OnUpdate()
         shaking.force |= 2;
         shaking.time = TimeEngine::time() + 0.3f;
 
+        // Audio Shot
+        AudioSource::PlayClipAtPoint(playerAudio->getClip(), transform()->position(), 0.2f);
+
         // Update last shot time
         lastShotTime = weapon->bulletDelayShot + TimeEngine::time();
     }
-    else if(Input::GetMouseUp(MouseState::MouseLeft) == true)
+    else if(Input::GetMouseUp(MouseState::MouseLeft))
     {
-        gameObject()->GetComponent<AudioSource>()->Stop();
         turret->spriteRenderer()->flip = SpriteRenderFlip::FlipNone;
         turret->spriteRenderer()->setSprite(defaultTurret);
         muzzleFlash->spriteRenderer()->enable(false);

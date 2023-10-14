@@ -11,6 +11,14 @@
 
 class Player : public Behaviour
 {
+protected:
+
+    void InitPlayerGUI();
+    void OnStart();
+    void OnUpdate();
+    void OnGizmos();
+    void OnDestroy();
+
 public:
     Weapon *weapon;
     Transform *platform;
@@ -25,11 +33,6 @@ public:
     float clampAngleLeft = -80, clampAngleRight = 80;
 
     std::set<Transform*> bullets;
-
-    void OnStart();
-    void OnUpdate();
-    void OnGizmos();
-    void OnDestroy();
 
     void applyDamage(int damage);
 };

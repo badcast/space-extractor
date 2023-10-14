@@ -6,8 +6,6 @@ WGame *WGame::current = nullptr;
 constexpr int ememyCount = 2;
 void make_simple_enemy();
 
-AudioSource * explodeAudio;
-
 void WGame::OnUnloading()
 {
     current = nullptr;
@@ -48,7 +46,7 @@ void WGame::OnStart()
 
     // Background
     SpriteRenderer *spriteRender = Primitive::create_empty_game_object()->AddComponent<SpriteRenderer>();
-    spriteRender->setSprite(Primitive::create_sprite2d_from(spriteAsset->GetImage("background")));
+    spriteRender->setSprite(Primitive::create_sprite2d_from(spriteAsset->GetImage("main-menu-background")));
     spriteRender->transform()->layer(-100);
 
     Particle *smoke_particle = Primitive::create_empty_game_object()->AddComponent<Particle>();
@@ -57,16 +55,11 @@ void WGame::OnStart()
     smoke_particle->maxParticles = 10;
     smoke_particle->speed = 1;
     smoke_particle->direction = Vec2::left;
-    smoke_particle->duration = 15;
     smoke_particle->interval = 1.3f;
-    smoke_particle->color.a = 100;
-    smoke_particle->startColor.a = 0;
-    smoke_particle->endColor.a = 0;
+    smoke_particle->setInterpolates(15);
+    smoke_particle->setColors(Color::transparent, {Color::white, 100}, Color::transparent);
     smoke_particle->transform()->position(Camera::ViewportToWorldPoint({1, 0.5f}));
 
-    //Make Audio Explode
-    explodeAudio = Primitive::create_empty_game_object()->AddComponent<AudioSource>();
-    explodeAudio->setClip(soundAsset->GetAudioClip("space-explode"));
 }
 
 void WGame::OnUpdate()

@@ -21,6 +21,7 @@ struct ParticleDrain
     SpriteRenderer *render;
     int state;
     float initTime;
+    Vec2 direction;
 };
 
 // It's base class for Particles
@@ -30,12 +31,27 @@ private:
     std::list<ParticleDrain> m_particles;
     float _timing;
     int maked;
-
     void OnStart();
     void OnUpdate();
-    void OnDestroy();
 
 protected:
+    // bool:colorable - if true simulate it
+    bool colorable = true;
+    Color startColor = Color::transparent;
+    Color centerColor = Color::white;
+    Color endColor = Color::transparent;
+
+    // bool:scalable - if true simulate it
+    bool scalable = true;
+    Vec2 startSize = Vec2::one;
+    Vec2 centerSize = Vec2::one;
+    Vec2 endSize = Vec2::one;
+
+    // It's percentages
+    float duration = 10;
+    float durationStartRange = 0.1f; // Range [0.0,1.0]
+    float durationEndRange = 0.1f;   // Range [0.0,1.0]
+
     void make_particles(int n);
 
 public:
@@ -43,17 +59,11 @@ public:
     bool emit = true;
     bool loop = true;
     bool rotate = true;
-    bool colorable = true;
-    bool scalable = true;
     bool worldSpace = true;
     bool destroyAfter = true;
+    bool randomDirection = false;
 
     float interval = 1.0f;
-
-    // It's percentages
-    float duration = 10;
-    float durationStartPercentage = 0.1f; // Range [0.0,1.0]
-    float durationEndPercentage = 0.1f;   // Range [0.0,1.0]
 
     // State
     int startWith = 1;
@@ -63,20 +73,30 @@ public:
     float speed = 1;
     float rotatePerSecond = 10;
 
-    // bool:colorable - if true simulate it
-    Color color = Color::white;
-    Color startColor = Color::white;
-    Color endColor = Color::white;
-
-    // bool:scalable - if true simulate it
-    Vec2 size = Vec2::one;
-    Vec2 startSize = Vec2::one;
-    Vec2 endSize = Vec2::one;
-
     Vec2 direction = Vec2::up;
 
     // Source for set
     Sprite *source = nullptr;
+
+    // Set the interpolation ranges of the duration and startRange, endRange equaled 0.1
+    bool setInterpolates(float duration);
+    // Set the interpolation ranges of the duration
+    // param startRange from 0.0 to 1.0
+    // param endRange from 0.0 to 1.0
+    bool setInterpolates(float duration, float startRange, float endRange);
+
+    // Set no interpolate colors
+    void setColor(Color color);
+    // Set interpolation with start to end
+    void setColors(Color startState, Color endState);
+    // Set interpolation from ranges
+    void setColors(Color startState, Color centerState, Color endState);
+
+    void setSize(Vec2 size);
+    // Set interpolation with start to end
+    void setSizes(Vec2 startState, Vec2 endState);
+    // Set interpolation from ranges
+    void setSizes(Vec2 startState, Vec2 centerState, Vec2 endState);
 };
 
 #endif
