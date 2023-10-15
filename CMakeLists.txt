@@ -14,7 +14,11 @@ file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 file(GLOB_RECURSE HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp")
 
-add_executable(SpaceExtractor ${HEADERS} ${SOURCES})
+if(WIN32)
+  add_executable(SpaceExtractor WIN32 ${HEADERS} ${SOURCES})
+else()
+  add_executable(SpaceExtractor ${HEADERS} ${SOURCES})
+endif()
 
 target_compile_features(SpaceExtractor PRIVATE cxx_std_17)
 

@@ -129,7 +129,7 @@ void EKamikadze::OnUpdate()
             if(1 || Random::Range(0, 10) < 5)
             {
                 // SUICIDE
-                player->applyDamage(enemy_class_info.kamikadze.damage_weight);
+                player->applyDamage(getDamageWeight(), transform()->position());
                 putParticleExplode(transform()->position());
                 Destroy(gameObject());
             }

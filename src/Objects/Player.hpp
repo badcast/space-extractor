@@ -11,13 +11,15 @@
 
 class Player : public Behaviour
 {
-protected:
-
-    void InitPlayerGUI();
+public:
     void OnStart();
     void OnUpdate();
     void OnGizmos();
     void OnDestroy();
+
+private:
+    void InitPlayerGUI();
+    void showShield(Vec2 lookPosition);
 
 public:
     Weapon *weapon;
@@ -32,9 +34,9 @@ public:
     int healthPoint = 1000;
     float clampAngleLeft = -80, clampAngleRight = 80;
 
-    std::set<Transform*> bullets;
+    std::set<Transform *> bullets;
 
-    void applyDamage(int damage);
+    void applyDamage(int damageValue, Vec2 closestPosition);
 };
 
 #endif

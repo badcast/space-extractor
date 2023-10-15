@@ -7,7 +7,7 @@
 
 class Collision : public Behaviour
 {
-private:
+public:
     void OnStart();
     void OnUpdate();
     void OnGizmos();

@@ -69,12 +69,10 @@ void Player::OnStart()
     muzzleFlash = create_game_object()->transform();
     muzzleFlash->setParent(gunPosition);
     muzzleFlash->position(gunPosition->position());
-    muzzleFlash->transform()->angle(0);
     sprRender = muzzleFlash->gameObject()->AddComponent<SpriteRenderer>();
     sprRender->setSprite(Primitive::create_sprite2d_from(srcImageMuzzleFlash));
-    sprRender->offset += Vec2::up * 16;
-    sprRender->enable(false); // of muzzle flash
     sprRender->setSize(sprRender->getSize() / 4);
+    sprRender->enable(false); // of muzzle flash
 
     // Player shield
     Transform *playerShieldPivot = Primitive::create_empty_game_object()->transform();
@@ -82,12 +80,12 @@ void Player::OnStart()
 
     playerShield = Primitive::create_empty_game_object()->transform();
     playerShield->setParent(playerShieldPivot, false);
-    playerShield->localPosition(Vec2::up);
+    playerShield->localPosition(-Vec2::up);
     sprRender = playerShield->AddComponent<SpriteRenderer>();
     sprRender->setSprite(Primitive::create_sprite2d_from(srcImagePlayerShield));
     sprRender->setSize(sprRender->getSize() / 4);
-    sprRender->gameObject()->SetActive(false);
     playerShield = playerShieldPivot;
+    // playerShield->gameObject()->SetActive(true);
 
     InitPlayerGUI();
 }
@@ -103,7 +101,8 @@ void Player::OnUpdate()
     // Clamp angle
     turretRotatePivot->angle(Math::Clamp(turretRotatePivot->angle(), clampAngleLeft, clampAngleRight));
 
-    playerShield->LookAt(target, Vec2::up);
+    if(TimeEngine::frame() % 60 == 0)
+        playerShield->LookAt(target);
 
     // Move exists bullets
     for(Transform *bullet : bullets)
@@ -120,11 +119,11 @@ void Player::OnUpdate()
             bulletFireStep = 0;
 
         GameObject *bulletInstance = Instantiate(weapon->bulletPrefab, origin);
+        Collision *bulletCollision = bulletInstance->AddComponent<Collision>();
         Vec2 direction = originObject->forward() + Random::RandomVector() / 1000 * weapon->bulletThreshold;
         bulletInstance->transform()->LookAt(origin + direction);
         bulletInstance->Destroy(bullet_destroy_after);
         bulletInstance->RegisterOnDestroy([&](GameObject *self) { bullets.erase(self->transform()); });
-        Collision *bulletCollision = bulletInstance->AddComponent<Collision>();
 
         bulletCollision->targetLayer = static_cast<int>(Layers::EnemyOrBullet);
 
@@ -162,6 +161,7 @@ void Player::OnUpdate()
         turret->spriteRenderer()->setSprite(defaultTurret);
         muzzleFlash->spriteRenderer()->enable(false);
         shaking.force = 0;
+        showShield(target);
     }
 
     if(shaking.time > TimeEngine::time())
@@ -170,12 +170,19 @@ void Player::OnUpdate()
         Camera::mainCamera()->transform()->position(Vec2::zero); // set default position
 }
 
-void Player::applyDamage(int damage)
+void Player::showShield(Vec2 lookPosition)
 {
-    healthPoint = Math::Max(0, healthPoint - damage);
+    playerShield->LookAtLerp(lookPosition, 1);
+    // playerShield->gameObject()->SetActive(true);
+}
+
+void Player::applyDamage(int damageValue, Vec2 closestPosition)
+{
+    healthPoint = Math::Max(0, healthPoint - damageValue);
 
     shaking.time = TimeEngine::time() + 0.7f;
     shaking.force |= 5;
+    showShield(closestPosition);
 }
 
 void Player::OnGizmos()

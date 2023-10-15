@@ -24,7 +24,7 @@ struct ParticleDrain
     Vec2 direction;
 };
 
-static bool IsLowerParticleDrain(const ParticleDrain& lhs, const ParticleDrain& rhs )
+static bool IsLowerParticleDrain(const ParticleDrain &lhs, const ParticleDrain &rhs)
 {
     return lhs.render < rhs.render;
 }
@@ -34,14 +34,11 @@ using LowerParticleDrain = std::integral_constant<decltype(&IsLowerParticleDrain
 // It's base class for Particles
 class Particle : public Behaviour
 {
-private:
+protected:
     std::set<ParticleDrain, LowerParticleDrain> m_particles;
     float _timing;
     int maked;
-    void OnStart();
-    void OnUpdate();
 
-protected:
     // bool:colorable - if true simulate it
     bool colorable = true;
     Color startColor = Color::transparent;
@@ -104,6 +101,9 @@ public:
     void setSizes(Vec2 startState, Vec2 endState);
     // Set interpolation from ranges
     void setSizes(Vec2 startState, Vec2 centerState, Vec2 endState);
+
+    void OnStart();
+    void OnUpdate();
 };
 
 #endif
