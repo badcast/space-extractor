@@ -47,9 +47,9 @@ protected:
 
     // bool:scalable - if true simulate it
     bool scalable = true;
-    Vec2 startSize = Vec2::one;
+    Vec2 startSize = Vec2::zero;
     Vec2 centerSize = Vec2::one;
-    Vec2 endSize = Vec2::one;
+    Vec2 endSize = Vec2::zero;
 
     // It's percentages
     float duration = 10;
@@ -67,7 +67,9 @@ public:
     bool destroyAfter = true;
     bool randomDirection = false;
 
+    // Set the interval for the next particle
     float interval = 1.0f;
+    float delay = 0;
 
     // State
     int startWith = 1;
@@ -82,12 +84,12 @@ public:
     // Source for set
     Sprite *source = nullptr;
 
-    // Set the interpolation ranges of the duration and startRange, endRange equaled 0.1
-    bool setInterpolates(float duration);
-    // Set the interpolation ranges of the duration
+    // Set the duration interpolation ranges also for the start and end ranges to 0.1
+    void setInterpolates(float duration);
+    // Set the duration interpolation ranges also for the start and end ranges to custom value
     // param startRange from 0.0 to 1.0
     // param endRange from 0.0 to 1.0
-    bool setInterpolates(float duration, float startRange, float endRange);
+    void setInterpolates(float duration, float startRange, float endRange);
 
     // Set no interpolate colors
     void setColor(Color color);

@@ -35,54 +35,54 @@ void Player::OnStart()
     playerAudio = gameObject()->AddComponent<AudioSource>();
     playerAudio->setClip(srcAudioMachineGun);
 
-    turretRotatePivot = Primitive::create_empty_game_object()->transform();
+    turretRotatePivot = Primitive::CreateEmptyGameObject()->transform();
     turretRotatePivot->setParent(transform(), false);
 
-    turret = Primitive::create_empty_game_object()->transform();
+    turret = Primitive::CreateEmptyGameObject()->transform();
     turret->layer(1);
     turret->setParent(turretRotatePivot);
     turret->position(Vec2::down * 2.7f);
     sprRender = turret->AddComponent<SpriteRenderer>();
-    sprRender->setSprite(defaultTurret = Primitive::create_sprite2d_from(srcImagePlayerWeapon));
+    sprRender->setSprite(defaultTurret = Primitive::CreateSpriteFrom(srcImagePlayerWeapon));
     sprRender->setSize(sprRender->getSize() / 4);
 
-    fireTurret = Primitive::create_sprite2d_from(WGame::spriteAsset->GetImage("player-weapon-blob"));
+    fireTurret = Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("player-weapon-blob"));
 
-    platform = Primitive::create_empty_game_object()->transform();
+    platform = Primitive::CreateEmptyGameObject()->transform();
     platform->position(transform()->position());
     sprRender = platform->gameObject()->AddComponent<SpriteRenderer>();
-    sprRender->setSprite(Primitive::create_sprite2d_from(srcImagePlayerPlatform));
+    sprRender->setSprite(Primitive::CreateSpriteFrom(srcImagePlayerPlatform));
     sprRender->setSize(sprRender->getSize() / 2);
 
-    gunPosition = Primitive::create_empty_game_object()->transform();
+    gunPosition = Primitive::CreateEmptyGameObject()->transform();
     gunPosition->setParent(turret->transform());
     gunPosition->localPosition(Vec2::up * (5 / 10.f));
 
-    gunPoint1 = Primitive::create_empty_game_object(gunPosition->position())->transform();
+    gunPoint1 = Primitive::CreateEmptyGameObject(gunPosition->position())->transform();
     gunPoint1->setParent(gunPosition);
     gunPoint1->localPosition(Vec2::left / 10);
-    gunPoint2 = Primitive::create_empty_game_object(gunPosition->position())->transform();
+    gunPoint2 = Primitive::CreateEmptyGameObject(gunPosition->position())->transform();
     gunPoint2->setParent(gunPosition);
     gunPoint2->localPosition(-gunPoint1->localPosition());
 
     // Muzzle flash
-    muzzleFlash = create_game_object()->transform();
+    muzzleFlash = Primitive::CreateEmptyGameObject()->transform();
     muzzleFlash->setParent(gunPosition);
     muzzleFlash->position(gunPosition->position());
     sprRender = muzzleFlash->gameObject()->AddComponent<SpriteRenderer>();
-    sprRender->setSprite(Primitive::create_sprite2d_from(srcImageMuzzleFlash));
+    sprRender->setSprite(Primitive::CreateSpriteFrom(srcImageMuzzleFlash));
     sprRender->setSize(sprRender->getSize() / 4);
     sprRender->enable(false); // of muzzle flash
 
     // Player shield
-    Transform *playerShieldPivot = Primitive::create_empty_game_object()->transform();
+    Transform *playerShieldPivot = Primitive::CreateEmptyGameObject()->transform();
     playerShieldPivot->setParent(transform(), false);
 
-    playerShield = Primitive::create_empty_game_object()->transform();
+    playerShield = Primitive::CreateEmptyGameObject()->transform();
     playerShield->setParent(playerShieldPivot, false);
     playerShield->localPosition(-Vec2::up);
     sprRender = playerShield->AddComponent<SpriteRenderer>();
-    sprRender->setSprite(Primitive::create_sprite2d_from(srcImagePlayerShield));
+    sprRender->setSprite(Primitive::CreateSpriteFrom(srcImagePlayerShield));
     sprRender->setSize(sprRender->getSize() / 4);
     playerShield = playerShieldPivot;
     // playerShield->gameObject()->SetActive(true);

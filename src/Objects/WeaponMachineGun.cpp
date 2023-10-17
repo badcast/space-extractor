@@ -11,11 +11,11 @@ void WeaponMachineGun::setDefaultValues()
 
     if(bulletPrefab == nullptr)
     {
-        bulletPrefab = Primitive::create_empty_game_object();
+        bulletPrefab = Primitive::CreateEmptyGameObject();
         bulletPrefab->name("Gold Bullet");
         bulletPrefab->transform()->layer(-1);
         bulletPrefab->SetActive(false);
         SpriteRenderer *sprRender = bulletPrefab->AddComponent<SpriteRenderer>();
-        sprRender->setSprite(Primitive::create_sprite2D_box({0.02f, 1}, Color::gold));
+        sprRender->setSprite(Primitive::CreateSpriteRectangle(true, {0.02f, 1}, Color::gold));
     }
 }

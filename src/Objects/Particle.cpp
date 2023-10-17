@@ -1,14 +1,13 @@
 #include "Particle.hpp"
 
-
 void Particle::make_particles(int n)
 {
     ParticleDrain drain;
-    maked = std::min(maxParticles, maked + n);
     std::string particle_name;
+
     for(; n-- > 0;)
     {
-        SpriteRenderer *spriteRender = Primitive::create_empty_game_object()->AddComponent<SpriteRenderer>();
+        SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
         particle_name = spriteRender->gameObject()->name();
         particle_name += " # ";
         particle_name += std::to_string(n);
@@ -20,16 +19,19 @@ void Particle::make_particles(int n)
             {
                 // Remove old's
 
-
-                ParticleDrain drain{};
-                drain.render=comp->GetComponent<SpriteRenderer>();
+                ParticleDrain drain {};
+                drain.render = comp->GetComponent<SpriteRenderer>();
                 auto iter = m_particles.find(drain);
                 if(iter != std::end(this->m_particles))
                 {
                     this->m_particles.erase(iter);
                 }
             });
-        t->setParent(transform(), false);
+
+        if(!worldSpace)
+            t->setParent(transform(), false);
+        else
+            t->position(transform()->position());
 
         if(rotate)
             t->angle(Random::AngleDegress());
@@ -60,7 +62,11 @@ void Particle::OnStart()
     // init
     transform()->layer(Layers::ParticleClass);
 
-    _timing = 0;
+    if(delay > 0)
+        _timing = delay + TimeEngine::time();
+    else
+        _timing = 0;
+
     maked = 0;
 }
 
@@ -69,23 +75,27 @@ void Particle::OnUpdate()
     if(!emit)
         return;
 
+    // Create new particles if the "timing" time has come, or its creation has reached the end (maxParticles)
+    // Update existing particles and perform interpolation for them
     if(loop || maked < maxParticles || !m_particles.empty())
     {
         float t = TimeEngine::time();
         // Make new particle (interval)
-        if(_timing < t)
+        if(_timing <= t && (maxParticles == 0 || maked < maxParticles))
         {
+            int make_n = Math::Min(startWith, static_cast<int>(maxParticles - m_particles.size()));
+            make_particles(make_n);
+            maked += make_n;
+
             // update interval
-            make_particles(Math::Min(startWith, static_cast<int>(maxParticles - m_particles.size())));
             _timing = t + interval;
         }
 
-#define STATE_PROPERTY(BEGIN, ANY, END) (drain.state == SIMULATE_STATE ? (ANY) : drain.state == BEGIN_STATE ? (BEGIN) : (END))
+#define INTERPOLATION_VALUE(BEGIN, ANY, END) (drain.state == SIMULATE_STATE ? (ANY) : drain.state == BEGIN_STATE ? (BEGIN) : (END))
 
-        // Particle draw
+        // Update existing particles (drains)
         for(const ParticleDrain &drain : m_particles)
         {
-            // calc drif state
             float drain_duration = t - drain.initTime;
             float drain_speed = TimeEngine::deltaTime() * speed;
             if(drain_duration <= durationStartRange)
@@ -105,22 +115,23 @@ void Particle::OnUpdate()
             if(colorable)
             {
                 drain.render->setColor(
-                    Color::Lerp(drain.render->getColor(), STATE_PROPERTY(startColor, centerColor, endColor), drain_speed));
+                    Color::Lerp(drain.render->getColor(), INTERPOLATION_VALUE(startColor, centerColor, endColor), drain_speed));
             }
 
             // Scaling
             if(scalable)
             {
-                drain.render->setSize(Vec2::Lerp(drain.render->getSize(), STATE_PROPERTY(startSize, centerSize, endSize), drain_speed));
+                drain.render->setSize(
+                    Vec2::Lerp(drain.render->getSize(), INTERPOLATION_VALUE(startSize, centerSize, endSize), drain_speed));
             }
 
             // Move, rotate
-            Transform *tr = drain.render->transform();
-            tr->Translate(drain.direction * drain_speed);
+            Transform *particleTransform = drain.render->transform();
+            particleTransform->Translate(drain.direction * drain_speed);
 
             if(rotate)
             {
-                tr->angle(tr->angle() + rotatePerSecond * drain_speed);
+                particleTransform->angle(particleTransform->angle() + rotatePerSecond * drain_speed);
             }
         }
     }
@@ -128,22 +139,20 @@ void Particle::OnUpdate()
     {
         gameObject()->Destroy();
     }
+
+#undef INTERPOLATION_VALUE
 }
 
-bool Particle::setInterpolates(float duration)
+void Particle::setInterpolates(float duration)
 {
-    return setInterpolates(duration, 0.1f, 0.1f);
+    setInterpolates(duration, 0.1f, 0.1f);
 }
 
-bool Particle::setInterpolates(float duration, float startRange, float endRange)
+void Particle::setInterpolates(float duration, float startRange, float endRange)
 {
-    if(duration < 0 || endRange < 0 || startRange < 0 || startRange > 1 || endRange > 1)
-        return false;
-
-    this->duration = duration;
-    durationStartRange = duration * startRange;
-    durationEndRange = duration * endRange;
-    return true;
+    this->duration = Math::Max(duration, 0.f);
+    durationStartRange = this->duration * Math::Clamp01(startRange);
+    durationEndRange = this->duration * Math::Clamp01(endRange);
 }
 
 void Particle::setColor(Color color)

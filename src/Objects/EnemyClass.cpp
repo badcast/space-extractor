@@ -3,21 +3,27 @@
 
 static Sprite *sprite_explode = nullptr;
 static Sprite *sprite_explode_flow = nullptr;
+static Sprite *sprite_drop_drains = nullptr;
 
 Particle *putParticleExplode(Vec2 position)
 {
     if(sprite_explode == nullptr)
     {
-        sprite_explode = Primitive::create_sprite2d_from(WGame::spriteAsset->GetImage("explode-v1"));
+        sprite_explode = Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("explode-v1"), false);
     }
 
     if(sprite_explode_flow == nullptr)
     {
-        sprite_explode_flow = Primitive::create_sprite2d_from(WGame::spriteAsset->GetImage("alert-place-flow"));
+        sprite_explode_flow = Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("alert-place-flow"), false);
+    }
+
+    if(sprite_drop_drains == nullptr)
+    {
+        sprite_drop_drains = Primitive::CreateSpriteTriangle(false);
     }
 
     // PARTICLE FIRE
-    Particle *particle = Primitive::create_empty_game_object(position)->AddComponent<Particle>();
+    Particle *particle = Primitive::CreateEmptyGameObject(position)->AddComponent<Particle>();
     particle->loop = false;
     particle->speed = 2;
     particle->source = sprite_explode;
@@ -28,19 +34,20 @@ Particle *putParticleExplode(Vec2 position)
     particle->setSizes(Vec2::half / 4, Vec2::half / 2);
 
     // PARTICLE DROPS DRAINS
-    particle = Primitive::create_empty_game_object(position)->AddComponent<Particle>();
+    particle = Primitive::CreateEmptyGameObject(position)->AddComponent<Particle>();
     particle->loop = false;
     particle->randomDirection = true;
     particle->speed = 0.4f;
-    particle->source = Primitive::create_sprite2D_box(Vec2::one, Color::white);
+    particle->source = sprite_drop_drains;
     particle->interval = 0.1f;
-    particle->maxParticles = 4;
+    particle->startWith = 100;
+    particle->maxParticles = 41;
     particle->setInterpolates(1);
-    particle->setColors({Color::white,100}, Color::darkgray, Color::transparent);
+    particle->setColors({Color::white, 100}, Color::darkgray, Color::transparent);
     particle->setSizes(Vec2::one / 16, Vec2::one / 14);
 
     // PARTICLE RECTANGLE
-    particle = Primitive::create_empty_game_object(position)->AddComponent<Particle>();
+    particle = Primitive::CreateEmptyGameObject(position)->AddComponent<Particle>();
     particle->loop = false;
     particle->rotate = false;
     particle->destroyAfter = true;
@@ -62,12 +69,12 @@ void EKamikadze::OnStart()
 {
     transform()->layer(Layers::EnemyClass);
     SpriteRenderer *spriteRender = AddComponent<SpriteRenderer>();
-    spriteRender->setSprite(Primitive::create_sprite2d_from(WGame::spriteAsset->GetImage("enemy-low")));
+    spriteRender->setSprite(Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("enemy-low")));
     spriteRender->setSize(spriteRender->getSize() / 10);
 
     startPoint = transform()->position();
-    alertEnemySignal = Primitive::create_empty_game_object({Vec2::up / 4.4f})->AddComponent<SpriteRenderer>();
-    alertEnemySignal->setSprite(Primitive::create_sprite2d_from(WGame::spriteAsset->GetImage("alert-enemy")));
+    alertEnemySignal = Primitive::CreateEmptyGameObject({Vec2::up / 4.4f})->AddComponent<SpriteRenderer>();
+    alertEnemySignal->setSprite(Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("alert-enemy")));
     alertEnemySignal->transform()->setParent(transform(), false);
     alertEnemySignal->setColor(Color::red);
     alertEnemySignal->setSize(Vec2::half);

@@ -37,21 +37,21 @@ void WGame::OnAwake()
 void WGame::OnStart()
 {
     // Create Main Camera
-    Primitive::create_camera2D();
+    Primitive::CreateCamera2D();
 
     // Create Player
-    player = Primitive::create_empty_game_object()->AddComponent<Player>();
+    player = Primitive::CreateEmptyGameObject()->AddComponent<Player>();
     player->gameObject()->name("Player");
     player->transform()->position(Camera::ViewportToWorldPoint(Vec2 {0.5, 0.85}));
 
     // Background
-    SpriteRenderer *spriteRender = Primitive::create_empty_game_object()->AddComponent<SpriteRenderer>();
-    spriteRender->setSprite(Primitive::create_sprite2d_from(spriteAsset->GetImage("main-menu-background")));
+    SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
+    spriteRender->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("main-menu-background")));
     spriteRender->transform()->layer(-100);
 
-    Particle *smoke_particle = Primitive::create_empty_game_object()->AddComponent<Particle>();
+    Particle *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<Particle>();
     smoke_particle->gameObject()->name("Particle Smoke");
-    smoke_particle->source = Primitive::create_sprite2d_from(spriteAsset->GetImage("smoke"));
+    smoke_particle->source = Primitive::CreateSpriteFrom(spriteAsset->GetImage("smoke"));
     smoke_particle->maxParticles = 10;
     smoke_particle->speed = 1;
     smoke_particle->direction = Vec2::left;
@@ -86,7 +86,7 @@ void make_simple_enemy()
     float off = (s1.x - s0.x) / ememyCount;
     for(int x = 0; x < ememyCount; ++x)
     {
-        EKamikadze *kamikadze = Primitive::create_empty_game_object()->AddComponent<EKamikadze>();
+        EKamikadze *kamikadze = Primitive::CreateEmptyGameObject()->AddComponent<EKamikadze>();
         kamikadze->gameObject()->name("EKamikadze");
         Collision *collision = kamikadze->AddComponent<Collision>();
         collision->targetLayer = static_cast<int>(Layers::PlayerOrBullet);
