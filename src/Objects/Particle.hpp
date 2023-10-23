@@ -19,7 +19,6 @@ enum ParticleState
 struct ParticleDrain
 {
     SpriteRenderer *render;
-    mutable int state;
     float initTime;
     Vec2 direction;
 };
@@ -35,9 +34,9 @@ using LowerParticleDrain = std::integral_constant<decltype(&IsLowerParticleDrain
 class Particle : public Behaviour
 {
 protected:
-    std::set<ParticleDrain, LowerParticleDrain> m_particles;
-    float _timing;
-    int maked;
+    std::set<ParticleDrain, LowerParticleDrain> m_drains;
+    float m_timing;
+    int m_maked;
 
     // bool:colorable - if true simulate it
     bool colorable = true;
@@ -52,9 +51,9 @@ protected:
     Vec2 endSize = Vec2::zero;
 
     // It's percentages
-    float duration = 10;
-    float durationStartRange = 0.1f; // Range [0.0,1.0]
-    float durationEndRange = 0.1f;   // Range [0.0,1.0]
+    float m_duration = 10;
+    float m_durationStartRange = 0.1f; // Range [0.0,1.0]
+    float m_durationEndRange = 0.1f;   // Range [0.0,1.0]
 
     void make_particles(int n);
 
@@ -73,7 +72,7 @@ public:
 
     // State
     int startWith = 1;
-    int maxParticles = 10;
+    int maxParticles = 0;
 
     // Live
     float speed = 1;
@@ -83,27 +82,87 @@ public:
 
     // Source for set
     Sprite *source = nullptr;
-
-    // Set the duration interpolation ranges also for the start and end ranges to 0.1
+    /**
+     * @brief Set the duration for interpolation, with default start and end ranges.
+     *
+     * This function sets the duration for interpolation with the default start and end ranges, which are both set to 0.1.
+     *
+     * @param duration The duration for interpolation.
+     */
     void setInterpolates(float duration);
-    // Set the duration interpolation ranges also for the start and end ranges to custom value
-    // param startRange from 0.0 to 1.0
-    // param endRange from 0.0 to 1.0
+
+    /**
+     * @brief Set the duration for interpolation with custom start and end ranges.
+     *
+     * This function sets the duration for interpolation and allows you to specify custom start and end ranges for the interpolation.
+     *
+     * @param duration    The duration for interpolation.
+     * @param startRange  The start range for interpolation (0.0 to 1.0).
+     * @param endRange    The end range for interpolation (0.0 to 1.0).
+     */
     void setInterpolates(float duration, float startRange, float endRange);
 
-    // Set no interpolate colors
+    /**
+     * @brief Set the color without interpolation.
+     *
+     * This function sets the color without any interpolation.
+     *
+     * @param color The color to be set.
+     */
     void setColor(Color color);
-    // Set interpolation with start to end
+
+    /**
+     * @brief Set interpolation of colors from start to end.
+     *
+     * This function sets the interpolation of colors from a starting state to an ending state.
+     *
+     * @param startState The starting color.
+     * @param endState   The ending color.
+     */
     void setColors(Color startState, Color endState);
-    // Set interpolation from ranges
+
+    /**
+     * @brief Set interpolation of colors from specified ranges.
+     *
+     * This function sets the interpolation of colors from specified start, center, and end states.
+     *
+     * @param startState   The starting color.
+     * @param centerState  The center color.
+     * @param endState     The ending color.
+     */
     void setColors(Color startState, Color centerState, Color endState);
 
+    /**
+     * @brief Set the size without interpolation.
+     *
+     * This function sets the size without any interpolation.
+     *
+     * @param size The size to be set.
+     */
     void setSize(Vec2 size);
-    // Set interpolation with start to end
+
+    /**
+     * @brief Set interpolation of sizes from start to end.
+     *
+     * This function sets the interpolation of sizes from a starting state to an ending state.
+     *
+     * @param startState The starting size.
+     * @param endState   The ending size.
+     */
     void setSizes(Vec2 startState, Vec2 endState);
-    // Set interpolation from ranges
+
+    /**
+     * @brief Set interpolation of sizes from specified ranges.
+     *
+     * This function sets the interpolation of sizes from specified start, center, and end states.
+     *
+     * @param startState   The starting size.
+     * @param centerState  The center size.
+     * @param endState     The ending size.
+     */
     void setSizes(Vec2 startState, Vec2 centerState, Vec2 endState);
 
+    void OnAwake();
     void OnStart();
     void OnUpdate();
 };

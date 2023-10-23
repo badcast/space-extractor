@@ -1,5 +1,7 @@
 #include "SpaceExtractor.hpp"
 
+#include "Worlds/WParticleEdtitor.hpp"
+
 #if WIN32
 typedef void *HINSTANCE;
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nShowCmd)
@@ -14,9 +16,9 @@ int main()
 
     RoninSimulator::SetDebugMode(true);
 
-    WGame gameWorld;
+    WParticleEdtitor loadWorld;
 
-    RoninSimulator::LoadWorld(&gameWorld);
+    RoninSimulator::LoadWorld(&loadWorld);
 
     RoninSimulator::Simulate();
 

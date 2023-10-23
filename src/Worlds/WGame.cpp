@@ -3,7 +3,7 @@
 Asset *WGame::spriteAsset = nullptr;
 Asset *WGame::soundAsset = nullptr;
 WGame *WGame::current = nullptr;
-constexpr int ememyCount = 2;
+constexpr int ememyCount = 4;
 void make_simple_enemy();
 
 void WGame::OnUnloading()
@@ -48,7 +48,7 @@ void WGame::OnStart()
     SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
     spriteRender->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("main-menu-background")));
     spriteRender->transform()->layer(-100);
-
+return;
     Particle *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<Particle>();
     smoke_particle->gameObject()->name("Particle Smoke");
     smoke_particle->source = Primitive::CreateSpriteFrom(spriteAsset->GetImage("smoke"));

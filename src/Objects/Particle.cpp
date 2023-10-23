@@ -21,10 +21,10 @@ void Particle::make_particles(int n)
 
                 ParticleDrain drain {};
                 drain.render = comp->GetComponent<SpriteRenderer>();
-                auto iter = m_particles.find(drain);
-                if(iter != std::end(this->m_particles))
+                auto iter = m_drains.find(drain);
+                if(iter != std::end(this->m_drains))
                 {
-                    this->m_particles.erase(iter);
+                    this->m_drains.erase(iter);
                 }
             });
 
@@ -47,14 +47,20 @@ void Particle::make_particles(int n)
 
         // Set Start Color
         spriteRender->setColor(startColor);
-        drain = {spriteRender, BEGIN_STATE, TimeEngine::time(), randomDirection ? Random::RandomVector() : direction};
+        drain = {spriteRender, TimeEngine::time(), randomDirection ? Random::RandomVector() : direction};
 
         // Auto destroy elapsed time
-        if(duration > 0)
-            Destroy(spriteRender->gameObject(), duration);
+        if(m_duration > 0)
+            Destroy(spriteRender->gameObject(), m_duration);
 
-        m_particles.insert(drain);
+        m_drains.insert(drain);
     }
+}
+
+void Particle::OnAwake()
+{
+    setInterpolates(m_duration, m_durationStartRange, m_durationEndRange);
+    m_maked = 0;
 }
 
 void Particle::OnStart()
@@ -63,67 +69,75 @@ void Particle::OnStart()
     transform()->layer(Layers::ParticleClass);
 
     if(delay > 0)
-        _timing = delay + TimeEngine::time();
+        m_timing = delay + TimeEngine::time();
     else
-        _timing = 0;
-
-    maked = 0;
+        m_timing = 0;
 }
 
 void Particle::OnUpdate()
 {
-    if(!emit)
-        return;
-
     // Create new particles if the "timing" time has come, or its creation has reached the end (maxParticles)
     // Update existing particles and perform interpolation for them
-    if(loop || maked < maxParticles || !m_particles.empty())
+    if(loop || !m_drains.empty())
     {
         float t = TimeEngine::time();
         // Make new particle (interval)
-        if(_timing <= t && (maxParticles == 0 || maked < maxParticles))
+        if(emit && (m_timing <= t && (maxParticles == 0 || m_maked < maxParticles)))
         {
-            int make_n = Math::Min(startWith, static_cast<int>(maxParticles - m_particles.size()));
+            int max = maxParticles == 0 ? std::numeric_limits<int>::max() : maxParticles;
+            int make_n = Math::Min(startWith, static_cast<int>(max - m_drains.size()));
             make_particles(make_n);
-            maked += make_n;
+            m_maked += make_n;
 
             // update interval
-            _timing = t + interval;
+            m_timing = t + interval;
         }
 
-#define INTERPOLATION_VALUE(BEGIN, ANY, END) (drain.state == SIMULATE_STATE ? (ANY) : drain.state == BEGIN_STATE ? (BEGIN) : (END))
-
         // Update existing particles (drains)
-        for(const ParticleDrain &drain : m_particles)
+        for(const ParticleDrain &drain : m_drains)
         {
             float drain_duration = t - drain.initTime;
             float drain_speed = TimeEngine::deltaTime() * speed;
-            if(drain_duration <= durationStartRange)
+            float state_percentage;
+            int interpolateBegin, interpolateEnd;
+
+            if(drain_duration <= m_durationStartRange)
             {
-                drain.state = BEGIN_STATE;
+                interpolateBegin = BEGIN_STATE;
+                state_percentage = drain_duration / m_durationStartRange;
             }
-            else if(drain_duration >= durationEndRange)
+            else if(drain_duration >= m_durationEndRange)
             {
-                drain.state = END_STATE;
+                interpolateBegin = END_STATE;
+                state_percentage = drain_duration / m_durationEndRange;
             }
             else
             {
-                drain.state = SIMULATE_STATE;
+                interpolateBegin = SIMULATE_STATE;
+                state_percentage = drain_duration / m_duration;
             }
+
+            interpolateEnd = Math::Min<int>(Math::Max<int>(interpolateBegin, interpolateBegin + 1), END_STATE);
+
+#define INTERPOLATION_VALUE(STATE, BEGIN, ANY, END) (STATE == SIMULATE_STATE ? (ANY) : STATE == BEGIN_STATE ? (BEGIN) : (END))
 
             // Colorize
             if(colorable)
             {
-                drain.render->setColor(
-                    Color::Lerp(drain.render->getColor(), INTERPOLATION_VALUE(startColor, centerColor, endColor), drain_speed));
+                Color interpolate_from = INTERPOLATION_VALUE(interpolateBegin, startColor, centerColor, endColor);
+                Color interpolate_to = INTERPOLATION_VALUE(interpolateEnd, startColor, centerColor, endColor);
+                drain.render->setColor(Color::Lerp(interpolate_from, interpolate_to, state_percentage));
             }
 
             // Scaling
             if(scalable)
             {
-                drain.render->setSize(
-                    Vec2::Lerp(drain.render->getSize(), INTERPOLATION_VALUE(startSize, centerSize, endSize), drain_speed));
+                Vec2 interpolate_from = INTERPOLATION_VALUE(interpolateBegin, startSize, centerSize, endSize);
+                Vec2 interpolate_to = INTERPOLATION_VALUE(interpolateEnd, startSize, centerSize, endSize);
+                drain.render->setSize(Vec2::Lerp(interpolate_from, interpolate_to, state_percentage));
             }
+
+#undef INTERPOLATION_VALUE
 
             // Move, rotate
             Transform *particleTransform = drain.render->transform();
@@ -135,12 +149,10 @@ void Particle::OnUpdate()
             }
         }
     }
-    else if(!loop && destroyAfter && maked == maxParticles && m_particles.empty())
+    else if(!loop && destroyAfter && m_maked == maxParticles && m_drains.empty())
     {
         gameObject()->Destroy();
     }
-
-#undef INTERPOLATION_VALUE
 }
 
 void Particle::setInterpolates(float duration)
@@ -150,9 +162,9 @@ void Particle::setInterpolates(float duration)
 
 void Particle::setInterpolates(float duration, float startRange, float endRange)
 {
-    this->duration = Math::Max(duration, 0.f);
-    durationStartRange = this->duration * Math::Clamp01(startRange);
-    durationEndRange = this->duration * Math::Clamp01(endRange);
+    this->m_duration = Math::Max(duration, 0.f);
+    this->m_durationStartRange = this->m_duration * Math::Clamp01(startRange);
+    this->m_durationEndRange = this->m_duration - this->m_duration * Math::Clamp01(endRange);
 }
 
 void Particle::setColor(Color color)
@@ -163,7 +175,7 @@ void Particle::setColor(Color color)
 
 void Particle::setColors(Color startState, Color endState)
 {
-    setColors(startState, Color::Lerp(startState, endState, 0.5f), endState);
+    setColors(startState, Color::Lerp(startState, endState, 1.f / 2), endState);
 }
 
 void Particle::setColors(Color startState, Color centerState, Color endState)
@@ -182,7 +194,7 @@ void Particle::setSize(Vec2 size)
 
 void Particle::setSizes(Vec2 startState, Vec2 endState)
 {
-    setSizes(startState, Vec2::Lerp(startState, endState, 0.5f), endState);
+    setSizes(startState, Vec2::Lerp(startState, endState, 1.f / 2), endState);
 }
 
 void Particle::setSizes(Vec2 startState, Vec2 centerState, Vec2 endState)
