@@ -4,16 +4,15 @@
  * status: already coding
  */
 
-#ifndef _PARTICLE_HPP_
-#define _PARTICLE_HPP_
+#ifndef _PARTICLESYSTEM_H
+#define _PARTICLESYSTEM_H
 
 #include "SpaceDepends.hpp"
 
-enum ParticleState
+enum class ParticleSourceInspect
 {
-    BEGIN_STATE = 0,
-    SIMULATE_STATE = 1,
-    END_STATE = 2
+    InspectNext,
+    InspectRandom
 };
 
 struct ParticleDrain
@@ -23,20 +22,19 @@ struct ParticleDrain
     Vec2 direction;
 };
 
-static bool IsLowerParticleDrain(const ParticleDrain &lhs, const ParticleDrain &rhs)
-{
-    return lhs.render < rhs.render;
-}
-
-using LowerParticleDrain = std::integral_constant<decltype(&IsLowerParticleDrain), &IsLowerParticleDrain>;
-
-// It's base class for Particles
-class Particle : public Behaviour
+/**
+ * @brief A class representing a particle system.
+ *
+ * This class extends the functionality of the "Behaviour" class to create and manage a particle system.
+ */
+class ParticleSystem : public Behaviour
 {
 protected:
-    std::set<ParticleDrain, LowerParticleDrain> m_drains;
+    std::set<ParticleDrain> m_drains;
+    std::vector<SpriteRenderer *> m_reserved_drains;
     float m_timing;
     int m_maked;
+    int m_lastInspected = 0;
 
     // bool:colorable - if true simulate it
     bool colorable = true;
@@ -50,12 +48,17 @@ protected:
     Vec2 centerSize = Vec2::one;
     Vec2 endSize = Vec2::zero;
 
+    // Source for set
+    std::vector<Sprite *> m_sources;
+    ParticleSourceInspect m_sourceInspect;
+
     // It's percentages
     float m_duration = 10;
     float m_durationStartRange = 0.1f; // Range [0.0,1.0]
     float m_durationEndRange = 0.1f;   // Range [0.0,1.0]
 
-    void make_particles(int n);
+    void link_particles(int n);
+    void unlink_particle(const ParticleDrain *drain);
 
 public:
     // Main Control
@@ -65,6 +68,7 @@ public:
     bool worldSpace = true;
     bool destroyAfter = true;
     bool randomDirection = false;
+    bool reserving = true;
 
     // Set the interval for the next particle
     float interval = 1.0f;
@@ -80,8 +84,70 @@ public:
 
     Vec2 direction = Vec2::up;
 
-    // Source for set
-    Sprite *source = nullptr;
+    ParticleSystem();
+
+    // Methods
+
+    /**
+     * @brief Get the duration of the particle object.
+     *
+     * @return The duration of the particle object in seconds.
+     */
+    float getDuration();
+
+    /**
+     * @brief Get the count of particles.
+     *
+     * @return An integer representing the count of items.
+     */
+    int getCount();
+
+    /**
+     * @brief Set the source sprite for the particle.
+     *
+     * @param source The source sprite to set.
+     * @param inspectType (Optional) The inspection type (default: ParticleSourceInspect::InspectNext).
+     */
+    void setSource(Sprite *source, ParticleSourceInspect inspectType = ParticleSourceInspect::InspectNext);
+
+    /**
+     * @brief Set two source sprites for the particle.
+     *
+     * @param src1 The first source sprite to set.
+     * @param src2 The second source sprite to set.
+     * @param inspectType (Optional) The inspection type (default: ParticleSourceInspect::InspectNext).
+     */
+    void setSources(Sprite *src1, Sprite *src2, ParticleSourceInspect inspectType = ParticleSourceInspect::InspectNext);
+
+    /**
+     * @brief Set three source sprites for the particle.
+     *
+     * @param src1 The first source sprite to set.
+     * @param src2 The second source sprite to set.
+     * @param src3 The third source sprite to set.
+     * @param inspectType (Optional) The inspection type (default: ParticleSourceInspect::InspectNext).
+     */
+    void setSources(Sprite *src1, Sprite *src2, Sprite *src3, ParticleSourceInspect inspectType = ParticleSourceInspect::InspectNext);
+
+    /**
+     * @brief Set multiple source sprites from a container for the particle.
+     *
+     * @tparam Container The container type containing Sprite objects.
+     * @param sources The container of source sprites to set.
+     * @param inspectType (Optional) The inspection type (default: ParticleSourceInspect::InspectNext).
+     */
+    template <typename Container>
+    void setSources(const Container &sources, ParticleSourceInspect inspectType = ParticleSourceInspect::InspectNext)
+    {
+        static_assert(std::is_same<typename Container::value_type, Sprite>::value, "Container is not contains Sprite objects");
+        m_sources.clear();
+        m_sourceInspect = inspectType;
+        for(Sprite *sprite : sources)
+        {
+            m_sources.emplace_back(sprite);
+        }
+    }
+
     /**
      * @brief Set the duration for interpolation, with default start and end ranges.
      *
@@ -162,9 +228,22 @@ public:
      */
     void setSizes(Vec2 startState, Vec2 centerState, Vec2 endState);
 
+    /**
+     * @brief Reset the state of the particle object to its initial values.
+     *
+     * This function resets the particle object to its initial state, clearing any accumulated data or changes.
+     */
+    void Reset();
+
+    /**
+     * @brief Clear any reserved resources associated with the particle object.
+     */
+    void clearReserved();
+
     void OnAwake();
     void OnStart();
     void OnUpdate();
+    void OnDestroy();
 };
 
 #endif

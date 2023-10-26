@@ -22,7 +22,7 @@ const static struct
     {
         EnemyAttackMode attackMode = Kamikadze;
         int hp = 5;
-        float speed = 0.8f;
+        float speed = 3;//0.8f;
         int damage_weight = 5;
     } kamikadze;
     const struct

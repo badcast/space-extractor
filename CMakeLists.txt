@@ -26,10 +26,6 @@ target_include_directories(SpaceExtractor PRIVATE src)
 
 target_link_libraries(SpaceExtractor PRIVATE RoninEngine)
 
-if(MINGW)
-  target_compile_options(SpaceExtractor PRIVATE -mwindows)
-endif()
-
 # set the executable name
 set_target_properties(SpaceExtractor PROPERTIES OUTPUT_NAME game)
 

@@ -123,7 +123,7 @@ void Player::OnUpdate()
         Vec2 direction = originObject->forward() + Random::RandomVector() / 1000 * weapon->bulletThreshold;
         bulletInstance->transform()->LookAt(origin + direction);
         bulletInstance->Destroy(bullet_destroy_after);
-        bulletInstance->RegisterOnDestroy([&](GameObject *self) { bullets.erase(self->transform()); });
+        bulletInstance->AddOnDestroy([&](GameObject *self) { bullets.erase(self->transform()); });
 
         bulletCollision->targetLayer = static_cast<int>(Layers::EnemyOrBullet);
 

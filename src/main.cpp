@@ -16,7 +16,7 @@ int main()
 
     RoninSimulator::SetDebugMode(true);
 
-    WParticleEdtitor loadWorld;
+    WGame loadWorld;
 
     RoninSimulator::LoadWorld(&loadWorld);
 

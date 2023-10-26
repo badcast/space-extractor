@@ -3,7 +3,7 @@
 Asset *WGame::spriteAsset = nullptr;
 Asset *WGame::soundAsset = nullptr;
 WGame *WGame::current = nullptr;
-constexpr int ememyCount = 4;
+constexpr int enemyPer = 30;
 void make_simple_enemy();
 
 void WGame::OnUnloading()
@@ -12,7 +12,6 @@ void WGame::OnUnloading()
     enemies.clear();
     RoninMemory::free(navMesh);
 }
-
 
 void WGame::OnAwake()
 {
@@ -48,10 +47,10 @@ void WGame::OnStart()
     SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
     spriteRender->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("main-menu-background")));
     spriteRender->transform()->layer(-100);
-return;
-    Particle *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<Particle>();
+
+    ParticleSystem *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
     smoke_particle->gameObject()->name("Particle Smoke");
-    smoke_particle->source = Primitive::CreateSpriteFrom(spriteAsset->GetImage("smoke"));
+    smoke_particle->setSource(Primitive::CreateSpriteFrom(spriteAsset->GetImage("smoke")));
     smoke_particle->maxParticles = 10;
     smoke_particle->speed = 1;
     smoke_particle->direction = Vec2::left;
@@ -59,7 +58,6 @@ return;
     smoke_particle->setInterpolates(15);
     smoke_particle->setColors(Color::transparent, {Color::white, 100}, Color::transparent);
     smoke_particle->transform()->position(Camera::ViewportToWorldPoint({1, 0.5f}));
-
 }
 
 void WGame::OnUpdate()
@@ -83,20 +81,20 @@ void make_simple_enemy()
     Vec2 s1 = Camera::ViewportToWorldPoint(Vec2::right);
     s1.x -= s0.x;
     s1.y = s0.y;
-    float off = (s1.x - s0.x) / ememyCount;
-    for(int x = 0; x < ememyCount; ++x)
+    float off = (s1.x - s0.x) / enemyPer;
+    for(int x = 0; x < enemyPer; ++x)
     {
         EKamikadze *kamikadze = Primitive::CreateEmptyGameObject()->AddComponent<EKamikadze>();
         kamikadze->gameObject()->name("EKamikadze");
         Collision *collision = kamikadze->AddComponent<Collision>();
         collision->targetLayer = static_cast<int>(Layers::PlayerOrBullet);
 
-        kamikadze->RegisterOnDestroy([](Component * self) {
-
-            AudioClip * clip = WGame::current->soundAsset->GetAudioClip("space-explode");
-            AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.3f);
-
-        } );
+        kamikadze->AddOnDestroy(
+            [](Component *self)
+            {
+                AudioClip *clip = WGame::current->soundAsset->GetAudioClip("space-explode");
+                AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.3f);
+            });
 
         WGame::current->enemies.push_back(kamikadze);
 

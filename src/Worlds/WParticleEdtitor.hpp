@@ -12,7 +12,7 @@
 class WParticleEdtitor : public World
 {
 public:
-    Particle* particle;
+    ParticleSystem* particle;
     WParticleEdtitor() : World("Particle Editor")
     {
     }
