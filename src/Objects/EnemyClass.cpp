@@ -34,9 +34,9 @@ ParticleSystem *putParticleExplode(Vec2 position)
     particle->speed = 2;
     particle->setSource(sprite_explode);
     particle->direction = Vec2::zero;
-    particle->maxParticles = 1;
-    particle->setInterpolates(2, 0.05f, 0.3f);
-    particle->setColors(Color::white, Color::transparent);
+    particle->setLimit(1);
+    particle->setInterpolates(4, 0.05f, 0.1f);
+    particle->setColors(Color::white, Color::white, Color::transparent);
     particle->setSizes(Vec2::half / 4, Vec2::half / 2);
 
     // PARTICLE DROPS DRAINS
@@ -45,7 +45,7 @@ ParticleSystem *putParticleExplode(Vec2 position)
     particle->randomDirection = true;
     particle->speed = 0.4f;
     particle->interval = 0.1f;
-    particle->startWith = 13;
+    particle->startWith = 5;
     particle->setSources(sprite_drop_drains, sprite_drop_drains2);
     particle->setInterpolates(3);
     particle->setColors({Color::white, 100}, Color::darkgray, Color::transparent);
@@ -56,11 +56,11 @@ ParticleSystem *putParticleExplode(Vec2 position)
     particle->loop = false;
     particle->rotate = false;
     particle->destroyAfter = true;
-    particle->setSource(sprite_explode_flow);
     particle->direction = Vec2::zero;
-    particle->maxParticles = 1;
     particle->speed = 5;
+    particle->setLimit(1);
     particle->setInterpolates(3, 0.1f, 0.1f);
+    particle->setSource(sprite_explode_flow);
     particle->setColors(Color::transparent, Color::white, Color::transparent);
     particle->setSizes(Vec2::zero, Vec2::one * 2);
     return particle;

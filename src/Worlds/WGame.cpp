@@ -3,12 +3,15 @@
 Asset *WGame::spriteAsset = nullptr;
 Asset *WGame::soundAsset = nullptr;
 WGame *WGame::current = nullptr;
-constexpr int enemyPer = 30;
+constexpr int enemyPer = 15;
 void make_simple_enemy();
 
 void WGame::OnUnloading()
 {
     current = nullptr;
+    //    spriteAsset = nullptr;
+    //    soundAsset = nullptr;
+
     enemies.clear();
     RoninMemory::free(navMesh);
 }
@@ -17,6 +20,7 @@ void WGame::OnAwake()
 {
     current = this;
     // Load resources
+
     std::string datadir = Path::app_dir() + "data" + Path::GetPathSeperatorOS();
     std::string p = datadir + "resources.json";
     if(spriteAsset == nullptr && !AssetManager::LoadAsset(p, &spriteAsset))
@@ -50,13 +54,15 @@ void WGame::OnStart()
 
     ParticleSystem *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
     smoke_particle->gameObject()->name("Particle Smoke");
-    smoke_particle->setSource(Primitive::CreateSpriteFrom(spriteAsset->GetImage("smoke")));
-    smoke_particle->maxParticles = 10;
-    smoke_particle->speed = 1;
+    smoke_particle->rotate = false;
+    smoke_particle->speed = 3;
     smoke_particle->direction = Vec2::left;
     smoke_particle->interval = 1.3f;
+    smoke_particle->setSource(Primitive::CreateSpriteFrom(spriteAsset->GetImage("smoke")));
+    smoke_particle->setLimit(15);
     smoke_particle->setInterpolates(15);
-    smoke_particle->setColors(Color::transparent, {Color::white, 100}, Color::transparent);
+    smoke_particle->setSize(Vec2::one * 4);
+    smoke_particle->setColors(Color::transparent, {Color::white, 50}, Color::transparent);
     smoke_particle->transform()->position(Camera::ViewportToWorldPoint({1, 0.5f}));
 }
 
@@ -68,6 +74,9 @@ void WGame::OnUpdate()
     {
         make_simple_enemy();
     }
+
+    if(Input::GetMouseDown(MouseMiddle))
+        RoninSimulator::ReloadWorld();
 }
 
 void WGame::OnGizmos()

@@ -173,7 +173,7 @@ void Player::OnUpdate()
 void Player::showShield(Vec2 lookPosition)
 {
     playerShield->LookAtLerp(lookPosition, 1);
-    // playerShield->gameObject()->SetActive(true);
+    playerShield->gameObject()->SetActive(true);
 }
 
 void Player::applyDamage(int damageValue, Vec2 closestPosition)

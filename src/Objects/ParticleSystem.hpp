@@ -15,6 +15,13 @@ enum class ParticleSourceInspect
     InspectRandom
 };
 
+enum ParticleSystemState
+{
+    Destroyable = 0,
+    Executable = 1,
+    Fabricatable = 2
+};
+
 struct ParticleDrain
 {
     SpriteRenderer *render;
@@ -35,6 +42,7 @@ protected:
     float m_timing;
     int m_maked;
     int m_lastInspected = 0;
+    int m_limit = 0;
 
     // bool:colorable - if true simulate it
     bool colorable = true;
@@ -52,7 +60,7 @@ protected:
     std::vector<Sprite *> m_sources;
     ParticleSourceInspect m_sourceInspect;
 
-    // It's percentages
+    // Lifetime for particle
     float m_duration = 10;
     float m_durationStartRange = 0.1f; // Range [0.0,1.0]
     float m_durationEndRange = 0.1f;   // Range [0.0,1.0]
@@ -76,14 +84,14 @@ public:
 
     // State
     int startWith = 1;
-    int maxParticles = 0;
 
     // Live
     float speed = 1;
-    float rotatePerSecond = 10;
+    float rotatePerFrame = 10;
 
     Vec2 direction = Vec2::up;
 
+    // Default contstructor
     ParticleSystem();
 
     // Methods
@@ -100,7 +108,39 @@ public:
      *
      * @return An integer representing the count of items.
      */
-    int getCount();
+    int getActiveCount();
+
+
+    ParticleSystemState getState();
+
+    /**
+     * @brief Set the maximum limit for particles to an infinite value.
+     *
+     * This function sets the maximum limit for particles to an unlimited or infinite value.
+     * This is typically used to indicate that there is no fixed maximum limit for particles.
+     * @see setLimit
+     */
+    void setLimitInfinitely();
+
+    /**
+     * @brief Set the maximum number of particles to a specified value.
+     *
+     * This function allows you to set a specific maximum limit for the number of particles.
+     * @param max The maximum number of particles to set.
+     * @see setLimitInfinitely
+     */
+    void setLimit(int max);
+
+    /**
+     * @brief Set the state of Reservable for particles.
+     *
+     * This method sets the state for reserving resources for particle objects,
+     * helping to economize memory during reallocation.
+     *
+     * @param state The state to set.
+     * @see Reset, ClearReserved
+     */
+    void setReservable(bool state);
 
     /**
      * @brief Set the source sprite for the particle.
@@ -139,7 +179,7 @@ public:
     template <typename Container>
     void setSources(const Container &sources, ParticleSourceInspect inspectType = ParticleSourceInspect::InspectNext)
     {
-        static_assert(std::is_same<typename Container::value_type, Sprite>::value, "Container is not contains Sprite objects");
+        static_assert(std::is_same<typename Container::value_type, Sprite *>::value, "Container is not contains Sprite* objects");
         m_sources.clear();
         m_sourceInspect = inspectType;
         for(Sprite *sprite : sources)
@@ -238,7 +278,7 @@ public:
     /**
      * @brief Clear any reserved resources associated with the particle object.
      */
-    void clearReserved();
+    void ClearReserved();
 
     void OnAwake();
     void OnStart();

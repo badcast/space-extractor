@@ -20,18 +20,17 @@ inline Sprite *inspect_at(const std::vector<Sprite *> &sources, int &last_inspec
 
     if(!sources.empty())
     {
-        int inspect = last_inspected;
         switch(inspection)
         {
             case ParticleSourceInspect::InspectNext:
                 last_inspected = static_cast<int>((last_inspected + 1) % sources.size());
                 break;
             case ParticleSourceInspect::InspectRandom:
-                last_inspected = inspect = Random::Range(0, sources.size());
+                last_inspected = Random::Range(0, sources.size());
                 break;
         }
 
-        inspected = sources[inspect];
+        inspected = sources[last_inspected];
     }
     else
         inspected = nullptr;
@@ -76,7 +75,7 @@ void ParticleSystem::link_particles(int n)
     // use existences
     if(reserving)
     {
-        while(m_reserved_drains.empty() == false && n-- > 0)
+        while(!m_reserved_drains.empty() && n-- > 0)
         {
             SpriteRenderer *exist = m_reserved_drains.back();
             m_reserved_drains.pop_back();
@@ -87,7 +86,7 @@ void ParticleSystem::link_particles(int n)
     }
     else if(!m_reserved_drains.empty())
     {
-        clearReserved();
+        ClearReserved();
     }
 
     // make new
@@ -132,7 +131,8 @@ void ParticleSystem::unlink_particle(const ParticleDrain *drain)
     }
 }
 
-ParticleSystem::ParticleSystem() : Behaviour("Particle System"), m_drains()
+ParticleSystem::ParticleSystem()
+    : Behaviour("Particle System"), m_timing(0), m_maked(0), m_sourceInspect(ParticleSourceInspect::InspectNext)
 {
 }
 
@@ -181,23 +181,32 @@ void ParticleSystem::OnStart()
         m_timing = delay + TimeEngine::time();
     else
         m_timing = 0;
-
-    if(maxParticles == 0)
-        maxParticles = startWith;
 }
 
 void ParticleSystem::OnUpdate()
 {
     // Create new particles if the "timing" time has come, or its creation has reached the end (maxParticles)
     // Update existing particles and perform interpolation for them
-    if(loop || m_maked < maxParticles || !m_drains.empty())
+
+    enum
+    {
+        M_DestroyNow = 0, // Уничтожить эту систему частиц
+        M_Execute = 1, // Выполнять в любом случаем, например частицы уже созданы и их нужно отрендерить и интерполировать
+        M_Fabricate = 2, // Создать еще частицы
+
+        CombinedExecFabricate = M_Execute | M_Fabricate
+    };
+
+    int makeFlag = (loop || !m_drains.empty()) ? M_Execute : 0;
+    makeFlag |= (m_maked < m_limit || m_maked < startWith) ? M_Fabricate : 0;
+
+    if(makeFlag & CombinedExecFabricate)
     {
         float t = TimeEngine::time();
         // Make new particle (interval)
-        if(emit && m_timing <= t && m_maked < maxParticles)
+        if(emit && m_timing <= t && (makeFlag & M_Fabricate))
         {
-            int max = maxParticles;
-            int make_n = Math::Min(startWith, static_cast<int>(max - m_drains.size()));
+            int make_n = m_limit == 0 ? startWith : Math::Min(startWith, static_cast<int>(m_limit - m_drains.size()));
             link_particles(make_n);
             m_maked += make_n;
 
@@ -208,31 +217,32 @@ void ParticleSystem::OnUpdate()
         // Update existing particles (drains)
         for(std::set<ParticleDrain>::iterator drain = std::begin(m_drains); drain != std::end(m_drains); ++drain)
         {
-            float drain_duration = t - drain->initTime;
-            if(drain_duration >= m_duration)
+            float drain_lifetime = t - drain->initTime;
+            if(drain_lifetime >= m_duration)
             {
                 unlink_particle(&(*drain));
                 continue;
             }
 
             float drain_speed = TimeEngine::deltaTime() * speed;
+
             float state_percentage;
             int interpolateBegin, interpolateEnd;
 
-            if(drain_duration <= m_durationStartRange)
+            if(drain_lifetime <= m_durationStartRange)
             {
                 interpolateBegin = BEGIN_STATE;
-                state_percentage = drain_duration / m_durationStartRange;
+                state_percentage = drain_lifetime / m_durationStartRange;
             }
-            else if(drain_duration >= m_durationEndRange)
+            else if(drain_lifetime >= m_durationEndRange)
             {
                 interpolateBegin = END_STATE;
-                state_percentage = drain_duration / m_durationEndRange;
+                state_percentage = drain_lifetime / m_durationEndRange;
             }
             else
             {
                 interpolateBegin = SIMULATE_STATE;
-                state_percentage = drain_duration / m_duration;
+                state_percentage = drain_lifetime / m_duration;
             }
 
             interpolateEnd = Math::Min<int>(Math::Max<int>(interpolateBegin, interpolateBegin + 1), END_STATE);
@@ -263,7 +273,7 @@ void ParticleSystem::OnUpdate()
 
             if(rotate)
             {
-                particleTransform->angle(particleTransform->angle() + rotatePerSecond * drain_speed);
+                particleTransform->angle(particleTransform->angle() + rotatePerFrame * drain_speed);
             }
         }
 
@@ -274,7 +284,7 @@ void ParticleSystem::OnUpdate()
             m_drains.erase(drained);
         }
     }
-    else if(destroyAfter && !loop && m_maked == maxParticles && m_drains.empty())
+    else if(destroyAfter)
     {
         gameObject()->Destroy();
     }
@@ -335,14 +345,34 @@ float ParticleSystem::getDuration()
     return m_duration;
 }
 
-int ParticleSystem::getCount()
+int ParticleSystem::getActiveCount()
 {
-    return static_cast<int>(m_drains.size() + m_reserved_drains.size());
+    return static_cast<int>(m_drains.size());
+}
+
+ParticleSystemState ParticleSystem::getState()
+{
+    return ParticleSystemState(
+        ((loop || !m_drains.empty()) ? ParticleSystemState::Executable : 0) |
+        ((m_maked < m_limit || m_maked < startWith) ? ParticleSystemState::Fabricatable : 0));
+}
+
+void ParticleSystem::setLimitInfinitely()
+{
+    setLimit(0);
+}
+
+void ParticleSystem::setLimit(int max)
+{
+    if(max < 0)
+        return;
+
+    m_limit = max;
 }
 
 void ParticleSystem::Reset()
 {
-    clearReserved();
+    ClearReserved();
 
     for(const ParticleDrain &drain : m_drains)
     {
@@ -356,7 +386,7 @@ void ParticleSystem::Reset()
     m_lastInspected = 0;
 }
 
-void ParticleSystem::clearReserved()
+void ParticleSystem::ClearReserved()
 {
     for(SpriteRenderer *drain : m_reserved_drains)
     {

@@ -5,10 +5,9 @@ project(SpaceExtractor LANGUAGES CXX)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-find_package(PkgConfig REQUIRED)
+option(USE_SYSRONIN "Using system ronin-engine" ON)
 
-set(RONIN_NO_CONFIG ON)
-add_subdirectory(RoninEngine)
+find_package(PkgConfig REQUIRED)
 
 file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
@@ -24,7 +23,15 @@ target_compile_features(SpaceExtractor PRIVATE cxx_std_17)
 
 target_include_directories(SpaceExtractor PRIVATE src)
 
-target_link_libraries(SpaceExtractor PRIVATE RoninEngine)
+if(NOT USE_SYSRONIN)
+  set(RONIN_NO_CONFIG ON)
+  add_subdirectory(RoninEngine)
+  target_link_libraries(SpaceExtractor PRIVATE RoninEngine)
+else()
+  pkg_check_modules(RoninEngine REQUIRED RoninEngine)
+  target_include_directories(SpaceExtractor PRIVATE ${RoninEngine_INCLUDE_DIRS})
+  target_link_libraries(SpaceExtractor PRIVATE ${RoninEngine_LIBRARIES})
+endif()
 
 # set the executable name
 set_target_properties(SpaceExtractor PROPERTIES OUTPUT_NAME game)

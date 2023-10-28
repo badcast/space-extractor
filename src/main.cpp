@@ -11,19 +11,18 @@ int main()
 {
     RoninSimulator::Init();
 
-    Resolution res {1366, 768};
+    Resolution res {1024, 500};
     RoninSimulator::Show(res, false);
 
     RoninSimulator::SetDebugMode(true);
 
-    WGame loadWorld;
+    WParticleEdtitor loadWorld;
 
     RoninSimulator::LoadWorld(&loadWorld);
 
     RoninSimulator::Simulate();
 
     RoninSimulator::Finalize();
-
 
     return EXIT_SUCCESS;
 }
