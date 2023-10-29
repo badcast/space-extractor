@@ -27,8 +27,6 @@ public:
     void OnUnloading();
 
     static WGame *current;
-    static Asset *spriteAsset;
-    static Asset *soundAsset;
 };
 
 #endif

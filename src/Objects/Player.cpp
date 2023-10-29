@@ -21,12 +21,12 @@ void Player::OnStart()
     bulletFireStep = 0;
 
     // Load Sources
-    Image *srcImagePlayerWeapon = WGame::spriteAsset->GetImage("player-weapon");
-    Image *srcImagePlayerPlatform = WGame::spriteAsset->GetImage("player-platform");
-    Image *srcImageMuzzleFlash = WGame::spriteAsset->GetImage("muzzle-flash");
-    Image *srcImagePlayerShield = WGame::spriteAsset->GetImage("player-shield");
+    Image *srcImagePlayerWeapon = spriteAsset->GetImage("player-weapon");
+    Image *srcImagePlayerPlatform = spriteAsset->GetImage("player-platform");
+    Image *srcImageMuzzleFlash = spriteAsset->GetImage("muzzle-flash");
+    Image *srcImagePlayerShield = spriteAsset->GetImage("player-shield");
 
-    AudioClip *srcAudioMachineGun = WGame::soundAsset->GetAudioClip("shot-lazer-1");
+    AudioClip *srcAudioMachineGun = soundAsset->GetAudioClip("shot-lazer-1");
 
     // Make player weapon object
     weapon = RoninMemory::alloc<WeaponMachineGun>();
@@ -46,7 +46,7 @@ void Player::OnStart()
     sprRender->setSprite(defaultTurret = Primitive::CreateSpriteFrom(srcImagePlayerWeapon));
     sprRender->setSize(sprRender->getSize() / 4);
 
-    fireTurret = Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("player-weapon-blob"));
+    fireTurret = Primitive::CreateSpriteFrom(spriteAsset->GetImage("player-weapon-blob"));
 
     platform = Primitive::CreateEmptyGameObject()->transform();
     platform->position(transform()->position());

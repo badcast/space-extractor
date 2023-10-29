@@ -12,4 +12,8 @@
 #include "Objects/Player.hpp"
 
 #include "Worlds/WGame.hpp"
+
+static Asset *spriteAsset;
+static Asset *soundAsset;
+
 #endif

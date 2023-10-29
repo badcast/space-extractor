@@ -20,6 +20,21 @@ int main()
 
     RoninSimulator::LoadWorld(&loadWorld);
 
+    // Load Assets
+    std::string datadir = Path::app_dir() + "data" + Path::GetPathSeperatorOS();
+    std::string p = datadir;
+    p += "resources.json";
+    if(!AssetManager::LoadAsset(p, &spriteAsset))
+    {
+        RoninSimulator::ShowMessageFail("Failed load asset " + p);
+    }
+    p = datadir;
+    p += "sounds.json";
+    if(!AssetManager::LoadAsset(p, &soundAsset))
+    {
+        RoninSimulator::ShowMessageFail("Failed load asset " + p);
+    }
+
     RoninSimulator::Simulate();
 
     RoninSimulator::Finalize();

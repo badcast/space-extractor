@@ -48,7 +48,7 @@ void WParticleEdtitor::OnStart()
     buttonParticleclearReserved = GetGUI()->PushButton("ClearReserve", {pos.GetXY(), {60, 30}});
 
     pos.y += pos.h;
-    sliderParticleSize = GetGUI()->PushSlider(0.1, 0.01, 1, pos);
+    sliderParticleSize = GetGUI()->PushSlider(0.1, 0, 0.5, pos);
 
     GetGUI()->PushLayout({0, 0, 100, 500});
     GetGUI()->LayoutLabel("Text");

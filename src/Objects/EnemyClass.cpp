@@ -10,12 +10,12 @@ ParticleSystem *putParticleExplode(Vec2 position)
 {
     if(sprite_explode == nullptr)
     {
-        sprite_explode = Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("explode-v1"), false);
+        sprite_explode = Primitive::CreateSpriteFrom(spriteAsset->GetImage("explode-v1"), false);
     }
 
     if(sprite_explode_flow == nullptr)
     {
-        sprite_explode_flow = Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("alert-place-flow"), false);
+        sprite_explode_flow = Primitive::CreateSpriteFrom(spriteAsset->GetImage("alert-place-flow"), false);
     }
 
     if(sprite_drop_drains == nullptr)
@@ -74,12 +74,12 @@ void EKamikadze::OnStart()
 {
     transform()->layer(Layers::EnemyClass);
     SpriteRenderer *spriteRender = AddComponent<SpriteRenderer>();
-    spriteRender->setSprite(Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("enemy-low")));
+    spriteRender->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("enemy-low")));
     spriteRender->setSize(spriteRender->getSize() / 10);
 
     startPoint = transform()->position();
     alertEnemySignal = Primitive::CreateEmptyGameObject({Vec2::up / 4.4f})->AddComponent<SpriteRenderer>();
-    alertEnemySignal->setSprite(Primitive::CreateSpriteFrom(WGame::spriteAsset->GetImage("alert-enemy")));
+    alertEnemySignal->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("alert-enemy")));
     alertEnemySignal->transform()->setParent(transform(), false);
     alertEnemySignal->setColor(Color::red);
     alertEnemySignal->setSize(Vec2::half);
@@ -107,16 +107,9 @@ void EKamikadze::OnUpdate()
     Vec2 target_to;
     float distance;
     Player *player = WGame::current->player;
-    if(reverse)
-    {
-        target_to = player->transform()->position();
-        distance = 2;
-    }
-    else
-    {
-        target_to = startPoint;
-        distance = 0.1;
-    }
+
+    target_to = player->transform()->position();
+    distance = 2;
     alertEnemySignal->transform()->angle(alertEnemySignal->transform()->angle() + 2);
     transform()->LookAt(player->transform());
 
@@ -132,22 +125,13 @@ void EKamikadze::OnUpdate()
     }
     else if(_remainedDistance < distance)
     {
-        if(!reverse)
+        if(1 || Random::Range(0, 10) < 5)
         {
-            startPoint -= Random::RandomVector();
+            // SUICIDE
+            player->applyDamage(getDamageWeight(), transform()->position());
+            putParticleExplode(transform()->position());
+            Destroy(gameObject());
         }
-        else
-        {
-            if(1 || Random::Range(0, 10) < 5)
-            {
-                // SUICIDE
-                player->applyDamage(getDamageWeight(), transform()->position());
-                putParticleExplode(transform()->position());
-                Destroy(gameObject());
-            }
-        }
-
-        reverse = !reverse;
     }
     else if(_remainedDistance < distance * 3)
     {

@@ -1,7 +1,5 @@
 #include "WGame.hpp"
 
-Asset *WGame::spriteAsset = nullptr;
-Asset *WGame::soundAsset = nullptr;
 WGame *WGame::current = nullptr;
 constexpr int enemyPer = 15;
 void make_simple_enemy();
@@ -21,17 +19,6 @@ void WGame::OnAwake()
     current = this;
     // Load resources
 
-    std::string datadir = Path::app_dir() + "data" + Path::GetPathSeperatorOS();
-    std::string p = datadir + "resources.json";
-    if(spriteAsset == nullptr && !AssetManager::LoadAsset(p, &spriteAsset))
-    {
-        RoninSimulator::ShowMessageFail("Failed load asset " + p);
-    }
-    p = datadir + "sounds.json";
-    if(soundAsset == nullptr && !AssetManager::LoadAsset(p, &soundAsset))
-    {
-        RoninSimulator::ShowMessageFail("Failed load asset " + p);
-    }
     SetCursor(AssetManager::ConvertImageToCursor(spriteAsset->GetImage("cursor-target"), {16, 16}));
 
     RoninMemory::alloc_self(navMesh, 1000, 1000);
@@ -101,7 +88,7 @@ void make_simple_enemy()
         kamikadze->AddOnDestroy(
             [](Component *self)
             {
-                AudioClip *clip = WGame::current->soundAsset->GetAudioClip("space-explode");
+                AudioClip *clip = soundAsset->GetAudioClip("space-explode");
                 AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.3f);
             });
 

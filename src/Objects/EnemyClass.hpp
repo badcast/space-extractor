@@ -47,7 +47,6 @@ public:
     int healthPoint;
     Vec2 startPoint;
 
-    bool reverse = false;
     Enemy() : Behaviour("Enemy"), healthPoint(0)
     {
     }

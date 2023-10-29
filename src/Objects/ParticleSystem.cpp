@@ -193,14 +193,12 @@ void ParticleSystem::OnUpdate()
         M_DestroyNow = 0, // Уничтожить эту систему частиц
         M_Execute = 1, // Выполнять в любом случаем, например частицы уже созданы и их нужно отрендерить и интерполировать
         M_Fabricate = 2, // Создать еще частицы
-
-        CombinedExecFabricate = M_Execute | M_Fabricate
     };
 
     int makeFlag = (loop || !m_drains.empty()) ? M_Execute : 0;
-    makeFlag |= (m_maked < m_limit || m_maked < startWith) ? M_Fabricate : 0;
+    makeFlag |= (m_limit == 0 || m_maked < m_limit || m_maked < startWith) ? M_Fabricate : 0;
 
-    if(makeFlag & CombinedExecFabricate)
+    if(makeFlag)
     {
         float t = TimeEngine::time();
         // Make new particle (interval)
