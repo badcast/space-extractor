@@ -9,7 +9,7 @@
 
 #include "SpaceDepends.hpp"
 
-enum class ParticleSourceInspect
+enum ParticleSourceInspect
 {
     InspectNext,
     InspectRandom
