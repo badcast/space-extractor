@@ -13,7 +13,7 @@
 
 #include "Worlds/WGame.hpp"
 
-static Asset *spriteAsset;
-static Asset *soundAsset;
+extern Asset *spriteAsset;
+extern Asset *soundAsset;
 
 #endif

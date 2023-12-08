@@ -37,8 +37,8 @@ struct ParticleDrain
 class ParticleSystem : public Behaviour
 {
 protected:
-    std::set<ParticleDrain> m_drains;
-    std::vector<SpriteRenderer *> m_reserved_drains;
+    std::set<ParticleDrain> activeParticles;
+    std::vector<SpriteRenderer *> cachedParticles;
     float m_timing;
     int m_maked;
     int m_lastInspected = 0;
@@ -148,7 +148,7 @@ public:
      * @param source The source sprite to set.
      * @param inspectType (Optional) The inspection type (default: ParticleSourceInspect::InspectNext).
      */
-    void setSource(Sprite *source, ParticleSourceInspect inspectType = ParticleSourceInspect::InspectNext);
+    void setSource(Sprite *source);
 
     /**
      * @brief Set two source sprites for the particle.

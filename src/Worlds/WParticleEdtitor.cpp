@@ -7,6 +7,7 @@ uid sliderParticleCount;
 uid sliderParticleLifetime;
 uid sliderParticleSpeed;
 uid sliderParticleSize;
+uid checkBoxParticleEmit;
 uid buttonParticleReset;
 uid buttonCameraBackclear;
 uid buttonParticleclearReserved;
@@ -49,6 +50,9 @@ void WParticleEdtitor::OnStart()
 
     pos.y += pos.h;
     sliderParticleSize = GetGUI()->PushSlider(0.1, 0, 0.5, pos);
+
+    checkBoxParticleEmit = GetGUI()->ElementContains(1);
+
 
     GetGUI()->PushLayout({0, 0, 100, 500});
     GetGUI()->LayoutLabel("Text");

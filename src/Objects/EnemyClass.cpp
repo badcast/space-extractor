@@ -32,8 +32,8 @@ ParticleSystem *putParticleExplode(Vec2 position)
     ParticleSystem *particle = Primitive::CreateEmptyGameObject(position)->AddComponent<ParticleSystem>();
     particle->loop = false;
     particle->speed = 2;
-    particle->setSource(sprite_explode);
     particle->direction = Vec2::zero;
+    particle->setSource(sprite_explode);
     particle->setLimit(1);
     particle->setInterpolates(4, 0.05f, 0.1f);
     particle->setColors(Color::white, Color::white, Color::transparent);
@@ -44,12 +44,12 @@ ParticleSystem *putParticleExplode(Vec2 position)
     particle->loop = false;
     particle->randomDirection = true;
     particle->speed = 0.4f;
-    particle->interval = 0.1f;
+    particle->interval = 0.5f;
     particle->startWith = 5;
     particle->setSources(sprite_drop_drains, sprite_drop_drains2);
     particle->setInterpolates(3);
     particle->setColors({Color::white, 100}, Color::darkgray, Color::transparent);
-    particle->setSizes(Vec2::one / 11, Vec2::one / 16);
+    particle->setSizes(Vec2::one / 11, Vec2::one / 15);
 
     // PARTICLE RECTANGLE
     particle = Primitive::CreateEmptyGameObject(position)->AddComponent<ParticleSystem>();

@@ -13,10 +13,11 @@ int main()
 
     Resolution res {1024, 500};
     RoninSimulator::Show(res, false);
-
+    res = RoninSimulator::GetCurrentResolution();
+    RoninSimulator::SetWindowResolution(res);
     RoninSimulator::SetDebugMode(true);
 
-    WParticleEdtitor loadWorld;
+    WGame loadWorld;
 
     RoninSimulator::LoadWorld(&loadWorld);
 

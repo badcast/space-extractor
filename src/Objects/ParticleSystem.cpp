@@ -69,22 +69,22 @@ void ParticleSystem::link_particles(int n)
 
         // Set Start Color
         spriteRender->setColor(startColor);
-        m_drains.insert({spriteRender, TimeEngine::time(), randomDirection ? Random::RandomVector() : direction});
+        activeParticles.insert({spriteRender, TimeEngine::time(), randomDirection ? Random::RandomVector() : direction});
     };
 
     // use existences
     if(reserving)
     {
-        while(!m_reserved_drains.empty() && n-- > 0)
+        while(!cachedParticles.empty() && n-- > 0)
         {
-            SpriteRenderer *exist = m_reserved_drains.back();
-            m_reserved_drains.pop_back();
+                SpriteRenderer *exist = cachedParticles.back();
+                cachedParticles.pop_back();
             // showing
             exist->gameObject()->SetActive(true);
             fabricate(exist);
         }
     }
-    else if(!m_reserved_drains.empty())
+    else if(!cachedParticles.empty())
     {
         ClearReserved();
     }
@@ -102,12 +102,12 @@ void ParticleSystem::link_particles(int n)
             {
                 // Remove old's
 
-                ParticleDrain drain {};
+                ParticleDrain drain;
                 drain.render = comp->GetComponent<SpriteRenderer>();
-                auto iter = this->m_drains.find(drain);
-                if(iter != std::end(this->m_drains))
+                auto iter = this->activeParticles.find(drain);
+                if(iter != std::end(this->activeParticles))
                 {
-                    this->m_drains.erase(iter);
+                    this->activeParticles.erase(iter);
                 }
             });
         fabricate(spriteRender);
@@ -127,7 +127,7 @@ void ParticleSystem::unlink_particle(const ParticleDrain *drain)
         drain->render->gameObject()->SetActive(false);
         // State clear render cache
         drain->render->setSprite(nullptr);
-        m_reserved_drains.emplace_back(drain->render);
+        cachedParticles.emplace_back(drain->render);
     }
 }
 
@@ -136,10 +136,9 @@ ParticleSystem::ParticleSystem()
 {
 }
 
-void ParticleSystem::setSource(Sprite *source, ParticleSourceInspect inspectType)
+void ParticleSystem::setSource(Sprite *source)
 {
     m_sources.clear();
-    m_sourceInspect = inspectType;
     m_sources.push_back(source);
 }
 
@@ -183,6 +182,21 @@ void ParticleSystem::OnStart()
         m_timing = 0;
 }
 
+template <typename Param>
+constexpr const Param &InterpolationValue(int state, const Param &begin, const Param &any, const Param &end)
+{
+    switch(static_cast<ParticleState>(state))
+    {
+        case SIMULATE_STATE:
+            return any;
+        case BEGIN_STATE:
+            return begin;
+        case END_STATE:
+        default:
+            return end;
+    }
+}
+
 void ParticleSystem::OnUpdate()
 {
     // Create new particles if the "timing" time has come, or its creation has reached the end (maxParticles)
@@ -195,8 +209,12 @@ void ParticleSystem::OnUpdate()
         M_Fabricate = 2, // Создать еще частицы
     };
 
-    int makeFlag = (loop || !m_drains.empty()) ? M_Execute : 0;
-    makeFlag |= (m_limit == 0 || m_maked < m_limit || m_maked < startWith) ? M_Fabricate : 0;
+    int makeFlag = (loop || !activeParticles.empty()) ? M_Execute : 0;
+
+    if(loop && m_limit == 0 || m_maked < m_limit || m_maked < startWith)
+    {
+        makeFlag |= M_Fabricate;
+    }
 
     if(makeFlag)
     {
@@ -204,7 +222,7 @@ void ParticleSystem::OnUpdate()
         // Make new particle (interval)
         if(emit && m_timing <= t && (makeFlag & M_Fabricate))
         {
-            int make_n = m_limit == 0 ? startWith : Math::Min(startWith, static_cast<int>(m_limit - m_drains.size()));
+            int make_n = m_limit == 0 ? startWith : Math::Min(startWith, static_cast<int>(m_limit - activeParticles.size()));
             link_particles(make_n);
             m_maked += make_n;
 
@@ -213,7 +231,7 @@ void ParticleSystem::OnUpdate()
         }
 
         // Update existing particles (drains)
-        for(std::set<ParticleDrain>::iterator drain = std::begin(m_drains); drain != std::end(m_drains); ++drain)
+        for(std::set<ParticleDrain>::iterator drain = std::begin(activeParticles); drain != std::end(activeParticles); ++drain)
         {
             float drain_lifetime = t - drain->initTime;
             if(drain_lifetime >= m_duration)
@@ -245,25 +263,21 @@ void ParticleSystem::OnUpdate()
 
             interpolateEnd = Math::Min<int>(Math::Max<int>(interpolateBegin, interpolateBegin + 1), END_STATE);
 
-#define INTERPOLATION_VALUE(STATE, BEGIN, ANY, END) (STATE == SIMULATE_STATE ? (ANY) : STATE == BEGIN_STATE ? (BEGIN) : (END))
-
             // Colorize
             if(colorable)
             {
-                Color interpolate_from = INTERPOLATION_VALUE(interpolateBegin, startColor, centerColor, endColor);
-                Color interpolate_to = INTERPOLATION_VALUE(interpolateEnd, startColor, centerColor, endColor);
+                Color interpolate_from = InterpolationValue(interpolateBegin, startColor, centerColor, endColor);
+                Color interpolate_to = InterpolationValue(interpolateEnd, startColor, centerColor, endColor);
                 drain->render->setColor(Color::Lerp(interpolate_from, interpolate_to, state_percentage));
             }
 
             // Scaling
             if(scalable)
             {
-                Vec2 interpolate_from = INTERPOLATION_VALUE(interpolateBegin, startSize, centerSize, endSize);
-                Vec2 interpolate_to = INTERPOLATION_VALUE(interpolateEnd, startSize, centerSize, endSize);
+                Vec2 interpolate_from = InterpolationValue(interpolateBegin, startSize, centerSize, endSize);
+                Vec2 interpolate_to = InterpolationValue(interpolateEnd, startSize, centerSize, endSize);
                 drain->render->setSize(Vec2::Lerp(interpolate_from, interpolate_to, state_percentage));
             }
-
-#undef INTERPOLATION_VALUE
 
             // Move, rotate
             Transform *particleTransform = drain->render->transform();
@@ -276,10 +290,10 @@ void ParticleSystem::OnUpdate()
         }
 
         ParticleDrain drained;
-        for(SpriteRenderer *reserved : m_reserved_drains)
+        for(SpriteRenderer *reserved : cachedParticles)
         {
             drained.render = reserved;
-            m_drains.erase(drained);
+            activeParticles.erase(drained);
         }
     }
     else if(destroyAfter)
@@ -345,13 +359,13 @@ float ParticleSystem::getDuration()
 
 int ParticleSystem::getActiveCount()
 {
-    return static_cast<int>(m_drains.size());
+    return static_cast<int>(activeParticles.size());
 }
 
 ParticleSystemState ParticleSystem::getState()
 {
     return ParticleSystemState(
-        ((loop || !m_drains.empty()) ? ParticleSystemState::Executable : 0) |
+        ((loop || !activeParticles.empty()) ? ParticleSystemState::Executable : 0) |
         ((m_maked < m_limit || m_maked < startWith) ? ParticleSystemState::Fabricatable : 0));
 }
 
@@ -372,13 +386,13 @@ void ParticleSystem::Reset()
 {
     ClearReserved();
 
-    for(const ParticleDrain &drain : m_drains)
+    for(const ParticleDrain &drain : activeParticles)
     {
         drain.render->ClearOnDestroy();
         drain.render->gameObject()->Destroy(); // destroy now
     }
 
-    m_drains.clear();
+    activeParticles.clear();
     m_maked = 0;
     m_timing = 0;
     m_lastInspected = 0;
@@ -386,11 +400,11 @@ void ParticleSystem::Reset()
 
 void ParticleSystem::ClearReserved()
 {
-    for(SpriteRenderer *drain : m_reserved_drains)
+    for(SpriteRenderer *drain : cachedParticles)
     {
         drain->ClearOnDestroy();
         drain->gameObject()->Destroy(); // destroy now
     }
-    m_reserved_drains.clear();
-    m_reserved_drains.shrink_to_fit();
+    cachedParticles.clear();
+    cachedParticles.shrink_to_fit();
 }

@@ -1,5 +1,8 @@
 #include "WGame.hpp"
 
+Asset *spriteAsset;
+Asset *soundAsset;
+
 WGame *WGame::current = nullptr;
 constexpr int enemyPer = 15;
 void make_simple_enemy();
