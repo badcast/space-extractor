@@ -1,0 +1,36 @@
+/*
+ * author: badcast <lmecomposer@gmail.com>
+ * year 2023
+ * status: already coding
+ */
+
+#ifndef _SPRITE_ANIMATOR_HPP_
+#define _SPRITE_ANIMATOR_HPP_
+
+#include "SpaceDepends.hpp"
+
+class SpriteAnimator : public Behaviour
+{
+private:
+    float lastTime;
+    SpriteRenderer *renderer;
+    unsigned m_currentSprite;
+    std::vector<Sprite *> m_sprites;
+
+    void setSprite(unsigned spriteIndex);
+
+public:
+    // Animation speed
+    float animationSpeed = 1.0f;
+
+    template <typename Container>
+    void SetSprites(const Container &sprites)
+    {
+        m_sprites.assign(sprites.begin(), sprites.end());
+    }
+
+    void OnStart() override;
+    void OnUpdate() override;
+};
+
+#endif

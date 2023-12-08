@@ -16,33 +16,28 @@ enum EnemyAttackMode
     Builder,
 };
 
-const static struct
+struct EnemyInfo
 {
-    const struct
-    {
-        EnemyAttackMode attackMode = Kamikadze;
-        int hp = 5;
-        float speed = 0.8f;
-        int damage_weight = 5;
-    } kamikadze;
-    const struct
-    {
-        EnemyAttackMode attackMode = DistanceFire;
-        int hp = 60;
-        float speed = 2;
-        int damage_weight = 25;
-    } winderfill;
-    const struct
-    {
-        EnemyAttackMode attackMode = Builder;
-        int hp = 200;
-        float speed = 1;
-        int damage_weight = 125;
-    } mathbird;
+    EnemyAttackMode attackMode;
+    int hp;
+    float rotateSpeed;
+    float speed;
+    int damage_weight;
+    float stopOnDistance;
+};
+
+extern struct EnemyClasses
+{
+    EnemyInfo kamikadze;
+    EnemyInfo winderfill;
+    EnemyInfo mathbird;
 } enemy_class_info;
 
 class Enemy : public Behaviour
 {
+protected:
+    Vec2 targetTo;
+
 public:
     int healthPoint;
     Vec2 startPoint;
@@ -56,28 +51,31 @@ public:
     // Enemy damage weight
     virtual int getDamageWeight() const = 0;
     // Receiving damage
-    virtual void receiveDamage(int damage) = 0;
+    virtual void receiveDamage(int damage, float after = 0) = 0;
+    // Result stop-move of distance (From -> To)
+    virtual float getStopDistance() const = 0;
 };
 
 class EKamikadze : public Enemy
 {
 private:
     bool animInverse = true;
-    SpriteRenderer *alertEnemySignal;
+    SpriteRenderer *renderAlertSignal;
 
 public:
-    EKamikadze() : Enemy(), alertEnemySignal(nullptr)
+    EKamikadze() : Enemy(), renderAlertSignal(nullptr)
     {
         healthPoint = enemy_class_info.kamikadze.hp;
     }
 
-    void OnStart() override;
+    void OnAwake() override;
+    void OnUpdate() override;
 
     int getDamageWeight() const override;
 
-    void receiveDamage(int damage) override;
+    void receiveDamage(int damage, float after = 0) override;
 
-    void OnUpdate();
+    float getStopDistance() const override;
 };
 
 #endif

@@ -17,24 +17,38 @@ class Player;
 class Enemy;
 class Weapon;
 class Collision;
-class ParticleSystem;
 
-enum Layers : int
+enum GameLayers : int
 {
     All = -1,
-    ParticleClass = 5,
+    AnyClass = 0,
     BulletClass = 1,
     ShieldClass = 2,
     EnemyClass = 4,
+    ParticleClass = 6,
     PlayerClass = 8,
-    EnemyOrBullet = Layers::EnemyClass | Layers::BulletClass,
-    PlayerOrBullet = Layers::PlayerClass | Layers::BulletClass,
+    EnemyOrBullet = GameLayers::EnemyClass | GameLayers::BulletClass,
+    PlayerOrBullet = GameLayers::PlayerClass | GameLayers::BulletClass,
 };
 
+enum RenderOrders : int
+{
+    BackgroundOrder = -100,
+    OtherOrder = 0,
+    PlayerOrder,
+    EnemyOrder,
+    ParticlesOrder,
+    ParticleMainSmokeOrder
+};
+
+#include "GameAssets.hpp"
+
 #include "Objects/EnemyClass.hpp"
+#include "Objects/SpriteAnimator.hpp"
 #include "Objects/Weapon.hpp"
 #include "Objects/WeaponMachineGun.hpp"
 #include "Objects/Collision.hpp"
-#include "Objects/ParticleSystem.hpp"
+
+#include "PlayerCursor.hpp"
 
 #endif

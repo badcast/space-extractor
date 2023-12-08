@@ -14,7 +14,7 @@ class WGame : public World
 public:
     NavMesh *navMesh;
     Player *player;
-    std::vector<Enemy *> enemies;
+    std::set<Enemy *> enemies;
 
     WGame() : World("Space Extractor Game World"), navMesh(nullptr), player(nullptr)
     {
@@ -23,8 +23,8 @@ public:
     void OnAwake();
     void OnStart();
     void OnUpdate();
-    void OnGizmos();
     void OnUnloading();
+    void OnGizmos();
 
     static WGame *current;
 };

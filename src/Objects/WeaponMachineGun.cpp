@@ -1,8 +1,9 @@
 #include "WeaponMachineGun.hpp"
+#include "Worlds/WGame.hpp"
 
 void WeaponMachineGun::setDefaultValues()
 {
-    this->rotateSpeed = 20;
+    this->rotateSpeed = 200;
     this->weight = 125;
     this->bulletSpeed = 25;
     this->bulletDelayShot = 0.1f;
@@ -11,11 +12,17 @@ void WeaponMachineGun::setDefaultValues()
 
     if(bulletPrefab == nullptr)
     {
+        SpriteRenderer *sprRender;
+        // GameObject *rootPref = Primitive::CreateEmptyGameObject();
         bulletPrefab = Primitive::CreateEmptyGameObject();
         bulletPrefab->name("Gold Bullet");
-        bulletPrefab->transform()->layer(-1);
+        bulletPrefab->transform()->angle(180);
         bulletPrefab->SetActive(false);
-        SpriteRenderer *sprRender = bulletPrefab->AddComponent<SpriteRenderer>();
-        sprRender->setSprite(Primitive::CreateSpriteRectangle(true, {0.02f, 1}, Color::gold));
+
+        sprRender = bulletPrefab->AddComponent<SpriteRenderer>();
+        sprRender->setSprite(Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("bullet-machine-gun")));
+
+        // bulletPrefab->transform()->setParent(rootPref->transform(), true);
+        // bulletPrefab = rootPref;
     }
 }

@@ -1,55 +1,106 @@
 #include "EnemyClass.hpp"
 #include "Worlds/WGame.hpp"
 
+using namespace RoninEngine::Runtime;
+
 static Sprite *sprite_explode = nullptr;
 static Sprite *sprite_explode_flow = nullptr;
 static Sprite *sprite_drop_drains = nullptr;
 static Sprite *sprite_drop_drains2 = nullptr;
 
-ParticleSystem *putParticleExplode(Vec2 position)
+/*
+    int hp;
+    float rotateSpeed;
+    float speed;
+    int damage_weight;
+    float stopOnDistance;
+*/
+
+EnemyClasses enemy_class_info {{Kamikadze, 1, 1, 0.8f, 5, 1.0f}, {DistanceFire, 1, 60, 2.0f, 25, 1.0f}, {Builder, 1, 200, 1.0f, 125, 1.0f}};
+
+class ParticleMoveOut : public Behaviour
 {
+public:
+    float start;
+    ParticleSystem *particleRef;
+
+    void OnStart() override
+    {
+        start = Time::time() + 2;
+        particleRef->rotatePerFrame = 0;
+    }
+
+    void OnUpdate() override
+    {
+        if(Time::time() < start)
+            return;
+
+        Vec2 to;
+        to = WGame::current->player->transform()->position();
+        particleRef->rotatePerFrame = 120;
+        if(transform()->position() == to)
+        {
+            if(!World::self()->StateObjectDestruction(this->gameObject()))
+                this->gameObject()->Destroy(0.3f);
+            return;
+        }
+        transform()->position(Vec2::MoveTowards(transform()->position(), to, Time::deltaTime() * 5));
+    }
+};
+
+ParticleSystem *putEnemyParticleExplode(Vec2 position)
+{
+
     if(sprite_explode == nullptr)
-    {
-        sprite_explode = Primitive::CreateSpriteFrom(spriteAsset->GetImage("explode-v1"), false);
-    }
-
+        sprite_explode = Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("explode-v1"), false);
     if(sprite_explode_flow == nullptr)
-    {
-        sprite_explode_flow = Primitive::CreateSpriteFrom(spriteAsset->GetImage("alert-place-flow"), false);
-    }
-
+        sprite_explode_flow = Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("alert-place-flow"), false);
     if(sprite_drop_drains == nullptr)
-    {
         sprite_drop_drains = Primitive::CreateSpriteTriangle(false);
-    }
-
     if(sprite_drop_drains2 == nullptr)
-    {
         sprite_drop_drains2 = Primitive::CreateSpriteRectangle(false);
-    }
 
     // PARTICLE FIRE
     ParticleSystem *particle = Primitive::CreateEmptyGameObject(position)->AddComponent<ParticleSystem>();
     particle->loop = false;
     particle->speed = 2;
-    particle->setSource(sprite_explode);
     particle->direction = Vec2::zero;
+    particle->rotatePerFrame = 0;
+    particle->worldSpace = false;
+    particle->setSource(sprite_explode);
     particle->setLimit(1);
-    particle->setInterpolates(4, 0.05f, 0.1f);
-    particle->setColors(Color::white, Color::white, Color::transparent);
-    particle->setSizes(Vec2::half / 4, Vec2::half / 2);
+    particle->setInterpolates(10);
+    particle->setColors({Color::white, 100}, Color::white, {Color::white, 0});
+    particle->setSize(Vec2::half / 4);
+    particle->AddComponent<ParticleMoveOut>()->particleRef = particle;
+    particle->transform()->zOrder(RenderOrders::ParticlesOrder);
 
     // PARTICLE DROPS DRAINS
     particle = Primitive::CreateEmptyGameObject(position)->AddComponent<ParticleSystem>();
     particle->loop = false;
     particle->randomDirection = true;
-    particle->speed = 0.4f;
-    particle->interval = 0.1f;
-    particle->startWith = 5;
-    particle->setSources(sprite_drop_drains, sprite_drop_drains2);
+    particle->speed = 0.2f;
+    particle->interval = 0.5f;
+    particle->startWith = 3;
+    particle->setLimit(3);
+    particle->setSources(assets.artefacts->GetAtlasObject()->GetSprites());
     particle->setInterpolates(3);
-    particle->setColors({Color::white, 100}, Color::darkgray, Color::transparent);
-    particle->setSizes(Vec2::one / 11, Vec2::one / 16);
+    particle->setColors({Color::darkgreen, 100}, {Color::white, 200}, {Color::white, 0});
+    particle->setSizes(Vec2::one / 11, Vec2::one / 15);
+    particle->transform()->zOrder(RenderOrders::ParticlesOrder);
+
+    particle = Primitive::CreateEmptyGameObject(position)->AddComponent<ParticleSystem>();
+    particle->loop = false;
+    particle->randomDirection = true;
+    particle->speed = 0.2f;
+    particle->interval = 0.5f;
+    particle->startWith = 3;
+    particle->setLimit(5);
+    particle->setSource(sprite_drop_drains);
+    particle->setInterpolates(3);
+    particle->setColors(Color::red, Color::transparent);
+    particle->setSizes(Vec2::one / 8, Vec2::one / 10);
+    particle->transform()->zOrder(RenderOrders::ParticlesOrder);
 
     // PARTICLE RECTANGLE
     particle = Primitive::CreateEmptyGameObject(position)->AddComponent<ParticleSystem>();
@@ -62,28 +113,34 @@ ParticleSystem *putParticleExplode(Vec2 position)
     particle->setInterpolates(3, 0.1f, 0.1f);
     particle->setSource(sprite_explode_flow);
     particle->setColors(Color::transparent, Color::white, Color::transparent);
-    particle->setSizes(Vec2::zero, Vec2::one * 2);
+    particle->setSizes(Vec2::one / 2, Vec2::one / 3);
+    particle->transform()->zOrder(RenderOrders::ParticlesOrder);
     return particle;
 }
 
 void Enemy::moveTo(Vec2 targetPoint)
 {
+    this->targetTo = targetPoint;
 }
 
-void EKamikadze::OnStart()
+void EKamikadze::OnAwake()
 {
-    transform()->layer(Layers::EnemyClass);
-    SpriteRenderer *spriteRender = AddComponent<SpriteRenderer>();
-    spriteRender->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("enemy-low")));
+    SpriteRenderer *spriteRender;
+    transform()->layer(GameLayers::EnemyClass);
+    transform()->zOrder(RenderOrders::EnemyOrder);
+
+    spriteRender = AddComponent<SpriteRenderer>();
+    spriteRender->transform()->zOrder(RenderOrders::EnemyOrder);
+    spriteRender->setSprite(Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("enemy-low")));
     spriteRender->setSize(spriteRender->getSize() / 10);
 
     startPoint = transform()->position();
-    alertEnemySignal = Primitive::CreateEmptyGameObject({Vec2::up / 4.4f})->AddComponent<SpriteRenderer>();
-    alertEnemySignal->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("alert-enemy")));
-    alertEnemySignal->transform()->setParent(transform(), false);
-    alertEnemySignal->setColor(Color::red);
-    alertEnemySignal->setSize(Vec2::half);
-    alertEnemySignal->gameObject()->SetActive(false);
+    renderAlertSignal = Primitive::CreateEmptyGameObject({Vec2::up / 4.4f})->AddComponent<SpriteRenderer>();
+    renderAlertSignal->setSprite(Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("alert-enemy")));
+    renderAlertSignal->transform()->setParent(transform(), false);
+    renderAlertSignal->setColor(Color::red);
+    renderAlertSignal->setSize(Vec2::half);
+    renderAlertSignal->gameObject()->SetActive(false);
 }
 
 int EKamikadze::getDamageWeight() const
@@ -91,59 +148,62 @@ int EKamikadze::getDamageWeight() const
     return enemy_class_info.kamikadze.damage_weight;
 }
 
-void EKamikadze::receiveDamage(int damage)
+void EKamikadze::receiveDamage(int damage, float after)
 {
     healthPoint = Math::Max(0, healthPoint - damage);
 
     if(healthPoint == 0)
     {
-        putParticleExplode(this->transform()->position());
-        Destroy(this->gameObject()); // can destroy
+        putEnemyParticleExplode(transform()->position());
+        Destroy(gameObject(), after); // can destroy
     }
+}
+
+float EKamikadze::getStopDistance() const
+{
+    return enemy_class_info.kamikadze.stopOnDistance;
 }
 
 void EKamikadze::OnUpdate()
 {
-    Vec2 target_to;
     float distance;
     Player *player = WGame::current->player;
+    targetTo = player->transform()->position();
 
-    target_to = player->transform()->position();
     distance = 2;
-    alertEnemySignal->transform()->angle(alertEnemySignal->transform()->angle() + 2);
-    transform()->LookAt(player->transform());
+    renderAlertSignal->transform()->angle(renderAlertSignal->transform()->angle() + 1);
 
-    transform()->position(
-        Vec2::MoveTowards(transform()->position(), target_to, TimeEngine::deltaTime() * enemy_class_info.kamikadze.speed));
+    transform()->LookAtLerp(targetTo, Time::deltaTime() * enemy_class_info.kamikadze.rotateSpeed);
 
-    float _remainedDistance = Vec2::Distance(transform()->position(), target_to);
+    transform()->Translate(transform()->forward() * Time::deltaTime() * enemy_class_info.kamikadze.speed);
+    // transform()->position(Vec2::MoveTowards(transform()->position(), targetTo, Time::deltaTime() * enemy_class_info.kamikadze.speed));
 
-    if(Input::GetMouseUp(MouseState::MouseRight))
+    float currentDistance = Vec2::Distance(transform()->position(), targetTo);
+
+    if(currentDistance <= getStopDistance())
     {
-        putParticleExplode(transform()->position());
-        this->gameObject()->Destroy();
     }
-    else if(_remainedDistance < distance)
+
+    if(currentDistance < distance)
     {
-        if(1 || Random::Range(0, 10) < 5)
-        {
-            // SUICIDE
-            player->applyDamage(getDamageWeight(), transform()->position());
-            putParticleExplode(transform()->position());
-            Destroy(gameObject());
-        }
+        // SUICIDE
+        player->applyDamage(getDamageWeight(), transform()->position());
+        putEnemyParticleExplode(transform()->position());
+        Destroy(gameObject());
     }
-    else if(_remainedDistance < distance * 3)
+    else if(currentDistance < distance * 3)
     {
-        if(!alertEnemySignal->gameObject()->isActive())
-            alertEnemySignal->gameObject()->SetActive(true);
         constexpr int alert_value = 10;
+
+        if(!renderAlertSignal->gameObject()->isActive())
+            renderAlertSignal->gameObject()->SetActive(true);
+
         // Animate color
-        Color color = alertEnemySignal->getColor();
+        Color color = renderAlertSignal->getColor();
         if(!animInverse)
             animInverse = ((color.a += alert_value) == 255);
         else
             animInverse = !((color.a -= alert_value) == 0);
-        alertEnemySignal->setColor(color);
+        renderAlertSignal->setColor(color);
     }
 }

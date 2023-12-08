@@ -1,0 +1,26 @@
+{
+  "class": "Atlas",
+  "source": "sprites/ui_layer-infobar.png",
+  "map": [
+    {
+      "sprite": "game-progress-foreground",
+      "value": "50 0 351 61"
+    },
+    {
+          "sprite": "game-progress-foreground-mask",
+      "value": "412 0 347 58"
+    },
+    {
+          "sprite": "game-progress-extent",
+      "value": "3 0 47 43"
+    },
+    {
+          "sprite": "game-top-corners",
+        "value": "0 62 423 65"
+    },
+    {
+          "sprite": "game-right-ring",
+        "value": "437 56 172 128"
+    }
+  ]
+}

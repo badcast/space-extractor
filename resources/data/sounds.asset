@@ -1,13 +1,13 @@
 {
-  "resource_type": "AudioClip",
-  "resources": [
+  "class": "AudioClip",
+  "source": [
     {
       "name": "space-explode",
       "ref": "sounds/space-explode.ogg"
     },
     {
       "name": "machinegun-1",
-      "ref": "sounds/shot-machinegun-1.ogg"
+      "ref": "sounds/shot-machinegun-2.ogg"
     },
     {
       "name": "machinegun-2",

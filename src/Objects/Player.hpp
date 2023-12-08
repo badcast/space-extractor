@@ -31,7 +31,11 @@ public:
     Transform *gunPoint1, *gunPoint2;
     Transform *playerShield;
     AudioSource *playerAudio;
-    int healthPoint = 1000;
+    int maxHealthPoint = 1000;
+    int healthPoint = 0;
+    int maxArmoryPoint = 100;
+    int armoryPoint = 0;
+    int scores = 0;
     float clampAngleLeft = -80, clampAngleRight = 80;
 
     std::set<Transform *> bullets;

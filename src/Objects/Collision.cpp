@@ -5,8 +5,8 @@
 bool CheckCollision(Rectf rectA, float angleA, Rectf rectB, float angleB)
 {
     // Преобразуем углы в радианы
-    float angleRadA = angleA * (float) M_PI / 180.0f;
-    float angleRadB = angleB * (float) M_PI / 180.0f;
+    float angleRadA = angleA * (float) Math::Pi / 180.0f;
+    float angleRadB = angleB * (float) Math::Pi / 180.0f;
 
     // Рассчитываем центры прямоугольников
     float centerX_A = rectA.x + rectA.w / 2.0f;
@@ -17,8 +17,8 @@ bool CheckCollision(Rectf rectA, float angleA, Rectf rectB, float angleB)
     // Рассчитываем синус и косинус углов вращения
     // float sinA = sinf(angleRadA);
     // float cosA = cosf(angleRadA);
-    float sinB = sinf(angleRadB);
-    float cosB = cosf(angleRadB);
+    float sinB = Math::Sin(angleRadB);
+    float cosB = Math::Cos(angleRadB);
 
     // Преобразуем координаты точек прямоугольника A в систему координат B
     float xA_inB = cosB * (centerX_A - centerX_B) + sinB * (centerY_A - centerY_B) + centerX_B;
@@ -34,13 +34,13 @@ bool CheckCollision(Rectf rectA, float angleA, Rectf rectB, float angleB)
     return true;
 }
 
-void Collision::OnStart()
+void Collision::OnAwake()
 {
     // Get collide size from SpriteRenderer::size() if collideSize is empty
     if(collideSize != Vec2::zero)
         return;
 
-    SpriteRenderer *from = GetComponent<SpriteRenderer>();
+    SpriteRenderer *from = this->GetComponent<SpriteRenderer>();
     // Get size from SpriteRenderer
     if(from && from->getSprite())
         collideSize = Vec2::Scale(from->getSprite()->size(), from->getSize());
@@ -88,6 +88,6 @@ void Collision::OnUpdate()
 void Collision::OnGizmos()
 {
     return;
-    Gizmos::SetColor(Color::lime);
-    Gizmos::DrawRectangleRotate(transform()->position(), collideSize, transform()->angle() * Math::deg2rad);
+    RenderUtility::SetColor(Color::lime);
+    RenderUtility::DrawRectangleRotate(transform()->position(), collideSize, transform()->angle() * Math::deg2rad);
 }

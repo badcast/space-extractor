@@ -1,7 +1,5 @@
 #include "SpaceExtractor.hpp"
 
-#include "Worlds/WParticleEdtitor.hpp"
-
 #if WIN32
 typedef void *HINSTANCE;
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nShowCmd)
@@ -11,31 +9,21 @@ int main()
 {
     RoninSimulator::Init();
 
-    Resolution res {1024, 500};
-    RoninSimulator::Show(res, false);
-
-    RoninSimulator::SetDebugMode(true);
-
-    WParticleEdtitor loadWorld;
-
-    RoninSimulator::LoadWorld(&loadWorld);
-
-    // Load Assets
-    std::string datadir = Path::app_dir() + "data" + Path::GetPathSeperatorOS();
-    std::string p = datadir;
-    p += "resources.json";
-    if(!AssetManager::LoadAsset(p, &spriteAsset))
+    //auto selectedScreen = RoninSimulator::ShowSplashScreen(false);
+    //if(selectedScreen.first)
     {
-        RoninSimulator::ShowMessageFail("Failed load asset " + p);
-    }
-    p = datadir;
-    p += "sounds.json";
-    if(!AssetManager::LoadAsset(p, &soundAsset))
-    {
-        RoninSimulator::ShowMessageFail("Failed load asset " + p);
-    }
 
-    RoninSimulator::Simulate();
+        RoninSimulator::Show({1024, 768}, false);
+
+        RoninSimulator::SetDebugMode(true);
+
+        LoadAssets();
+
+        WGame loadWorld;
+        RoninSimulator::LoadWorld(&loadWorld);
+
+        RoninSimulator::Simulate();
+    }
 
     RoninSimulator::Finalize();
 

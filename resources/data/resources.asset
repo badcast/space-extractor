@@ -1,10 +1,6 @@
 {
-  "resource_type": "Sprite",
-  "resources": [
-    {
-      "name": "player_target",
-      "ref": "sprites/player-target.png"
-    },
+  "class": "Sprite",
+  "source": [
     {
       "name": "main-menu-background",
       "ref": "sprites/main-menu-background.png"
@@ -64,6 +60,10 @@
     {
       "name": "alert-place-flow",
       "ref": "sprites/alert-place-flow.png"
+    },
+    {
+      "name": "bullet-machine-gun",
+      "ref": "sprites/bullet-machine-gun.png"
     }
   ]
 }
