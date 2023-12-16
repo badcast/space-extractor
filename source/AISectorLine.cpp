@@ -112,23 +112,23 @@ void SectorLine::OnStart()
 {
     ::navMesh = &this->navMesh;
     switch_game_level(this);
-    Primitive::create_camera2D()->gameObject()->AddComponent<MoveController2D>();
+    Primitive::CreateCamera2D()->AddComponent<MoveController2D>();
     this->navMesh.worldScale = Vec2::Scale(navMesh.worldScale, setting.cellSize);
 
     Rect r {400, 0, 80, 16};
-    getGUI()->PushLabel("zoom", r);
+    GetGUI()->PushLabel("zoom", r);
     r.x += r.w;
-    sldr_zoom = getGUI()->PushSlider(setting.cellSize.x, 0.05f, 10, {r.getXY(), {80, 16}}, zoom_changed);
+    sldr_zoom = GetGUI()->PushSlider(setting.cellSize.x, 0.05f, 10, {r.GetXY(), {80, 16}}, zoom_changed);
     r.x += r.w + 10;
-    but_ch = getGUI()->PushButton("method", r, world_load_save);
+    but_ch = GetGUI()->PushButton("method", r, world_load_save);
     r.x += r.w;
-    but_sv = getGUI()->PushButton("save", r, world_load_save);
+    but_sv = GetGUI()->PushButton("save", r, world_load_save);
     r.x += r.w;
-    but_ld = getGUI()->PushButton("load", r, world_load_save);
+    but_ld = GetGUI()->PushButton("load", r, world_load_save);
     r.x += r.w;
-    but_mz = getGUI()->PushButton("maze", r, world_load_save);
+    but_mz = GetGUI()->PushButton("maze", r, world_load_save);
     r.x += r.w;
-    but_cl = getGUI()->PushButton("clear", r, world_load_save);
+    but_cl = GetGUI()->PushButton("clear", r, world_load_save);
     // generate maze
     navMesh.GenerateMaze();
     setting.result.connections.clear();
@@ -138,17 +138,17 @@ void SectorLine::OnStart()
 void SectorLine::OnGizmos()
 {
     Vec2 ms = Camera::ScreenToWorldPoint(Input::GetMousePointf());
-    if(getGUI()->IsMouseOver() == false)
+    if(GetGUI()->IsMouseOver() == false)
     {
-        if(Input::GetMouseDown(MouseState::MouseLeft))
+        if(Input::GetMouseDown(MouseButton::MouseLeft))
             setting.first = ms;
-        else if(Input::GetMouseDown(MouseState::MouseRight))
+        else if(Input::GetMouseDown(MouseButton::MouseRight))
             setting.last = ms;
         else
         {
             static bool dr = true;
             static bool fc = false;
-            if(Input::GetMouseDown(MouseState::MouseMiddle))
+            if(Input::GetMouseDown(MouseButton::MouseMiddle))
             {
                 auto p = navMesh.WorldPointToPoint(ms);
                 if(fc == 0)
@@ -158,12 +158,12 @@ void SectorLine::OnGizmos()
                 }
                 navMesh.setLock(p, dr);
             }
-            else if(Input::GetMouseUp(MouseState::MouseMiddle))
+            else if(Input::GetMouseUp(MouseButton::MouseMiddle))
             {
                 fc = false;
             }
 
-            if(Input::GetMouseUp(MouseState::MouseLeft) || Input::GetMouseUp(MouseState::MouseRight))
+            if(Input::GetMouseUp(MouseButton::MouseLeft) || Input::GetMouseUp(MouseButton::MouseRight))
             {
                 refind();
             }

@@ -8,9 +8,9 @@ using namespace RoninEngine::UI;
 using namespace RoninEngine::AI;
 
 constexpr int MaxPopulation = 2000;
-constexpr int InitPopuplation = 100;
+constexpr int InitPopuplation = 1000;
 constexpr int NavMeshMagnitude = 100;
-constexpr float NavMeshWorldScale = 0.32;
+constexpr float NavMeshWorldScale = 0.5;
 
 uid g_buttons;
 uid b_mainMenu;
@@ -56,24 +56,25 @@ void PathMover::OnAwake()
 {
     Resolution res = RoninSimulator::GetCurrentResolution();
 
-    GameObject *playerObj = create_game_object("Player");
+    GameObject *playerObj = Primitive::CreateEmptyGameObject();
+    playerObj->name("Player");
     player = playerObj->AddComponent<MoveController2D>();
 
     player->playerCamera->visibleBorders = true;
 
-    g_buttons = getGUI()->PushGroup();
+    g_buttons = GetGUI()->PushGroup();
     //  b_mainMenu = get_gui()->push_button("Main Menu", Vec2Int(25, 25), nullptr, g_buttons);
     Rect pos = {250, 0, 60, 16};
-    b_generateNav = getGUI()->PushButton("generate", pos, nullptr, g_buttons);
+    b_generateNav = GetGUI()->PushButton("generate", pos, nullptr, g_buttons);
     pos.x += 60;
-    b_clearNav = getGUI()->PushButton("clear", pos, nullptr, g_buttons);
+    b_clearNav = GetGUI()->PushButton("clear", pos, nullptr, g_buttons);
     pos.x += 60;
-    b_showGizmo = getGUI()->PushButton("Gizmos", pos, nullptr, g_buttons);
+    b_showGizmo = GetGUI()->PushButton("Gizmos", pos, nullptr, g_buttons);
     pos.x += 60;
-    t_infoblock = getGUI()->PushLabel("", pos, 5);
+    t_infoblock = GetGUI()->PushLabel("", pos, 5);
     pos.x += 60;
-    t_speedLabel = getGUI()->PushLabel("", pos, 5);
-    getGUI()->SetGeneralCallback(ui_event_handler, nullptr);
+    t_speedLabel = GetGUI()->PushLabel("", pos, 5);
+    GetGUI()->SetGeneralCallback(ui_event_handler, nullptr);
 }
 
 SpriteRenderer *player_target;
@@ -105,28 +106,28 @@ void PathMover::OnStart()
     switch_game_level(this);
 
     const std::string sprite_dir = "./data/";
-    test_sprite = Primitive::create_sprite2d_from(Resources::GetImageSource(Resources::LoadImage(sprite_dir + "TestSprite.png", true)));
-    floor_sprite = Primitive::create_sprite2d_from(Resources::GetImageSource(Resources::LoadImage(sprite_dir + "floor.png", true)));
-    target_sprite = Primitive::create_sprite2d_from(Resources::GetImageSource(Resources::LoadImage(sprite_dir + "target.png", true)));
+    test_sprite = Primitive::CreateSpriteFrom(Resources::GetImageSource(Resources::LoadImage(sprite_dir + "TestSprite.png", true)));
+    floor_sprite = Primitive::CreateSpriteFrom(Resources::GetImageSource(Resources::LoadImage(sprite_dir + "floor.png", true)));
+    target_sprite = Primitive::CreateSpriteFrom(Resources::GetImageSource(Resources::LoadImage(sprite_dir + "target.png", true)));
 
-    testObj = create_game_object("Population");
+    testObj = Primitive::CreateEmptyGameObject();
+    testObj->name("Population");
     testObj->transform()->position(Vec2::zero);
     testObj->transform()->layer(1); // layer
 
     spriteRenderer = testObj->AddComponent<SpriteRenderer>();
-    spriteRenderer->renderType = SpriteRenderType::Simple;
-    spriteRenderer->renderPresentMode = SpriteRenderPresentMode::Fixed;
-    spriteRenderer->flip = {1, 1};
-    spriteRenderer->set_sprite(test_sprite);
+    spriteRenderer->setRenderType(SpriteRenderType::Simple);
+    spriteRenderer->setPresentMode(  SpriteRenderPresentMode::Fixed );
+    spriteRenderer->setSprite(test_sprite);
 
-    GameObject *floor = create_game_object("Floor");
+    GameObject *floor = Primitive::CreateEmptyGameObject();
+    floor->name("Floor");
     floor->transform()->layer(-100);
     spriteRenderer = floor->AddComponent<SpriteRenderer>();
-    spriteRenderer->renderType = SpriteRenderType::Tile;
-    spriteRenderer->renderPresentMode = SpriteRenderPresentMode::Fixed;
-    spriteRenderer->size = {NavMeshMagnitude, NavMeshMagnitude};
-    spriteRenderer->size *= NavMeshWorldScale;
-    spriteRenderer->set_sprite(floor_sprite);
+    spriteRenderer->setRenderType(SpriteRenderType::Tile );
+    spriteRenderer->setPresentMode( SpriteRenderPresentMode::Fixed );
+    spriteRenderer->setSize( Vec2{NavMeshMagnitude, NavMeshMagnitude}  * NavMeshWorldScale);
+    spriteRenderer->setSprite(floor_sprite);
     floor->SetActive(false);
 
     RoninMemory::alloc_self(population_navmesh, static_cast<std::size_t>(NavMeshMagnitude), static_cast<std::size_t>(NavMeshMagnitude));
@@ -134,9 +135,9 @@ void PathMover::OnStart()
     population_navmesh->GenerateMaze();
 
     changeDrawPointPer = 0;
-    player_target = create_game_object()->AddComponent<SpriteRenderer>();
+    player_target = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
     player_target->transform()->layer(1);
-    player_target->set_sprite(target_sprite);
+    player_target->setSprite(target_sprite);
 
     NavListSite points;
     for(size_t i = 0, y = Math::Min(MaxPopulation, InitPopuplation); i < y; ++i)
@@ -165,10 +166,10 @@ void PathMover::OnUpdate()
 
     if(Input::GetKeyDown(KB_ESCAPE))
     {
-        if(!getGUI()->GetElementVisible(g_buttons))
-            getGUI()->GroupShow(g_buttons);
+        if(!GetGUI()->ElementGetVisible(g_buttons))
+            GetGUI()->GroupShow(g_buttons);
         else
-            getGUI()->GroupClose(g_buttons);
+            GetGUI()->GroupClose(g_buttons);
     }
 
     if(TimeEngine::frame() % 25 == 0)
@@ -179,7 +180,7 @@ void PathMover::OnUpdate()
         s += std::to_string(populations.size());
         s += " Active ";
         s += std::to_string(activeCount);
-        getGUI()->SetElementText(t_speedLabel, s);
+        GetGUI()->ElementSetText(t_speedLabel, s);
     }
     if(selNeuron && selNeuron != last)
     {
@@ -193,17 +194,17 @@ void PathMover::OnUpdate()
             std::strcat(p, "h: ");
             std::strcat(p, std::to_string(selNeuron->h).data());
             std::strcat(p, "; ");
-            getGUI()->SetElementVisible(t_infoblock, true);
-            getGUI()->SetElementText(t_infoblock, p);
+            GetGUI()->ElementSetVisible(t_infoblock, true);
+            GetGUI()->ElementSetText(t_infoblock, p);
         }
         else
-            getGUI()->SetElementVisible(t_infoblock, false);
+            GetGUI()->ElementSetVisible(t_infoblock, false);
 
         last = selNeuron;
     }
     if(player_target)
     {
-        if(!getGUI()->FocusedGUI() && Input::GetMouseUp(MouseState::MouseLeft))
+        if(!GetGUI()->FocusedGUI() && Input::GetMouseUp(MouseButton::MouseLeft))
         {
             p = Input::GetMousePointf();
             p = Camera::mainCamera()->ScreenToWorldPoint(p);

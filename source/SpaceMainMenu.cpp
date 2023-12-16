@@ -88,34 +88,34 @@ void GameMainMenu::OnStart()
     last_time = TimeEngine::time() + delay / 2;
     main_menu = this;
 
-    getGUI()->SetGeneralCallback(main_menu_callback, nullptr);
+    GetGUI()->SetGeneralCallback(main_menu_callback, nullptr);
 
     Resolution res = RoninSimulator::GetCurrentResolution();
     int width = 200;
     int height = 30;
     Rect _but_pos = {res.width / 2 - width / 2, 170, width, height};
-    ui_groups = getGUI()->PushGroup(_but_pos);
-    getGUI()->PushLabel("Данный тест собран на движке RoninEngine!", _but_pos, 13, ui_groups);
+    ui_groups = GetGUI()->PushGroup(_but_pos);
+    GetGUI()->PushLabel("Данный тест собран на движке RoninEngine!", _but_pos, 13, ui_groups);
     _but_pos.y += height;
 
-    but_run_bunker_play = getGUI()->PushButton(strings[0], _but_pos, nullptr, ui_groups);
+    but_run_bunker_play = GetGUI()->PushButton(strings[0], _but_pos, nullptr, ui_groups);
     _but_pos.y += height;
 
-    but_run_planet_game = getGUI()->PushButton(strings[1], _but_pos, nullptr, ui_groups);
+    but_run_planet_game = GetGUI()->PushButton(strings[1], _but_pos, nullptr, ui_groups);
     _but_pos.y += height;
-    but_run_sector = getGUI()->PushButton(strings[2], _but_pos, nullptr, ui_groups);
-    _but_pos.y += height;
-
-    but_run_population_play = getGUI()->PushButton(strings[3], _but_pos, nullptr, ui_groups);
+    but_run_sector = GetGUI()->PushButton(strings[2], _but_pos, nullptr, ui_groups);
     _but_pos.y += height;
 
-    but_run_overlay = getGUI()->PushButton(strings[4], _but_pos, nullptr, ui_groups);
+    but_run_population_play = GetGUI()->PushButton(strings[3], _but_pos, nullptr, ui_groups);
     _but_pos.y += height;
 
-    but_run_piano_play = getGUI()->PushButton(strings[5], _but_pos, nullptr, ui_groups);
+    but_run_overlay = GetGUI()->PushButton(strings[4], _but_pos, nullptr, ui_groups);
     _but_pos.y += height;
 
-    getGUI()->SetElementVisible(ui_groups, false);
+    but_run_piano_play = GetGUI()->PushButton(strings[5], _but_pos, nullptr, ui_groups);
+    _but_pos.y += height;
+
+    GetGUI()->ElementSetVisible(ui_groups, false);
 
     std::list<std::string> __list_res;
     std::list<Resolution> resolutions = RoninSimulator::EnumerateResolutions();
@@ -123,16 +123,16 @@ void GameMainMenu::OnStart()
     {
         __list_res.push_back(std::to_string(res.width) + "x" + std::to_string(res.height) + " " + std::to_string(res.hz) + "hz");
     }
-    dropdown_set_resolution = getGUI()->PushDropDown(
+    dropdown_set_resolution = GetGUI()->PushDropDown(
         __list_res, 0, _but_pos, [](uid id, int index) { RoninSimulator::ShowMessage(std::to_string(index)); }, ui_groups);
 
-    Sprite *logo = Primitive::create_sprite2d_from(Resources::GetImageSource(Resources::LoadImage("./data/logo.png", true)));
+    Sprite *logo = Primitive::CreateSpriteFrom(Resources::GetImageSource(Resources::LoadImage("./data/logo.png", true)));
 
     _but_pos = logo->rect();
     _but_pos.x = res.width / 2 - _but_pos.w / 2;
     _but_pos.y = res.height / 2 - _but_pos.h / 2;
-    logo_img = getGUI()->PushPictureBox(logo, _but_pos);
-    getGUI()->SetElementVisible(logo_img, false);
+    logo_img = GetGUI()->PushPictureBox(logo, _but_pos);
+    GetGUI()->ElementSetVisible(logo_img, false);
 
     MusicPlayer::setClip(Resources::GetMusicClipSource(Resources::LoadMusicClip("./data/intro.ogg", false)));
     MusicPlayer::Play(true);
@@ -149,7 +149,7 @@ void GameMainMenu::OnUpdate()
         case 0:
             if(last_time < t)
             {
-                getGUI()->SetElementVisible(logo_img, true);
+                GetGUI()->ElementSetVisible(logo_img, true);
                 last_time = delay + t;
                 ++logo_pos;
             }
@@ -158,7 +158,7 @@ void GameMainMenu::OnUpdate()
         case 1:
             if(last_time < t)
             {
-                getGUI()->SetElementVisible(logo_img, false);
+                GetGUI()->ElementSetVisible(logo_img, false);
                 last_time = delay / 5 + t;
                 ++logo_pos;
             }
@@ -167,7 +167,7 @@ void GameMainMenu::OnUpdate()
         case 2:
             if(last_time < t)
             {
-                getGUI()->SetElementVisible(ui_groups, true);
+                GetGUI()->ElementSetVisible(ui_groups, true);
                 ++logo_pos;
             }
             break;
@@ -224,7 +224,7 @@ inline int indexof(World *world)
 
 void switch_game_level(World *world)
 {
-    button = world->getGUI()->PushButton("В главное меню", Vec2Int::zero, __call_backmenu);
-    world->getGUI()->PushButton("Reload World", Vec2Int::up * 90, __call_reload);
-    world->getGUI()->PushLabel(string_info[indexof(world)], Vec2Int {392, 16});
+    button = world->GetGUI()->PushButton("В главное меню", Vec2Int::zero, __call_backmenu);
+    world->GetGUI()->PushButton("Reload World", Vec2Int::up * 90, __call_reload);
+    world->GetGUI()->PushLabel(string_info[indexof(world)], Vec2Int {392, 16});
 }

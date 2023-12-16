@@ -22,7 +22,7 @@ Camera2D *camera;
 AudioClip *gunClip, *hitClip, *destroyedClip;
 AudioSource *destroyed_audio;
 
-native_surface_t *muzzle_surface;
+Image *muzzle_surface;
 
 bool turret_attacking[4];
 
@@ -33,34 +33,34 @@ void BunkerWorld::OnStart()
 
     Vec2Int _u = {0, 90};
     Vec2Int of {0, 18};
-    getGUI()->PushButton(
+    GetGUI()->PushButton(
         "[+] Авто-атака",
         {_u, {150, 16}},
         [](uid id)
         {
             auto_target = !auto_target;
-            std::string s = BunkerWorld::self()->getGUI()->GetElementText(id);
+            std::string s = BunkerWorld::self()->GetGUI()->ElementGetText(id);
             s[1] = (auto_target ? '+' : '-');
-            BunkerWorld::self()->getGUI()->SetElementText(id, s);
+            BunkerWorld::self()->GetGUI()->ElementSetText(id, s);
         });
     _u += of;
-    sldr_thrsh = getGUI()->PushSlider(bullet_threshold, 1, 100, _u);
+    sldr_thrsh = GetGUI()->PushSlider(bullet_threshold, 1, 100, _u);
     _u += of;
-    getGUI()->PushLabel("Разброс пули", _u);
+    GetGUI()->PushLabel("Разброс пули", _u);
     _u += of;
-    sldr_delay_shot = getGUI()->PushSlider(0.35, 0, 1, _u);
+    sldr_delay_shot = GetGUI()->PushSlider(0.35, 0, 1, _u);
     _u += of;
-    getGUI()->PushLabel("Задержка выстрела", _u);
+    GetGUI()->PushLabel("Задержка выстрела", _u);
     _u += of;
-    sldr_speed = getGUI()->PushSlider(12, 1, 40, _u);
+    sldr_speed = GetGUI()->PushSlider(12, 1, 40, _u);
     _u += of;
-    getGUI()->PushLabel("Скорость пуль", _u);
+    GetGUI()->PushLabel("Скорость пуль", _u);
     _u += of;
-    sldr_turret_rot = getGUI()->PushSlider(turret_rotate_speed, 0, 10, _u);
+    sldr_turret_rot = GetGUI()->PushSlider(turret_rotate_speed, 0, 10, _u);
     _u += of;
-    getGUI()->PushLabel("Скорость поворота", _u);
+    GetGUI()->PushLabel("Скорость поворота", _u);
 
-    camera = Primitive::create_camera2D();
+    camera = Primitive::CreateCamera2D();
     camera->gameObject()->AddComponent<MoveController2D>();
     //    camera->visibleGrids = true;
     AudioSource *aus = camera->gameObject()->AddComponent<AudioSource>();
@@ -75,8 +75,8 @@ void BunkerWorld::OnStart()
     std::vector<Vec2> pos {{-1.f, 1.f}, {-1.0, -1.0}, {1.0, 1.0}, {1.0, -1.0}};
     for(int x = 0; x < max_tur; ++x)
     {
-        GameObject *turret = Primitive::create_empty_game_object();
-        turret->AddComponent<SpriteRenderer>()->set_sprite(Primitive::create_sprite2D_triangle(Vec2::half / 2, 1, Color::red));
+        GameObject *turret = Primitive::CreateEmptyGameObject();
+        turret->AddComponent<SpriteRenderer>()->setSprite(Primitive::CreateSpriteTriangle(true, Vec2::half / 2, 1, Color::red));
         turret->transform()->position(pos[x] * 2); // set position to Turret
         aus = turret->AddComponent<AudioSource>();
         aus->setClip(gunClip);
@@ -84,14 +84,14 @@ void BunkerWorld::OnStart()
         turrets.push_back(turret->transform());
     }
 
-    bulTempl = Primitive::create_empty_game_object();
+    bulTempl = Primitive::CreateEmptyGameObject();
     bulTempl->name("bullet");
-    bulTempl->AddComponent<SpriteRenderer>()->set_sprite(Primitive::create_sprite2D_box({0.01f, 0.2f}, Color::yellow));
+    bulTempl->AddComponent<SpriteRenderer>()->setSprite(Primitive::CreateSpriteRectangle(true, Vec2{0.01f, 0.2f}, Color::yellow));
     bulTempl->SetActive(false);
 
     target_health = target_health_max;
-    target = Primitive::create_box2d(Vec2::one * 1.5f, 230, Color::white);
-    target->spriteRenderer()->size /= 2;
+    target = Primitive::CreateBox2D(Vec2::one * 1.5f, 230, Color::white);
+    target->spriteRenderer()->setSize( target->spriteRenderer()->getSize() / 2);
     aus = target->AddComponent<AudioSource>();
     aus->setClip(hitClip);
     aus->setVolume(0.05f);
@@ -112,21 +112,21 @@ void BunkerWorld::OnUpdate()
 {
     Vec2 ms {Camera::ScreenToWorldPoint(Input::GetMousePointf())};
     Vec2 __target = auto_target ? target->transform()->position() : ms;
-    bullet_delay_shot = getGUI()->SliderGetValue(sldr_delay_shot);
-    bullet_speed = getGUI()->SliderGetValue(sldr_speed);
-    turret_rotate_speed = getGUI()->SliderGetValue(sldr_turret_rot);
+    bullet_delay_shot = GetGUI()->SliderGetValue(sldr_delay_shot);
+    bullet_speed = GetGUI()->SliderGetValue(sldr_speed);
+    turret_rotate_speed = GetGUI()->SliderGetValue(sldr_turret_rot);
 
     for(Transform *turret : turrets)
     {
         turret->LookAtLerp(__target, TimeEngine::deltaTime() * turret_rotate_speed);
     }
     // remove destroyed from list
-    bullets.remove_if([](Transform *each) { return !Instanced(each); });
+   // bullets.remove_if([](Transform *each) { return !Instanced(each); });
 
     for(Transform *bul : bullets)
     {
         Vec2 bulPos = bul->position();
-        Vec2 targetPos = bul->forward(bullet_speed);
+        Vec2 targetPos = bul->forward() * bullet_speed;
 
         bulPos = Vec2::MoveTowards(bulPos, targetPos, TimeEngine::deltaTime() * bullet_speed);
         bul->position(bulPos);
@@ -136,7 +136,7 @@ void BunkerWorld::OnUpdate()
     {
         last_time = bullet_delay_shot + TimeEngine::time();
 
-        bullet_threshold = getGUI()->SliderGetValue(sldr_thrsh);
+        bullet_threshold = GetGUI()->SliderGetValue(sldr_thrsh);
         int x = 0;
         for(Transform *turret : turrets)
         {
@@ -159,7 +159,7 @@ void BunkerWorld::OnUpdate()
     bool accepted = false;
     for(Transform *t : accept)
     {
-        if(!t->exists() || t->gameObject()->name().find_first_of("bullet"))
+        if(t->gameObject()->name().find_first_of("bullet"))
         {
             continue;
         }
@@ -172,11 +172,11 @@ void BunkerWorld::OnUpdate()
             destroyed_audio->Play();
 
             // BUG: muzzle auto moved to any pos.
-            GameObject *muzzle = Primitive::create_empty_game_object(target->transform()->position());
+            GameObject *muzzle = Primitive::CreateEmptyGameObject(target->transform()->position());
             SpriteRenderer *spr = muzzle->AddComponent<SpriteRenderer>();
-            spr->set_sprite(Primitive::create_sprite2d_from(muzzle_surface));
-            spr->size /= 2;
-            destroy(muzzle, 1);
+            spr->setSprite(Primitive::CreateSpriteFrom(muzzle_surface));
+            spr->setSize(spr->getSize() / 2);
+            Destroy(muzzle, 1);
             target->transform()->position(Vec2::right * 10);
             break;
         }
@@ -207,7 +207,7 @@ void BunkerWorld::OnGizmos()
         for (auto t : turrets)
             Gizmos::draw_arrow(t->position(), t->forward(), 0.3f);
     */
-    Vec2 hp_offset = target->spriteRenderer()->get_size() + target->transform()->position() + Vec2 {-0.5f, -1};
+    Vec2 hp_offset = target->spriteRenderer()->getSize() + target->transform()->position() + Vec2 {-0.5f, -1};
 
     Gizmos::SetColor(Color::green);
     float progress = Math::Map<float>(target_health, 0, target_health_max, -hp_width, hp_width);

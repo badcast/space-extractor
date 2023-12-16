@@ -5,7 +5,7 @@ using namespace RoninEngine;
 void OverlayLevel::OnStart()
 {
     switch_game_level(this);
-    create_game_object()->AddComponent<Camera2D>();
+    Primitive::CreateEmptyGameObject()->AddComponent<Camera2D>();
 
     bodySize = { 1, 1.f / 2 };
     bublePos = Camera::ViewportToWorldPoint(Vec2::zero) + Vec2(bodySize.x, bodySize.y * -1);

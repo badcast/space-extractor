@@ -29,43 +29,43 @@ namespace RoninEngine::Runtime
         Vec2Int lastPoint;
         // Main menu screen
 
-        group_mainmenu_screen = getGUI()->PushGroup();
+        group_mainmenu_screen = GetGUI()->PushGroup();
         {
-            mmb_start_game = getGUI()->PushButton("Start Game", point, nullptr, group_mainmenu_screen);
+            mmb_start_game = GetGUI()->PushButton("Start Game", point, nullptr, group_mainmenu_screen);
             point.y += _OFSET;
-            mmb_setting = getGUI()->PushButton("Options", point, nullptr, group_mainmenu_screen);
+            mmb_setting = GetGUI()->PushButton("Options", point, nullptr, group_mainmenu_screen);
             point.y += _OFSET;
-            mmb_aboutus = getGUI()->PushButton("About US", point, nullptr, group_mainmenu_screen);
+            mmb_aboutus = GetGUI()->PushButton("About US", point, nullptr, group_mainmenu_screen);
             point.y += _OFSET;
-            mmb_quit = getGUI()->PushButton("Quit", point, nullptr, group_mainmenu_screen);
+            mmb_quit = GetGUI()->PushButton("Quit", point, nullptr, group_mainmenu_screen);
         }
         lastPoint = point;
         point = {gameDisplay.width / 2 - 127, 300};
         // Start game screen
-        group_startgame_screen = getGUI()->PushGroup();
+        group_startgame_screen = GetGUI()->PushGroup();
         {
-            sgb_playgame = getGUI()->PushButton("Play", point, nullptr, group_startgame_screen);
+            sgb_playgame = GetGUI()->PushButton("Play", point, nullptr, group_startgame_screen);
             point.y += _OFSET;
-            sgb_backmenu = getGUI()->PushButton("< Back", lastPoint, nullptr, group_startgame_screen);
+            sgb_backmenu = GetGUI()->PushButton("< Back", lastPoint, nullptr, group_startgame_screen);
         }
         // Setting screen
-        group_setting_screen = getGUI()->PushGroup();
+        group_setting_screen = GetGUI()->PushGroup();
         {
-            getGUI()->PushLabel("Graphics", Vec2Int {gameDisplay.width / 2 - 127, 300}, fontWidth, group_setting_screen);
-            getGUI()->PushSlider(1, {gameDisplay.width / 2 - 127, 300});
-            ssb_backmenu = getGUI()->PushButton("< Back", lastPoint, nullptr, group_setting_screen);
+            GetGUI()->PushLabel("Graphics", Vec2Int {gameDisplay.width / 2 - 127, 300}, fontWidth, group_setting_screen);
+            GetGUI()->PushSlider(1, {gameDisplay.width / 2 - 127, 300});
+            ssb_backmenu = GetGUI()->PushButton("< Back", lastPoint, nullptr, group_setting_screen);
         }
         // Author & About US
-        group_author_screen = getGUI()->PushGroup();
+        group_author_screen = GetGUI()->PushGroup();
         {
-            getGUI()->PushLabel("Night Fear", Vec2Int {gameDisplay.width / 2 - 127, 300}, fontWidth, group_author_screen);
-            sab_backmenu = getGUI()->PushButton("< Back", lastPoint, nullptr, group_author_screen);
+            GetGUI()->PushLabel("Night Fear", Vec2Int {gameDisplay.width / 2 - 127, 300}, fontWidth, group_author_screen);
+            sab_backmenu = GetGUI()->PushButton("< Back", lastPoint, nullptr, group_author_screen);
         }
 
         // Show as First
-        getGUI()->GroupShowAsUnique(group_mainmenu_screen);
+        GetGUI()->GroupShowAsUnique(group_mainmenu_screen);
         // Register main event
-        getGUI()->SetGeneralCallback((ui_callback)controlEvent, getGUI());
+        GetGUI()->SetGeneralCallback((UIEventUserData)controlEvent, GetGUI());
     }
 
     void controlEvent(uid id, GUI *guiInstance)

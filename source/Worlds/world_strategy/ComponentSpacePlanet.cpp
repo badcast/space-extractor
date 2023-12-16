@@ -22,20 +22,20 @@ void SpacePlanet::OnStart()
 
     f = !f;
     playerColor = f == false ? Color::blue : Color::red;
-    playerSprite = Primitive::create_sprite2D_triangle(Vec2::half, 1, playerColor);
+    playerSprite = Primitive::CreateSpriteTriangle(true, Vec2::half, 1, playerColor);
 
     // create resource streams
     sprRenderer =
-        Primitive::create_empty_game_object(transform()->position() + (f ? Vec2::left : Vec2::right) * 4)->AddComponent<SpriteRenderer>();
-    sprRenderer->set_sprite(Primitive::create_sprite2D_triangle(Vec2::half, 1.f, Color::green));
+        Primitive::CreateEmptyGameObject(transform()->position() + (f ? Vec2::left : Vec2::right) * 4)->AddComponent<SpriteRenderer>();
+    sprRenderer->setSprite(Primitive::CreateSpriteTriangle(true, Vec2::half, 1.f, Color::green));
     resource_plant = sprRenderer->gameObject()->AddComponent<SpaceResourcePlant>();
 
     // create worker for get from resource stream
-    SpaceWorker *worker = Primitive::create_empty_game_object(transform()->position())->AddComponent<SpaceWorker>();
+    SpaceWorker *worker = Primitive::CreateEmptyGameObject(transform()->position())->AddComponent<SpaceWorker>();
 
     sprRenderer = worker->gameObject()->AddComponent<SpriteRenderer>();
-    sprRenderer->size = Vec2::half;
-    sprRenderer->set_sprite(playerSprite);
+    sprRenderer->setSize(Vec2::half);
+    sprRenderer->setSprite(playerSprite);
     worker->owner_planet = this;
 
     // find target
@@ -49,10 +49,10 @@ void SpacePlanet::OnStart()
 
     target = planets.front();
 
-    referencePilot = Primitive::create_empty_game_object(this->transform()->position())->AddComponent<SpacePilot>();
+    referencePilot = Primitive::CreateEmptyGameObject(this->transform()->position())->AddComponent<SpacePilot>();
     sprRenderer = referencePilot->gameObject()->AddComponent<SpriteRenderer>();
-    sprRenderer->set_sprite(playerSprite);
-    sprRenderer->size /= 12;
+    sprRenderer->setSprite(playerSprite);
+    sprRenderer->setSize(sprRenderer->getSize() / 12);
     referencePilot->gameObject()->SetActive(false);
 }
 
@@ -107,8 +107,8 @@ void SpacePlanet::send_damage(SpacePilot *p)
 void SpacePilot::OnUpdate()
 {
 
-    if(!owner_planet->exists() || !owner_planet->target->exists())
-        return;
+    //    if(!owner_planet->exists() || !owner_planet->target->exists())
+    //        return;
 
     Vec2 p = transform()->position();
     if(p != toWarn)
@@ -136,8 +136,8 @@ void SpaceWorker::OnUpdate()
         SetResources
     };
 
-    if(!owner_planet->exists())
-        return;
+    // if(!owner_planet->exists())
+    //    return;
     Vec2 target;
     Vec2 tp = transform()->position();
     switch(switch_state)
