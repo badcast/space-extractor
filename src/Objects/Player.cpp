@@ -111,7 +111,7 @@ void Player::OnUpdate()
     }
 
     // Append new bullet on fire
-    if(lastShotTime < TimeEngine::time() && Input::GetMouseDown(MouseState::MouseLeft))
+    if(lastShotTime < TimeEngine::time() && Input::GetMouseDown(MouseButton::MouseLeft))
     {
         Transform *originObject = ((bulletFireStep % 2 == 0) ? gunPoint1 : gunPoint2);
         Vec2 origin = originObject->position();
@@ -155,7 +155,7 @@ void Player::OnUpdate()
         // Update last shot time
         lastShotTime = weapon->bulletDelayShot + TimeEngine::time();
     }
-    else if(Input::GetMouseUp(MouseState::MouseLeft))
+    else if(Input::GetMouseUp(MouseButton::MouseLeft))
     {
         turret->spriteRenderer()->flip = SpriteRenderFlip::FlipNone;
         turret->spriteRenderer()->setSprite(defaultTurret);

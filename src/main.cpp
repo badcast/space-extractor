@@ -17,7 +17,7 @@ int main()
     RoninSimulator::SetWindowResolution(res);
     RoninSimulator::SetDebugMode(true);
 
-    WGame loadWorld;
+    WParticleEdtitor loadWorld;
 
     RoninSimulator::LoadWorld(&loadWorld);
 

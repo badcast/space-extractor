@@ -118,7 +118,7 @@ void EKamikadze::OnUpdate()
 
     float _remainedDistance = Vec2::Distance(transform()->position(), target_to);
 
-    if(Input::GetMouseUp(MouseState::MouseRight))
+    if(Input::GetMouseUp(MouseButton::MouseRight))
     {
         putParticleExplode(transform()->position());
         this->gameObject()->Destroy();

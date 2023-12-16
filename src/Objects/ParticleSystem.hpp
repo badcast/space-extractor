@@ -126,6 +126,7 @@ public:
      * @brief Set the maximum number of particles to a specified value.
      *
      * This function allows you to set a specific maximum limit for the number of particles.
+     * Set the 0, for unlimitely (setLimitInfinitely)
      * @param max The maximum number of particles to set.
      * @see setLimitInfinitely
      */

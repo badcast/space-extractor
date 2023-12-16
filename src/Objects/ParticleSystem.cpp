@@ -55,8 +55,11 @@ void ParticleSystem::link_particles(int n)
         {
             t->setParent(transform(), false);
         }
+
         if(rotate)
             t->angle(Random::AngleDegress());
+        else if(t->angle())
+            t->angle(0);
 
         // Set Layer
         t->layer(Layers::ParticleClass);
@@ -69,6 +72,7 @@ void ParticleSystem::link_particles(int n)
 
         // Set Start Color
         spriteRender->setColor(startColor);
+
         activeParticles.insert({spriteRender, TimeEngine::time(), randomDirection ? Random::RandomVector() : direction});
     };
 
@@ -77,8 +81,8 @@ void ParticleSystem::link_particles(int n)
     {
         while(!cachedParticles.empty() && n-- > 0)
         {
-                SpriteRenderer *exist = cachedParticles.back();
-                cachedParticles.pop_back();
+            SpriteRenderer *exist = cachedParticles.back();
+            cachedParticles.pop_back();
             // showing
             exist->gameObject()->SetActive(true);
             fabricate(exist);

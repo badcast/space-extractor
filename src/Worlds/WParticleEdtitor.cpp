@@ -8,6 +8,9 @@ uid sliderParticleLifetime;
 uid sliderParticleSpeed;
 uid sliderParticleSize;
 uid checkBoxParticleEmit;
+uid checkBoxParticleCenter;
+uid checkBoxParticleWorldState;
+uid checkBoxParticleRotation;
 uid buttonParticleReset;
 uid buttonCameraBackclear;
 uid buttonParticleclearReserved;
@@ -51,17 +54,27 @@ void WParticleEdtitor::OnStart()
     pos.y += pos.h;
     sliderParticleSize = GetGUI()->PushSlider(0.1, 0, 0.5, pos);
 
-    checkBoxParticleEmit = GetGUI()->ElementContains(1);
+    pos.y += pos.h;
+    checkBoxParticleEmit = GetGUI()->PushCheckBox(true, "Emit", pos);
 
+    pos.y += pos.h;
+    checkBoxParticleCenter = GetGUI()->PushCheckBox(true, "Center position", pos);
+    pos.y += pos.h;
+    checkBoxParticleWorldState = GetGUI()->PushCheckBox(true, "World State", pos);
+    pos.y += pos.h;
+    checkBoxParticleRotation = GetGUI()->PushCheckBox(true, "Rotate", pos);
 
-    GetGUI()->PushLayout({0, 0, 100, 500});
+    GetGUI()->PushCheckBox(false, "Unchecked", {0, 90, 100, 32});
+    GetGUI()->PushCheckBox(true, "Checked", {0, 122, 100, 32});
+
+    GetGUI()->LayoutNew({0, 0, 100, 500});
     GetGUI()->LayoutLabel("Text");
     GetGUI()->LayoutButton("Hello ");
 }
 
 void WParticleEdtitor::OnUpdate()
 {
-    Vec2 point = Camera::ScreenToWorldPoint(Input::GetMousePointf());
+    Vec2 point = GetGUI()->CheckBoxGetValue(checkBoxParticleCenter) ? Vec2::zero : Camera::ScreenToWorldPoint(Input::GetMousePointf());
     particle->transform()->position(point);
 
     if(GetGUI()->ButtonClicked(buttonParticleReset))
@@ -73,8 +86,12 @@ void WParticleEdtitor::OnUpdate()
     if(GetGUI()->ButtonClicked(buttonParticleclearReserved))
         particle->ClearReserved();
 
+
+    particle->emit = GetGUI()->CheckBoxGetValue(checkBoxParticleEmit);
     particle->startWith = static_cast<int>(GetGUI()->SliderGetValue(sliderParticleCount));
     particle->setInterpolates(GetGUI()->SliderGetValue(sliderParticleLifetime));
     particle->speed = GetGUI()->SliderGetValue(sliderParticleSpeed);
     particle->setSize(GetGUI()->SliderGetValue(sliderParticleSize) * Vec2::one);
+    particle->worldSpace = GetGUI()->CheckBoxGetValue(checkBoxParticleWorldState);
+    particle->rotate = GetGUI()->CheckBoxGetValue(checkBoxParticleRotation);
 }
