@@ -32,6 +32,7 @@ public:
     Transform *playerShield;
     AudioSource *playerAudio;
     int healthPoint = 1000;
+    int scores = 0;
     float clampAngleLeft = -80, clampAngleRight = 80;
 
     std::set<Transform *> bullets;

@@ -56,7 +56,7 @@ public:
     // Enemy damage weight
     virtual int getDamageWeight() const = 0;
     // Receiving damage
-    virtual void receiveDamage(int damage) = 0;
+    virtual void receiveDamage(int damage, float after = 0) = 0;
 };
 
 class EKamikadze : public Enemy
@@ -75,7 +75,7 @@ public:
 
     int getDamageWeight() const override;
 
-    void receiveDamage(int damage) override;
+    void receiveDamage(int damage, float after = 0) override;
 
     void OnUpdate();
 };

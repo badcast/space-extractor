@@ -1,12 +1,14 @@
 #include "EnemyClass.hpp"
 #include "Worlds/WGame.hpp"
 
+using namespace RoninEngine::Runtime;
+
 static Sprite *sprite_explode = nullptr;
 static Sprite *sprite_explode_flow = nullptr;
 static Sprite *sprite_drop_drains = nullptr;
 static Sprite *sprite_drop_drains2 = nullptr;
 
-ParticleSystem *putParticleExplode(Vec2 position)
+ParticleSystem *putEnemyParticleExplode(Vec2 position)
 {
     if(sprite_explode == nullptr)
     {
@@ -91,14 +93,14 @@ int EKamikadze::getDamageWeight() const
     return enemy_class_info.kamikadze.damage_weight;
 }
 
-void EKamikadze::receiveDamage(int damage)
+void EKamikadze::receiveDamage(int damage, float after)
 {
     healthPoint = Math::Max(0, healthPoint - damage);
 
     if(healthPoint == 0)
     {
-        putParticleExplode(this->transform()->position());
-        Destroy(this->gameObject()); // can destroy
+        putEnemyParticleExplode(this->transform()->position());
+        Destroy(this->gameObject(), after); // can destroy
     }
 }
 
@@ -118,18 +120,13 @@ void EKamikadze::OnUpdate()
 
     float _remainedDistance = Vec2::Distance(transform()->position(), target_to);
 
-    if(Input::GetMouseUp(MouseButton::MouseRight))
-    {
-        putParticleExplode(transform()->position());
-        this->gameObject()->Destroy();
-    }
-    else if(_remainedDistance < distance)
+    if(_remainedDistance < distance)
     {
         if(1 || Random::Range(0, 10) < 5)
         {
             // SUICIDE
             player->applyDamage(getDamageWeight(), transform()->position());
-            putParticleExplode(transform()->position());
+            putEnemyParticleExplode(transform()->position());
             Destroy(gameObject());
         }
     }

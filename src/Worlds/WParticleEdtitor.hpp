@@ -12,7 +12,7 @@
 class WParticleEdtitor : public World
 {
 public:
-    ParticleSystem* particle;
+    RoninEngine::Runtime::ParticleSystem* particle;
     WParticleEdtitor() : World("Particle Editor")
     {
     }

@@ -1,18 +1,20 @@
 #include "WGame.hpp"
 
+using namespace RoninEngine::Runtime;
+
 Asset *spriteAsset;
 Asset *soundAsset;
 
 WGame *WGame::current = nullptr;
 constexpr int enemyPer = 15;
+
+extern ParticleSystem *putEnemyParticleExplode(Vec2 position);
+
 void make_simple_enemy();
 
 void WGame::OnUnloading()
 {
     current = nullptr;
-    //    spriteAsset = nullptr;
-    //    soundAsset = nullptr;
-
     enemies.clear();
     RoninMemory::free(navMesh);
 }
@@ -60,6 +62,7 @@ void WGame::OnUpdate()
 {
     if(Input::GetKeyDown(KeyboardCode::KB_ESCAPE))
         RoninSimulator::RequestQuit();
+
     if(TimeEngine::frame() % 45 == 0)
     {
         make_simple_enemy();
@@ -67,6 +70,24 @@ void WGame::OnUpdate()
 
     if(Input::GetMouseDown(MouseMiddle))
         RoninSimulator::ReloadWorld();
+
+    if(Input::GetMouseUp(MouseButton::MouseRight))
+    {
+
+        Vec2 lfs = Camera::ViewportToWorldPoint(Vec2::zero);
+        Vec2 rfs = Camera::ViewportToWorldPoint(Vec2::one);
+        Vec2 diff = (lfs - rfs);
+        float step = 0;
+
+        for(Transform *enemy : Physics2D::GetRectangleCast(lfs + rfs, diff, Layers::EnemyClass))
+        {
+            if(enemy->GetComponent<Enemy>())
+            {
+                enemy->gameObject()->Destroy(step);
+                step += 0.01f;
+            }
+        }
+    }
 }
 
 void WGame::OnGizmos()
@@ -92,10 +113,13 @@ void make_simple_enemy()
             [](Component *self)
             {
                 AudioClip *clip = soundAsset->GetAudioClip("space-explode");
-                AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.3f);
+                AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.2f);
+                WGame::current->enemies.erase(self->GetComponent<Enemy>());
+                if(self->GetComponent<Enemy>()->healthPoint)
+                    putEnemyParticleExplode(self->transform()->position());
             });
 
-        WGame::current->enemies.push_back(kamikadze);
+        WGame::current->enemies.insert(kamikadze);
 
         s0.y = Random::Range(s1.y, s1.y * 2);
         kamikadze->transform()->position(s0);

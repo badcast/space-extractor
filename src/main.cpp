@@ -11,13 +11,13 @@ int main()
 {
     RoninSimulator::Init();
 
-    Resolution res {1024, 500};
+    Resolution res = Resolution::GetMidResolution();
     RoninSimulator::Show(res, false);
     res = RoninSimulator::GetCurrentResolution();
     RoninSimulator::SetWindowResolution(res);
     RoninSimulator::SetDebugMode(true);
 
-    WParticleEdtitor loadWorld;
+    WGame loadWorld;
 
     RoninSimulator::LoadWorld(&loadWorld);
 
@@ -29,6 +29,7 @@ int main()
     {
         RoninSimulator::ShowMessageFail("Failed load asset " + p);
     }
+
     p = datadir;
     p += "sounds.json";
     if(!AssetManager::LoadAsset(p, &soundAsset))

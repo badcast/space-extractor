@@ -1,5 +1,6 @@
 #include "WParticleEdtitor.hpp"
 
+using namespace RoninEngine::Runtime;
 using namespace RoninEngine::UI;
 
 uid sliderDuration;
@@ -20,6 +21,7 @@ void WParticleEdtitor::OnStart()
     Primitive::CreateCamera2D();
 
     particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
+    particle->transform()->layer(Layers::ParticleClass);
     particle->setSource(Primitive::CreateSpriteRectangle());
     particle->interval = 0;
     particle->randomDirection = true;
@@ -29,6 +31,7 @@ void WParticleEdtitor::OnStart()
     particle->worldSpace = true;
     particle->destroyAfter = false;
     particle->setInterpolates(1, 0.2, 0.4f);
+    particle->setSource(Primitive::CreateSpriteFrom(spriteAsset->GetImage("explode-v1"), false));
     particle->setColors(Color::red, Color::yellow, Color::transparent);
     particle->setSizes(Vec2::one / 20, Vec2::one / 10);
 
@@ -64,12 +67,9 @@ void WParticleEdtitor::OnStart()
     pos.y += pos.h;
     checkBoxParticleRotation = GetGUI()->PushCheckBox(true, "Rotate", pos);
 
-    GetGUI()->PushCheckBox(false, "Unchecked", {0, 90, 100, 32});
-    GetGUI()->PushCheckBox(true, "Checked", {0, 122, 100, 32});
-
-    GetGUI()->LayoutNew({0, 0, 100, 500});
-    GetGUI()->LayoutLabel("Text");
-    GetGUI()->LayoutButton("Hello ");
+    // GetGUI()->LayoutNew({0, 0, 100, 500});
+    // GetGUI()->LayoutLabel("Text");
+    // GetGUI()->LayoutButton("Hello ");
 }
 
 void WParticleEdtitor::OnUpdate()
@@ -85,7 +85,6 @@ void WParticleEdtitor::OnUpdate()
 
     if(GetGUI()->ButtonClicked(buttonParticleclearReserved))
         particle->ClearReserved();
-
 
     particle->emit = GetGUI()->CheckBoxGetValue(checkBoxParticleEmit);
     particle->startWith = static_cast<int>(GetGUI()->SliderGetValue(sliderParticleCount));

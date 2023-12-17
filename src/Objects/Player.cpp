@@ -134,6 +134,7 @@ void Player::OnUpdate()
                 return true;
             enemy->receiveDamage(WGame::current->player->weapon->damage);
             self_bullet->gameObject()->Destroy(); // destroy object
+            scores++;
             return false;
         };
 
@@ -183,24 +184,6 @@ void Player::applyDamage(int damageValue, Vec2 closestPosition)
     shaking.time = TimeEngine::time() + 0.7f;
     shaking.force |= 5;
     showShield(closestPosition);
-}
-
-void Player::OnGizmos()
-{
-    constexpr float size = 0.3f;
-    static Vec2 v[3] {{size, size}, {size * 2, size}, {size * 1.5, size * 2}}, cv[3];
-    static float angle = 0;
-
-    // rotate
-    for(int x = 0; x < 3; ++x)
-    {
-        Vec2 p = Vec2::RotateAround(gunPosition->position() + v[x], Vec2::up, angle * Math::deg2rad);
-        Vec2 n = Vec2::RotateAround(gunPosition->position() + (x == 2 ? v[0] : v[x + 1]), Vec2::up, angle * Math::deg2rad);
-        Gizmos::DrawLine(Vec2::Rotate(p, angle * Math::deg2rad), Vec2::Rotate(n, angle * Math::deg2rad));
-    }
-    angle += 5;
-
-    Gizmos::DrawTextLegacy(Camera::ViewportToWorldPoint(Vec2::zero), "HEALTH: " + std::to_string(healthPoint));
 }
 
 void Player::OnDestroy()

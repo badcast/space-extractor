@@ -17,7 +17,6 @@ class Player;
 class Enemy;
 class Weapon;
 class Collision;
-class ParticleSystem;
 
 enum Layers : int
 {
@@ -35,6 +34,5 @@ enum Layers : int
 #include "Objects/Weapon.hpp"
 #include "Objects/WeaponMachineGun.hpp"
 #include "Objects/Collision.hpp"
-#include "Objects/ParticleSystem.hpp"
 
 #endif

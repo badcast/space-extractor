@@ -2,10 +2,6 @@
   "resource_type": "Sprite",
   "resources": [
     {
-      "name": "player_target",
-      "ref": "sprites/player-target.png"
-    },
-    {
       "name": "main-menu-background",
       "ref": "sprites/main-menu-background.png"
     },
