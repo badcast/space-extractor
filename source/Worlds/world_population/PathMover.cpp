@@ -1,4 +1,5 @@
 #include <cstring>
+#include <tuple>
 
 #include "PathMover.h"
 
@@ -7,8 +8,8 @@ using namespace RoninEngine::Runtime;
 using namespace RoninEngine::UI;
 using namespace RoninEngine::AI;
 
-constexpr int MaxPopulation = 2000;
-constexpr int InitPopuplation = 1000;
+constexpr int MaxPopulation = 4000;
+constexpr int InitPopuplation = 4000;
 constexpr int NavMeshMagnitude = 100;
 constexpr float NavMeshWorldScale = 0.5;
 
@@ -31,6 +32,10 @@ float changeDrawPointPer;
 decltype(paths.end()) _endIter;
 MoveController2D *player;
 
+SpriteRenderer *player_target;
+GameObject *testObj;
+std::vector<std::tuple<Transform *, float, NavListSite>> populations;
+
 void ui_event_handler(uid id, void *userData)
 {
     if(b_mainMenu == id)
@@ -45,6 +50,11 @@ void ui_event_handler(uid id, void *userData)
             population_navmesh->GenerateMaze();
         else
             population_navmesh->Clear(true);
+
+        for(std::tuple<Transform *, float, NavListSite> &tuple : populations)
+        {
+            std::get<2>(tuple).clear();
+        }
     }
     else if(b_showGizmo == id)
     {
@@ -76,10 +86,6 @@ void PathMover::OnAwake()
     t_speedLabel = GetGUI()->PushLabel("", pos, 5);
     GetGUI()->SetGeneralCallback(ui_event_handler, nullptr);
 }
-
-SpriteRenderer *player_target;
-GameObject *testObj;
-std::vector<std::tuple<Transform *, float, NavListSite>> populations;
 
 Neuron *get_free_neuron(Neuron *from)
 {
@@ -117,16 +123,16 @@ void PathMover::OnStart()
 
     spriteRenderer = testObj->AddComponent<SpriteRenderer>();
     spriteRenderer->setRenderType(SpriteRenderType::Simple);
-    spriteRenderer->setPresentMode(  SpriteRenderPresentMode::Fixed );
+    spriteRenderer->setPresentMode(SpriteRenderPresentMode::Fixed);
     spriteRenderer->setSprite(test_sprite);
 
     GameObject *floor = Primitive::CreateEmptyGameObject();
     floor->name("Floor");
     floor->transform()->layer(-100);
     spriteRenderer = floor->AddComponent<SpriteRenderer>();
-    spriteRenderer->setRenderType(SpriteRenderType::Tile );
-    spriteRenderer->setPresentMode( SpriteRenderPresentMode::Fixed );
-    spriteRenderer->setSize( Vec2{NavMeshMagnitude, NavMeshMagnitude}  * NavMeshWorldScale);
+    spriteRenderer->setRenderType(SpriteRenderType::Tile);
+    spriteRenderer->setPresentMode(SpriteRenderPresentMode::Fixed);
+    spriteRenderer->setSize(Vec2 {NavMeshMagnitude, NavMeshMagnitude} * NavMeshWorldScale);
     spriteRenderer->setSprite(floor_sprite);
     floor->SetActive(false);
 
@@ -383,8 +389,8 @@ void move_targets(int max, int &activeCount)
             NavResultSite result;
             if(!population_navmesh->Find(
                    result,
-                   population_navmesh->get(transform_wrap->position()),
-                   population_navmesh->get(Random::Range(0, NavMeshMagnitude), Random::Range(0, NavMeshMagnitude))))
+                   get_free_neuron(population_navmesh->get(transform_wrap->position())),
+                   get_free_neuron(population_navmesh->get(Random::Range(0, NavMeshMagnitude), Random::Range(0, NavMeshMagnitude)))))
             {
                 float a = transform_wrap->angle() + 1;
                 if(a > 360)
