@@ -18,16 +18,26 @@ class Enemy;
 class Weapon;
 class Collision;
 
-enum Layers : int
+enum GameLayers : int
 {
     All = -1,
-    ParticleClass = 5,
+    AnyClass = 0,
     BulletClass = 1,
     ShieldClass = 2,
     EnemyClass = 4,
+    ParticleClass = 6,
     PlayerClass = 8,
-    EnemyOrBullet = Layers::EnemyClass | Layers::BulletClass,
-    PlayerOrBullet = Layers::PlayerClass | Layers::BulletClass,
+    EnemyOrBullet = GameLayers::EnemyClass | GameLayers::BulletClass,
+    PlayerOrBullet = GameLayers::PlayerClass | GameLayers::BulletClass,
+};
+
+enum RenderOrder : int
+{
+    BackgroundOrder = -1,
+    OtherOrder,
+    EnemyOrder,
+    PlayerOrder,
+    ParticlesOrder
 };
 
 #include "Objects/EnemyClass.hpp"

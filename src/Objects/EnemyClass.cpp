@@ -70,22 +70,24 @@ ParticleSystem *putEnemyParticleExplode(Vec2 position)
 
 void Enemy::moveTo(Vec2 targetPoint)
 {
+    this->targetTo = targetPoint;
 }
 
 void EKamikadze::OnStart()
 {
-    transform()->layer(Layers::EnemyClass);
+    transform()->layer(GameLayers::EnemyClass);
     SpriteRenderer *spriteRender = AddComponent<SpriteRenderer>();
+    spriteRender->renderOrder = RenderOrder::EnemyOrder;
     spriteRender->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("enemy-low")));
     spriteRender->setSize(spriteRender->getSize() / 10);
 
     startPoint = transform()->position();
-    alertEnemySignal = Primitive::CreateEmptyGameObject({Vec2::up / 4.4f})->AddComponent<SpriteRenderer>();
-    alertEnemySignal->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("alert-enemy")));
-    alertEnemySignal->transform()->setParent(transform(), false);
-    alertEnemySignal->setColor(Color::red);
-    alertEnemySignal->setSize(Vec2::half);
-    alertEnemySignal->gameObject()->SetActive(false);
+    renderAlertSignal = Primitive::CreateEmptyGameObject({Vec2::up / 4.4f})->AddComponent<SpriteRenderer>();
+    renderAlertSignal->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("alert-enemy")));
+    renderAlertSignal->transform()->setParent(transform(), false);
+    renderAlertSignal->setColor(Color::red);
+    renderAlertSignal->setSize(Vec2::half);
+    renderAlertSignal->gameObject()->SetActive(false);
 }
 
 int EKamikadze::getDamageWeight() const
@@ -104,43 +106,48 @@ void EKamikadze::receiveDamage(int damage, float after)
     }
 }
 
+float EKamikadze::getStopDistance() const
+{
+    return enemy_class_info.kamikadze.stopOnDistance;
+}
+
 void EKamikadze::OnUpdate()
 {
-    Vec2 target_to;
     float distance;
     Player *player = WGame::current->player;
 
-    target_to = player->transform()->position();
     distance = 2;
-    alertEnemySignal->transform()->angle(alertEnemySignal->transform()->angle() + 2);
+    renderAlertSignal->transform()->angle(renderAlertSignal->transform()->angle() + 2);
     transform()->LookAt(player->transform());
 
-    transform()->position(
-        Vec2::MoveTowards(transform()->position(), target_to, TimeEngine::deltaTime() * enemy_class_info.kamikadze.speed));
+    transform()->position(Vec2::MoveTowards(transform()->position(), targetTo, TimeEngine::deltaTime() * enemy_class_info.kamikadze.speed));
 
-    float _remainedDistance = Vec2::Distance(transform()->position(), target_to);
+    float currentDistance = Vec2::Distance(transform()->position(), targetTo);
 
-    if(_remainedDistance < distance)
+    if(currentDistance <= getStopDistance())
     {
-        if(1 || Random::Range(0, 10) < 5)
-        {
-            // SUICIDE
-            player->applyDamage(getDamageWeight(), transform()->position());
-            putEnemyParticleExplode(transform()->position());
-            Destroy(gameObject());
-        }
     }
-    else if(_remainedDistance < distance * 3)
+
+    if(currentDistance < distance)
     {
-        if(!alertEnemySignal->gameObject()->isActive())
-            alertEnemySignal->gameObject()->SetActive(true);
+        // SUICIDE
+        player->applyDamage(getDamageWeight(), transform()->position());
+        putEnemyParticleExplode(transform()->position());
+        Destroy(gameObject());
+    }
+    else if(currentDistance < distance * 3)
+    {
         constexpr int alert_value = 10;
+
+        if(!renderAlertSignal->gameObject()->isActive())
+            renderAlertSignal->gameObject()->SetActive(true);
+
         // Animate color
-        Color color = alertEnemySignal->getColor();
+        Color color = renderAlertSignal->getColor();
         if(!animInverse)
             animInverse = ((color.a += alert_value) == 255);
         else
             animInverse = !((color.a -= alert_value) == 0);
-        alertEnemySignal->setColor(color);
+        renderAlertSignal->setColor(color);
     }
 }

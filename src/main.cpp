@@ -1,7 +1,5 @@
 #include "SpaceExtractor.hpp"
 
-#include "Worlds/WParticleEdtitor.hpp"
-
 #if WIN32
 typedef void *HINSTANCE;
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nShowCmd)
@@ -10,34 +8,34 @@ int main()
 #endif
 {
     RoninSimulator::Init();
+    auto a = RoninSimulator::EnumerateResolutions();
 
-    Resolution res = Resolution::GetMidResolution();
-    RoninSimulator::Show(res, false);
-    res = RoninSimulator::GetCurrentResolution();
-    RoninSimulator::SetWindowResolution(res);
-    RoninSimulator::SetDebugMode(true);
-
-    WGame loadWorld;
-
-    RoninSimulator::LoadWorld(&loadWorld);
-
-    // Load Assets
-    std::string datadir = Path::app_dir() + "data" + Path::GetPathSeperatorOS();
-    std::string p = datadir;
-    p += "resources.json";
-    if(!AssetManager::LoadAsset(p, &spriteAsset))
+    if(RoninSimulator::ShowSplashScreen().first)
     {
-        RoninSimulator::ShowMessageFail("Failed load asset " + p);
-    }
+        RoninSimulator::SetDebugMode(true);
 
-    p = datadir;
-    p += "sounds.json";
-    if(!AssetManager::LoadAsset(p, &soundAsset))
-    {
-        RoninSimulator::ShowMessageFail("Failed load asset " + p);
-    }
+        WGame loadWorld;
 
-    RoninSimulator::Simulate();
+        RoninSimulator::LoadWorld(&loadWorld);
+
+        // Load Assets
+        std::string datadir = Paths::GetRuntimeDir() + "data" + Paths::GetPathSeperatorOS();
+        std::string p = datadir;
+        p += "resources.json";
+        if(!AssetManager::LoadAsset(p, &spriteAsset))
+        {
+            RoninSimulator::ShowMessageFail("Failed load asset " + p);
+        }
+
+        p = datadir;
+        p += "sounds.json";
+        if(!AssetManager::LoadAsset(p, &soundAsset))
+        {
+            RoninSimulator::ShowMessageFail("Failed load asset " + p);
+        }
+
+        RoninSimulator::Simulate();
+    }
 
     RoninSimulator::Finalize();
 

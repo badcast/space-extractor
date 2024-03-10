@@ -6,7 +6,7 @@ Asset *spriteAsset;
 Asset *soundAsset;
 
 WGame *WGame::current = nullptr;
-constexpr int enemyPer = 15;
+constexpr int enemyPer = 10;
 
 extern ParticleSystem *putEnemyParticleExplode(Vec2 position);
 
@@ -42,20 +42,21 @@ void WGame::OnStart()
     // Background
     SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
     spriteRender->setSprite(Primitive::CreateSpriteFrom(spriteAsset->GetImage("main-menu-background")));
-    spriteRender->transform()->layer(-100);
+    spriteRender->transform()->layer(GameLayers::ParticleClass);
+    spriteRender->renderOrder = RenderOrder::ParticlesOrder;
 
     ParticleSystem *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
     smoke_particle->gameObject()->name("Particle Smoke");
     smoke_particle->rotate = false;
-    smoke_particle->speed = 3;
+    smoke_particle->loop = true;
+    smoke_particle->speed = 1;
     smoke_particle->direction = Vec2::left;
-    smoke_particle->interval = 1.3f;
+    smoke_particle->interval = 3;
     smoke_particle->setSource(Primitive::CreateSpriteFrom(spriteAsset->GetImage("smoke")));
-    smoke_particle->setLimit(15);
     smoke_particle->setInterpolates(15);
     smoke_particle->setSize(Vec2::one * 4);
-    smoke_particle->setColors(Color::transparent, {Color::white, 50}, Color::transparent);
-    smoke_particle->transform()->position(Camera::ViewportToWorldPoint({1, 0.5f}));
+    smoke_particle->setColors({Color::white, 0}, {Color::white, 128}, {Color::white, 0});
+    smoke_particle->transform()->position(Camera::ViewportToWorldPoint(Vec2::half));
 }
 
 void WGame::OnUpdate()
@@ -73,25 +74,18 @@ void WGame::OnUpdate()
 
     if(Input::GetMouseUp(MouseButton::MouseRight))
     {
-
+        float step = 0;
         Vec2 lfs = Camera::ViewportToWorldPoint(Vec2::zero);
         Vec2 rfs = Camera::ViewportToWorldPoint(Vec2::one);
-        Vec2 diff = (lfs - rfs);
-        float step = 0;
-
-        for(Transform *enemy : Physics2D::GetRectangleCast(lfs + rfs, diff, Layers::EnemyClass))
+        for(Transform *enemy : Physics2D::GetRectangleCast(lfs + rfs, lfs - rfs, GameLayers::EnemyClass))
         {
             if(enemy->GetComponent<Enemy>())
             {
                 enemy->gameObject()->Destroy(step);
-                step += 0.01f;
+                step += 1.f / 100;
             }
         }
     }
-}
-
-void WGame::OnGizmos()
-{
 }
 
 void make_simple_enemy()
@@ -107,8 +101,8 @@ void make_simple_enemy()
         EKamikadze *kamikadze = Primitive::CreateEmptyGameObject()->AddComponent<EKamikadze>();
         kamikadze->gameObject()->name("EKamikadze");
         Collision *collision = kamikadze->AddComponent<Collision>();
-        collision->targetLayer = static_cast<int>(Layers::PlayerOrBullet);
-
+        collision->targetLayer = static_cast<int>(GameLayers::PlayerOrBullet);
+        // Om Collision
         kamikadze->AddOnDestroy(
             [](Component *self)
             {
@@ -123,7 +117,7 @@ void make_simple_enemy()
 
         s0.y = Random::Range(s1.y, s1.y * 2);
         kamikadze->transform()->position(s0);
-        kamikadze->gameObject()->SetLayer(static_cast<int>(Layers::EnemyClass));
+        kamikadze->gameObject()->SetLayer(static_cast<int>(GameLayers::EnemyClass));
         s0.x += off;
     }
 }

@@ -45,6 +45,7 @@ void Player::OnStart()
     sprRender = turret->AddComponent<SpriteRenderer>();
     sprRender->setSprite(defaultTurret = Primitive::CreateSpriteFrom(srcImagePlayerWeapon));
     sprRender->setSize(sprRender->getSize() / 4);
+    sprRender->renderOrder = RenderOrder::PlayerOrder;
 
     fireTurret = Primitive::CreateSpriteFrom(spriteAsset->GetImage("player-weapon-blob"));
 
@@ -53,6 +54,7 @@ void Player::OnStart()
     sprRender = platform->gameObject()->AddComponent<SpriteRenderer>();
     sprRender->setSprite(Primitive::CreateSpriteFrom(srcImagePlayerPlatform));
     sprRender->setSize(sprRender->getSize() / 2);
+    sprRender->renderOrder = RenderOrder::PlayerOrder;
 
     gunPosition = Primitive::CreateEmptyGameObject()->transform();
     gunPosition->setParent(turret->transform());
@@ -73,6 +75,7 @@ void Player::OnStart()
     sprRender->setSprite(Primitive::CreateSpriteFrom(srcImageMuzzleFlash));
     sprRender->setSize(sprRender->getSize() / 4);
     sprRender->enable(false); // of muzzle flash
+    sprRender->renderOrder = RenderOrder::PlayerOrder;
 
     // Player shield
     Transform *playerShieldPivot = Primitive::CreateEmptyGameObject()->transform();
@@ -125,7 +128,7 @@ void Player::OnUpdate()
         bulletInstance->Destroy(bullet_destroy_after);
         bulletInstance->AddOnDestroy([&](GameObject *self) { bullets.erase(self->transform()); });
 
-        bulletCollision->targetLayer = static_cast<int>(Layers::EnemyOrBullet);
+        bulletCollision->targetLayer = static_cast<int>(GameLayers::EnemyOrBullet);
 
         bulletCollision->onCollision = [&](Collision *self_bullet, Collision *target)
         {

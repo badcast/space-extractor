@@ -17,8 +17,8 @@ bool CheckCollision(Rectf rectA, float angleA, Rectf rectB, float angleB)
     // Рассчитываем синус и косинус углов вращения
     // float sinA = sinf(angleRadA);
     // float cosA = cosf(angleRadA);
-    float sinB = sinf(angleRadB);
-    float cosB = cosf(angleRadB);
+    float sinB = Math::Sin(angleRadB);
+    float cosB = Math::Cos(angleRadB);
 
     // Преобразуем координаты точек прямоугольника A в систему координат B
     float xA_inB = cosB * (centerX_A - centerX_B) + sinB * (centerY_A - centerY_B) + centerX_B;

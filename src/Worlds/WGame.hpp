@@ -23,7 +23,6 @@ public:
     void OnAwake();
     void OnStart();
     void OnUpdate();
-    void OnGizmos();
     void OnUnloading();
 
     static WGame *current;

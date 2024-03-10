@@ -21,7 +21,7 @@ void WParticleEdtitor::OnStart()
     Primitive::CreateCamera2D();
 
     particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
-    particle->transform()->layer(Layers::ParticleClass);
+    particle->transform()->layer(GameLayers::ParticleClass);
     particle->setSource(Primitive::CreateSpriteRectangle());
     particle->interval = 0;
     particle->randomDirection = true;
