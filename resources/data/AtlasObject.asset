@@ -1,0 +1,10 @@
+{
+  "resource_type": "Atlas",
+  "resource_ref": "sprites/ui_layer-infobar.png",
+  "map": [
+    {
+      "sprite": "movement",
+      "rect": "0 0 10 20"
+    }
+  ]
+}

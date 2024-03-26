@@ -21,17 +21,33 @@ int main()
         // Load Assets
         std::string datadir = Paths::GetRuntimeDir() + "data" + Paths::GetPathSeperatorOS();
         std::string p = datadir;
-        p += "resources.json";
+        p += "resources.asset";
         if(!AssetManager::LoadAsset(p, &spriteAsset))
         {
             RoninSimulator::ShowMessageFail("Failed load asset " + p);
         }
 
         p = datadir;
-        p += "sounds.json";
+        p += "sounds.asset";
         if(!AssetManager::LoadAsset(p, &soundAsset))
         {
             RoninSimulator::ShowMessageFail("Failed load asset " + p);
+        }
+
+        Asset *atlasAsset;
+        p = datadir;
+        p += "AtlasObject.asset";
+        if(!AssetManager::LoadAsset(p, &atlasAsset))
+        {
+            RoninSimulator::ShowMessage("Can not load " + p);
+        }
+        else
+        {
+            Atlas *a = atlasAsset->GetAtlasObject();
+            Sprite *s;
+
+            s = a->GetSpriteFromName("\0");
+            s = a->GetSpriteFromName("123");
         }
 
         RoninSimulator::Simulate();
