@@ -4,6 +4,8 @@ using namespace RoninEngine::Runtime;
 
 Asset *spriteAsset;
 Asset *soundAsset;
+Asset *uiAtlasAsset;
+Asset *asteroidAsset;
 
 WGame *WGame::current = nullptr;
 constexpr int enemyPer = 10;
@@ -57,6 +59,15 @@ void WGame::OnStart()
     smoke_particle->setSize(Vec2::one * 4);
     smoke_particle->setColors({Color::white, 0}, {Color::white, 128}, {Color::white, 0});
     smoke_particle->transform()->position(Camera::ViewportToWorldPoint(Vec2::half));
+
+    // Background music
+    AudioSource * aus = Camera::mainCamera()->AddComponent<AudioSource>();
+    aus->setClip(Resources::GetAudioClipSource(Resources::LoadAudioClip(Paths::GetRuntimeDir() + "/data/music/ambient-2.ogg",true)));
+    aus->setVolume(0.3f);
+    aus->Play();
+
+    MusicPlayer::setClip(Resources::GetMusicClipSource(Resources::LoadMusicClip(Paths::GetRuntimeDir() + "/data/music/ambient-1.ogg",true)));
+    MusicPlayer::Play();
 }
 
 void WGame::OnUpdate()

@@ -1,6 +1,6 @@
 {
-  "resource_type": "Sprite",
-  "resources": [
+  "class": "Sprite",
+  "source": [
     {
       "name": "main-menu-background",
       "ref": "sprites/main-menu-background.png"

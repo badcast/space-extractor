@@ -1,0 +1,6 @@
+{
+  "class": "Atlas",
+  "source": "sprites/asteroids-v2.png",
+  "mode": "Tiled",
+  "map": "125 125"
+}

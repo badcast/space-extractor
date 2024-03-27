@@ -1,0 +1,10 @@
+{
+  "class": "Atlas",
+  "source": "sprites/ui_layer-infobar.png",
+  "map": [
+    {
+      "sprite": "progress-foreground",
+      "value": "50 0 351 61"
+    }
+  ]
+}

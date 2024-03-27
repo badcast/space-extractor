@@ -15,5 +15,6 @@
 
 extern Asset *spriteAsset;
 extern Asset *soundAsset;
-
+extern Asset *uiAtlasAsset;
+extern Asset *asteroidAsset;
 #endif

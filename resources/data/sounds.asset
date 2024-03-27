@@ -1,6 +1,6 @@
 {
-  "resource_type": "AudioClip",
-  "resources": [
+  "class": "AudioClip",
+  "source": [
     {
       "name": "space-explode",
       "ref": "sounds/space-explode.ogg"

@@ -8,10 +8,15 @@ int main()
 #endif
 {
     RoninSimulator::Init();
-    auto a = RoninSimulator::EnumerateResolutions();
 
     if(RoninSimulator::ShowSplashScreen().first)
     {
+
+        // RoninSettings set;
+        // RoninSimulator::GetSettings(&set);
+        // set.selectRenderBackend = RenderBackend::CPU;
+        // RoninSimulator::SetSettings(&set);
+
         RoninSimulator::SetDebugMode(true);
 
         WGame loadWorld;
@@ -34,20 +39,18 @@ int main()
             RoninSimulator::ShowMessageFail("Failed load asset " + p);
         }
 
-        Asset *atlasAsset;
         p = datadir;
-        p += "AtlasObject.asset";
-        if(!AssetManager::LoadAsset(p, &atlasAsset))
+        p += "ui.asset";
+        if(!AssetManager::LoadAsset(p, &uiAtlasAsset))
         {
-            RoninSimulator::ShowMessage("Can not load " + p);
+            RoninSimulator::ShowMessageFail("Can not load " + p);
         }
-        else
-        {
-            Atlas *a = atlasAsset->GetAtlasObject();
-            Sprite *s;
 
-            s = a->GetSpriteFromName("\0");
-            s = a->GetSpriteFromName("123");
+        p = datadir;
+        p += "artefacts-v1.atlas.asset";
+        if(!AssetManager::LoadAsset(p, &asteroidAsset))
+        {
+            RoninSimulator::ShowMessageFail("Can not load " + p);
         }
 
         RoninSimulator::Simulate();

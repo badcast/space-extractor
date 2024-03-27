@@ -8,6 +8,27 @@ static Sprite *sprite_explode_flow = nullptr;
 static Sprite *sprite_drop_drains = nullptr;
 static Sprite *sprite_drop_drains2 = nullptr;
 
+class ParticleMoveOut : public Behaviour
+{
+public:
+    float start = 0;
+    ParticleSystem * particleRef;
+    void OnStart()
+    {
+        start = TimeEngine::time() + 2;
+    }
+
+    void OnUpdate()
+    {
+        if(TimeEngine::time() < start)
+            return;
+
+        Vec2 dir = transform()->down();
+        transform()->Translate(dir * TimeEngine::deltaTime() * 5);
+        particleRef->rotatePerFrame += 10;
+    }
+};
+
 ParticleSystem *putEnemyParticleExplode(Vec2 position)
 {
     if(sprite_explode == nullptr)
@@ -35,22 +56,26 @@ ParticleSystem *putEnemyParticleExplode(Vec2 position)
     particle->loop = false;
     particle->speed = 2;
     particle->direction = Vec2::zero;
+    particle->rotatePerFrame = 200;
+    particle->worldSpace = false;
     particle->setSource(sprite_explode);
     particle->setLimit(1);
-    particle->setInterpolates(4, 0.05f, 0.1f);
-    particle->setColors(Color::white, Color::white, Color::transparent);
-    particle->setSizes(Vec2::half / 4, Vec2::half / 2);
+    particle->setInterpolates(4, 0.6f, 0.1f);
+    particle->setColors({Color::white, 100}, Color::white, Color::transparent);
+    particle->setSizes(Vec2::half / 10, Vec2::half / 2);
+    particle->AddComponent<ParticleMoveOut>()->particleRef = particle;
 
     // PARTICLE DROPS DRAINS
     particle = Primitive::CreateEmptyGameObject(position)->AddComponent<ParticleSystem>();
     particle->loop = false;
     particle->randomDirection = true;
-    particle->speed = 0.4f;
+    particle->speed = 0.2f;
     particle->interval = 0.5f;
-    particle->startWith = 5;
-    particle->setSources(sprite_drop_drains, sprite_drop_drains2);
+    particle->startWith = 3;
+    particle->setLimit(3);
+    particle->setSources(asteroidAsset->GetAtlasObject()->GetSprites());
     particle->setInterpolates(3);
-    particle->setColors({Color::white, 100}, Color::darkgray, Color::transparent);
+    particle->setColors({Color::darkgreen, 100}, {Color::white, 200}, {Color::white, 0});
     particle->setSizes(Vec2::one / 11, Vec2::one / 15);
 
     // PARTICLE RECTANGLE
@@ -115,6 +140,7 @@ void EKamikadze::OnUpdate()
 {
     float distance;
     Player *player = WGame::current->player;
+    targetTo = player->transform()->position();
 
     distance = 2;
     renderAlertSignal->transform()->angle(renderAlertSignal->transform()->angle() + 2);

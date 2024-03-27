@@ -21,5 +21,8 @@ void Player::OnGizmos()
 
     Gizmos::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2::zero), "HEALTH: " + std::to_string(healthPoint));
 
-    Gizmos::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2{0,18}), "SCORES: " + std::to_string(scores));
+    Gizmos::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2 {0, 18}), "SCORES: " + std::to_string(scores));
+    Gizmos::DrawSprite(
+        uiAtlasAsset->GetAtlasObject()->GetSpriteFromName("progress-foreground"),
+        Camera::ViewportToWorldPoint({0.5,0.03}));
 }
