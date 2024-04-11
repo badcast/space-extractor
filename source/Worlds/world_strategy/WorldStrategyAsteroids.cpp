@@ -96,7 +96,7 @@ void SpaceExtractorLevel::OnUpdate()
             t->position(v);
             continue;
         }
-        t->position(Vec2::MoveTowards(v, {dmgReg.x, v.y}, TimeEngine::deltaTime() * 5));
+        t->position(Vec2::MoveTowards(v, {dmgReg.x, v.y}, Time::deltaTime() * 5));
     }
 }
 

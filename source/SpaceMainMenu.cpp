@@ -85,7 +85,7 @@ void GameMainMenu::OnStart()
     }
 
     logo_pos = 0;
-    last_time = TimeEngine::time() + delay / 2;
+    last_time = Time::time() + delay / 2;
     main_menu = this;
 
     GetGUI()->SetGeneralCallback(main_menu_callback, nullptr);
@@ -141,7 +141,7 @@ void GameMainMenu::OnStart()
 
 void GameMainMenu::OnUpdate()
 {
-    float t = TimeEngine::time();
+    float t = Time::time();
 
     switch(logo_pos)
     {

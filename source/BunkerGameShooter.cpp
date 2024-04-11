@@ -90,7 +90,7 @@ void BunkerWorld::OnStart()
     bulTempl->SetActive(false);
 
     target_health = target_health_max;
-    target = Primitive::CreateBox2D(Vec2::one * 1.5f, 230, Color::white);
+    target = Primitive::CreateBox2D(Vec2::one * 1.5f, 230, Vec2::one, Color::white);
     target->spriteRenderer()->setSize( target->spriteRenderer()->getSize() / 2);
     aus = target->AddComponent<AudioSource>();
     aus->setClip(hitClip);
@@ -118,7 +118,7 @@ void BunkerWorld::OnUpdate()
 
     for(Transform *turret : turrets)
     {
-        turret->LookAtLerp(__target, TimeEngine::deltaTime() * turret_rotate_speed);
+        turret->LookAtLerp(__target, Time::deltaTime() * turret_rotate_speed);
     }
     // remove destroyed from list
    // bullets.remove_if([](Transform *each) { return !Instanced(each); });
@@ -128,13 +128,13 @@ void BunkerWorld::OnUpdate()
         Vec2 bulPos = bul->position();
         Vec2 targetPos = bul->forward() * bullet_speed;
 
-        bulPos = Vec2::MoveTowards(bulPos, targetPos, TimeEngine::deltaTime() * bullet_speed);
+        bulPos = Vec2::MoveTowards(bulPos, targetPos, Time::deltaTime() * bullet_speed);
         bul->position(bulPos);
     }
 
-    if(last_time < TimeEngine::time())
+    if(last_time < Time::time())
     {
-        last_time = bullet_delay_shot + TimeEngine::time();
+        last_time = bullet_delay_shot + Time::time();
 
         bullet_threshold = GetGUI()->SliderGetValue(sldr_thrsh);
         int x = 0;
@@ -185,7 +185,7 @@ void BunkerWorld::OnUpdate()
         target->GetComponent<AudioSource>()->Play();
 
     static Vec2 p = Vec2::minusOne;
-    Vec2 af = Vec2::MoveTowards(target->transform()->position(), p, TimeEngine::deltaTime());
+    Vec2 af = Vec2::MoveTowards(target->transform()->position(), p, Time::deltaTime());
     target->transform()->position(af);
 
     if(af == p)
@@ -200,24 +200,24 @@ void BunkerWorld::OnGizmos()
     Vec2 ms = Camera::ScreenToWorldPoint(Input::GetMousePointf());
     if(!auto_target)
     {
-        Gizmos::DrawPosition(ms, 0.1f);
-        Gizmos::DrawCircle(ms, 0.1f);
+        RenderUtility::DrawPosition(ms, 0.1f);
+        RenderUtility::DrawCircle(ms, 0.1f);
     }
     /*
         for (auto t : turrets)
-            Gizmos::draw_arrow(t->position(), t->forward(), 0.3f);
+            RenderUtility::draw_arrow(t->position(), t->forward(), 0.3f);
     */
     Vec2 hp_offset = target->spriteRenderer()->getSize() + target->transform()->position() + Vec2 {-0.5f, -1};
 
-    Gizmos::SetColor(Color::green);
+    RenderUtility::SetColor(Color::green);
     float progress = Math::Map<float>(target_health, 0, target_health_max, -hp_width, hp_width);
     // draw green left to right side  left *****---- right
-    Gizmos::DrawLine(hp_offset + Vec2::left * hp_width, hp_offset + Vec2::right * progress);
+    RenderUtility::DrawLine(hp_offset + Vec2::left * hp_width, hp_offset + Vec2::right * progress);
     if(target_health < target_health_max)
     {
-        Gizmos::SetColor(Color::red);
+        RenderUtility::SetColor(Color::red);
         // draw red right to left side left **------ right
-        Gizmos::DrawLine(hp_offset + Vec2::right * progress, hp_offset + Vec2::right * hp_width);
+        RenderUtility::DrawLine(hp_offset + Vec2::right * progress, hp_offset + Vec2::right * hp_width);
     }
 
     int x = 0;
@@ -226,14 +226,14 @@ void BunkerWorld::OnGizmos()
     {
         if(turret_attacking[x++])
         {
-            Gizmos::DrawTextLegacy(turret->position() + Vec2::down / 4, "!");
+            RenderUtility::DrawTextLegacy(turret->position() + Vec2::down / 4, "!");
             any = true;
         }
     }
 
     if(any)
     {
-        Gizmos::DrawTextLegacy(target->transform()->position() + Vec2::down / 3 + Vec2::left / 4, "HELP!");
+        RenderUtility::DrawTextLegacy(target->transform()->position() + Vec2::down / 3 + Vec2::left / 4, "HELP!");
     }
 }
 

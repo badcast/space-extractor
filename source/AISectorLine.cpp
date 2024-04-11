@@ -42,7 +42,7 @@ void refind()
     Resolution resolution = RoninSimulator::GetCurrentResolution();
     setting.animate_text_start_pos =
         Camera::ScreenToWorldPoint({static_cast<float>(resolution.width), static_cast<float>(resolution.height - 20)});
-    setting.animate_text_lasttime = TimeEngine::time() + 2;
+    setting.animate_text_lasttime = Time::time() + 2;
 }
 
 void world_load_save(uid but)
@@ -175,18 +175,18 @@ void SectorLine::OnGizmos()
         neuron->h = 1;
 
     // Draw nav mesh
-    Gizmos::DrawNavMesh(&navMesh);
+    RenderUtility::DrawNavMesh(&navMesh);
 
     if(setting.result.status == AI::NavStatus::Opened)
     {
         Vec2 first = navMesh.PointToWorldPoint(setting.result.from);
-        Gizmos::SetColor(setting.pointStart);
+        RenderUtility::SetColor(setting.pointStart);
         int x = 0;
         int y = setting.animate_positon;
         for(; x < y; ++x)
         {
             auto n = setting.result.connections[x];
-            Gizmos::DrawLine(first, navMesh.PointToWorldPoint(n));
+            RenderUtility::DrawLine(first, navMesh.PointToWorldPoint(n));
             first = navMesh.PointToWorldPoint(n);
         }
 
@@ -200,17 +200,17 @@ void SectorLine::OnGizmos()
         Vec2 to = Camera::ScreenToWorldPoint({static_cast<float>(resolution.width - 150), static_cast<float>(resolution.height - 20)});
         Vec2 diff; // setting.animate_text_start_pos;
 
-        setting.animate_text_start_pos = Vec2::MoveTowards(setting.animate_text_start_pos, to, TimeEngine::deltaTime() * 7);
+        setting.animate_text_start_pos = Vec2::MoveTowards(setting.animate_text_start_pos, to, Time::deltaTime() * 7);
 
-        Gizmos::DrawTextLegacy(setting.animate_text_start_pos, setting.animate_text);
-        if(TimeEngine::time() > setting.animate_text_lasttime)
+        RenderUtility::DrawTextLegacy(setting.animate_text_start_pos, setting.animate_text);
+        if(Time::time() > setting.animate_text_lasttime)
         {
             setting.animate_text = nullptr;
         }
     }
 
-    Gizmos::SetColor(Color::blue);
-    Gizmos::DrawFillCircle(setting.first, 0.3 * navMesh.worldScale.x);
-    Gizmos::SetColor(Color::green);
-    Gizmos::DrawFillCircle(setting.last, 0.3 * navMesh.worldScale.x);
+    RenderUtility::SetColor(Color::blue);
+    RenderUtility::DrawFillCircle(setting.first, 0.3 * navMesh.worldScale.x);
+    RenderUtility::SetColor(Color::green);
+    RenderUtility::DrawFillCircle(setting.last, 0.3 * navMesh.worldScale.x);
 }

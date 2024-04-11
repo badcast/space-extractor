@@ -58,12 +58,12 @@ void SpacePlanet::OnStart()
 
 void SpacePlanet::OnUpdate()
 {
-    if(!target || lastTimeFab > TimeEngine::time())
+    if(!target || lastTimeFab > Time::time())
     {
         return;
     }
 
-    lastTimeFab = TimeEngine::time() + 3;
+    lastTimeFab = Time::time() + 3;
     int count = std::min(startWith, resources);
     resources -= count;
     fabricate(this, referencePilot, count);
@@ -74,15 +74,15 @@ void SpacePlanet::OnGizmos()
 
     Vec2 pos = transform()->position();
 
-    Gizmos::SetColor(Color::gray);
-    Gizmos::DrawText(pos + Vec2::down / 1.5, "Health " + std::to_string(health) + " Resources " + std::to_string(this->resources));
+    RenderUtility::SetColor(Color::gray);
+    RenderUtility::DrawText(pos + Vec2::down / 1.5, "Health " + std::to_string(health) + " Resources " + std::to_string(this->resources));
 
-    Gizmos::DrawCircle(pos, 0.5f);
+    RenderUtility::DrawCircle(pos, 0.5f);
 
-    Gizmos::SetColor(playerColor);
+    RenderUtility::SetColor(playerColor);
     for(float &f : damaged_lines)
     {
-        Gizmos::DrawCircle(pos, f);
+        RenderUtility::DrawCircle(pos, f);
         f += 0.2f;
     }
 
@@ -114,7 +114,7 @@ void SpacePilot::OnUpdate()
     if(p != toWarn)
     {
         transform()->LookAt(toWarn);
-        transform()->position(Vec2::MoveTowards(p, toWarn, TimeEngine::deltaTime() * speed));
+        transform()->position(Vec2::MoveTowards(p, toWarn, Time::deltaTime() * speed));
     }
     else if(toWarn != (p = owner_planet->target->transform()->position()))
     {
@@ -152,10 +152,10 @@ void SpaceWorker::OnUpdate()
                     // resource to planet
                     switch_state = SetResources;
                 }
-                else if(TimeEngine::time() > last_upload)
+                else if(Time::time() > last_upload)
                 {
                     resources++; // get any more
-                    last_upload = TimeEngine::time() + delay_load / maximumResources;
+                    last_upload = Time::time() + delay_load / maximumResources;
                 }
             }
 
@@ -168,11 +168,11 @@ void SpaceWorker::OnUpdate()
                 {
                     switch_state = GetResources;
                 }
-                else if(TimeEngine::time() > last_upload)
+                else if(Time::time() > last_upload)
                 {
                     this->owner_planet->resources++;
                     --resources;
-                    last_upload = TimeEngine::time() + delay_load / maximumResources;
+                    last_upload = Time::time() + delay_load / maximumResources;
                 }
             }
             break;
@@ -182,7 +182,7 @@ void SpaceWorker::OnUpdate()
     // rotate to
     transform()->LookAt(target);
     // moving to
-    transform()->position(Vec2::MoveTowards(tp, target, TimeEngine::deltaTime() * speed));
+    transform()->position(Vec2::MoveTowards(tp, target, Time::deltaTime() * speed));
 }
 
 void SpaceWorker::OnGizmos()
@@ -191,8 +191,8 @@ void SpaceWorker::OnGizmos()
     Vec2 pos = transform()->position() + Vec2::down / 4;
     Vec2 size {.5, .06f};
 
-    Gizmos::SetColor(Color::gray);
-    Gizmos::DrawRectangleRounded(pos, size.x, size.y, 5);
+    RenderUtility::SetColor(Color::gray);
+    RenderUtility::DrawRectangleRounded(pos, size.x, size.y, 5);
     if(resources)
-        Gizmos::DrawFillRectRounded(pos, Math::Map<float>(resources, 0, maximumResources, 0, size.x), size.y / 2, 5);
+        RenderUtility::DrawFillRectRounded(pos, Math::Map<float>(resources, 0, maximumResources, 0, size.x), size.y / 2, 5);
 }

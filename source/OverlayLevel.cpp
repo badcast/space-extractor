@@ -30,17 +30,17 @@ Vec2 getRandomPointOutSide(const Vec2& bodySize)
 void OverlayLevel::OnGizmos()
 {
     if (trigger % 3 == 0) {
-        Gizmos::SetColor(Color::gray);
+        RenderUtility::SetColor(Color::gray);
         plane = bublePos;
     } else if (Vec2::Distance(cursor, plane) < 0.1f) {
         plane = getRandomPoint();
     }
 
-    cursor = Vec2::MoveTowards(cursor, plane, TimeEngine::deltaTime() * speed);
+    cursor = Vec2::MoveTowards(cursor, plane, Time::deltaTime() * speed);
 
     bool inter = Vec2::HasIntersection({ cursor, bodySize }, { bublePos, bodySize });
     if (!inter)
-        Gizmos::SetColor(Color::gray);
+        RenderUtility::SetColor(Color::gray);
     else
         cursor = getRandomPoint() * 2;
     if (bublePos == targetPos || inter) {
@@ -48,13 +48,13 @@ void OverlayLevel::OnGizmos()
         ++trigger;
     }
 
-    Gizmos::DrawRectangleRounded(cursor, 0.5, 0.5, 25);
+    RenderUtility::DrawRectangleRounded(cursor, 0.5, 0.5, 25);
 
-    Gizmos::DrawFillRect(bublePos, bodySize.x, bodySize.y);
-    Gizmos::SetColor(Color::black);
-    Gizmos::DrawText(bublePos, std::to_string(trigger));
-    Gizmos::SetColor(Color::red);
-    Gizmos::DrawPosition(plane, 0.1);
+    RenderUtility::DrawFillRect(bublePos, bodySize.x, bodySize.y);
+    RenderUtility::SetColor(Color::black);
+    RenderUtility::DrawText(bublePos, std::to_string(trigger));
+    RenderUtility::SetColor(Color::red);
+    RenderUtility::DrawPosition(plane, 0.1);
 
-    bublePos = Vec2::MoveTowards(bublePos, targetPos, TimeEngine::deltaTime() * speed);
+    bublePos = Vec2::MoveTowards(bublePos, targetPos, Time::deltaTime() * speed);
 }

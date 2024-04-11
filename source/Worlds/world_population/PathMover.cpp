@@ -25,7 +25,7 @@ NavMesh *population_navmesh = nullptr;
 NavListSite paths;
 
 Vec2 from, to;
-bool showGizmosLayer = true;
+bool showRenderUtilityLayer = true;
 int arranged = 0;
 Neuron *last = nullptr;
 float changeDrawPointPer;
@@ -58,7 +58,7 @@ void ui_event_handler(uid id, void *userData)
     }
     else if(b_showGizmo == id)
     {
-        showGizmosLayer = !showGizmosLayer;
+        showRenderUtilityLayer = !showRenderUtilityLayer;
     }
 }
 
@@ -79,7 +79,7 @@ void PathMover::OnAwake()
     pos.x += 60;
     b_clearNav = GetGUI()->PushButton("clear", pos, nullptr, g_buttons);
     pos.x += 60;
-    b_showGizmo = GetGUI()->PushButton("Gizmos", pos, nullptr, g_buttons);
+    b_showGizmo = GetGUI()->PushButton("RenderUtility", pos, nullptr, g_buttons);
     pos.x += 60;
     t_infoblock = GetGUI()->PushLabel("", pos, 5);
     pos.x += 60;
@@ -178,7 +178,7 @@ void PathMover::OnUpdate()
             GetGUI()->GroupClose(g_buttons);
     }
 
-    if(TimeEngine::frame() % 25 == 0)
+    if(Time::frame() % 25 == 0)
     {
         std::string s = Input::GetKeyDown(KB_LSHIFT) ? "Speed x2" : "Speed x1";
         s.push_back(';');
@@ -247,9 +247,9 @@ void PathMover::OnUpdate()
     if(!paths.empty())
     {
         int j;
-        if(_endIter != std::end(paths) && TimeEngine::time() > changeDrawPointPer)
+        if(_endIter != std::end(paths) && Time::time() > changeDrawPointPer)
         {
-            changeDrawPointPer = TimeEngine::time() + 0.001f;
+            changeDrawPointPer = Time::time() + 0.001f;
             for(j = 0; _endIter != std::end(paths) && j < paths.size() / Math::Sqrt(paths.size()); ++j, ++_endIter)
                 ;
         }
@@ -293,15 +293,15 @@ void PathMover::OnUpdate()
 
 void PathMover::OnGizmos()
 {
-    if(!showGizmosLayer)
+    if(!showRenderUtilityLayer)
         return;
 
     // draw nav path
-    Gizmos::DrawNavMesh(population_navmesh);
+    RenderUtility::DrawNavMesh(population_navmesh);
 
     Color c(0, 200, 0);
 
-    Gizmos::SetColor(c);
+    RenderUtility::SetColor(c);
 
     if(!paths.empty())
     {
@@ -312,16 +312,16 @@ void PathMover::OnGizmos()
         for(j = 0; iter != _endIter && j <= arranged; ++iter, ++j)
         {
             if(lp != population_navmesh->PointToWorldPoint(*iter))
-                Gizmos::DrawLine(lp, population_navmesh->PointToWorldPoint(*iter));
+                RenderUtility::DrawLine(lp, population_navmesh->PointToWorldPoint(*iter));
             lp = population_navmesh->PointToWorldPoint(*iter);
         }
         to = lp;
 
         c.b = 200;
-        Gizmos::SetColor(c);
+        RenderUtility::SetColor(c);
         for(; iter != _endIter; ++iter)
         {
-            Gizmos::DrawLine(lp, population_navmesh->PointToWorldPoint(*iter));
+            RenderUtility::DrawLine(lp, population_navmesh->PointToWorldPoint(*iter));
             lp = population_navmesh->PointToWorldPoint(*iter);
         }
     }
