@@ -6,9 +6,9 @@ WGame *WGame::current = nullptr;
 
 struct GameSession
 {
-    int enemyPer = 5;
     int waves;
     int wavesN;
+    int enemyPer = 133;
     float delayed_nextWave = 0;
 } session;
 
@@ -36,17 +36,18 @@ void WGame::OnStart()
     Primitive::CreateCamera2D();
 
     // Generate Custom Sprite Animator
-    constexpr int nn = 1000;
-    for(int i = 0; i < nn; ++i)
+    constexpr int nn = 90;
+    for(int i = 0; i < nn; i++)
     {
         GameObject *spriteAnimatorObject = Primitive::CreateEmptyGameObject();
         spriteAnimatorObject->AddComponent<SpriteRenderer>();
         SpriteAnimator *spriteAnim = spriteAnimatorObject->AddComponent<SpriteAnimator>();
-        spriteAnim->animationSpeed = 0.08f;
+        spriteAnim->animationSpeed = 0.1f;
+        spriteAnim->startSprite = i*1.f /nn;
         spriteAnim->SetSprites(assets.asteroids->GetAtlasObject()->GetSprites());
         spriteAnim->spriteRenderer()->setSize(Vec2::one / 2);
 
-        constexpr float perf = 0.05f;
+        constexpr float perf = .5f;
         spriteAnimatorObject->transform()->position(Vec2 {i * perf-nn/2*perf, 1});
     }
     // Set Cursor
@@ -78,7 +79,7 @@ void WGame::OnStart()
 
     // Background music
     AudioSource *aus = Camera::mainCamera()->AddComponent<AudioSource>();
-    aus->setClip(Resources::GetAudioClipSource(Resources::LoadAudioClip(Paths::GetRuntimeDir() + "/data/music/ambient-2.ogg", true)));
+    aus->setClip(Resources::GetAudioClipSource(Resources::LoadAudioClip(Paths::GetRuntimeDir() + "/data/music/ambient-2.ogg5", true)));
     aus->setVolume(0.3f);
     aus->Play();
 

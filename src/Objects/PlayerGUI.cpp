@@ -4,7 +4,7 @@
 
 using namespace RoninEngine::UI;
 
-class UIPushBaxLay : public UIOverlay
+class UIPushBoxLay : public UIOverlay
 {
 public:
     void OnInit() override;
@@ -12,7 +12,7 @@ public:
     void OnDestroy() override;
 };
 
-UIPushBaxLay baxLay {};
+UIPushBoxLay boxLay {};
 void Player::InitPlayerGUI()
 {
     GUI *gui = WGame::current->GetGUI();
@@ -23,7 +23,7 @@ void Player::InitPlayerGUI()
     topCenter.x = (res.width - topCenter.w) / 2;
     topCenter.y = 0;
 
-    gui->PushCustomUI(&baxLay, topCenter);
+    gui->PushCustomUI(&boxLay, topCenter);
 }
 
 void Player::OnGizmos()
@@ -31,11 +31,11 @@ void Player::OnGizmos()
     RenderUtility::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2 {0, 50}), "SCORES: " + std::to_string(scores));
 }
 
-void UIPushBaxLay::OnInit()
+void UIPushBoxLay::OnInit()
 {
 }
 
-void UIPushBaxLay::OnDraw(const UIData *const uiData)
+void UIPushBoxLay::OnDraw(const UIData *const uiData)
 {
     Rect rect;
     Atlas *uiAtlas = assets.uiAtlas->GetAtlasObject();
@@ -43,16 +43,16 @@ void UIPushBaxLay::OnDraw(const UIData *const uiData)
 
     Sprite *foreground = uiAtlas->GetSpriteFromName("game-progress-foreground");
     Sprite *extentArmory = uiAtlas->GetSpriteFromName("game-progress-extent");
-    Sprite *topCorners = uiAtlas->GetSpriteFromName("game-top-corners");
+    Sprite *corners = uiAtlas->GetSpriteFromName("game-top-corners");
     Sprite *extentHealth = uiAtlas->GetSpriteFromName("game-progress-foreground-mask");
     Sprite *rightRing = uiAtlas->GetSpriteFromName("game-right-ring");
     static Sprite *xDrawRing = Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("explode-v1"));
     static float __angles = 0;
     rect.w = res.width;
     rect.h = 25;
-    RenderUtility::DrawSpriteToScreen(topCorners, rect);
+    RenderUtility::DrawSpriteToScreen(corners, rect);
     rect.y = res.height - rect.h;
-    RenderUtility::DrawSpriteToScreen(topCorners, rect);
+    RenderUtility::DrawSpriteToScreen(corners, rect);
 
     // Draw Right Ring
     rect.x = res.width - rightRing->width();
@@ -93,6 +93,6 @@ void UIPushBaxLay::OnDraw(const UIData *const uiData)
     RenderUtility::DrawSpriteToScreen(foreground, rect);
 }
 
-void UIPushBaxLay::OnDestroy()
+void UIPushBoxLay::OnDestroy()
 {
 }

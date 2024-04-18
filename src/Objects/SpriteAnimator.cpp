@@ -13,11 +13,13 @@ void SpriteAnimator::OnStart()
 {
     lastTime = Time::time() + animationSpeed;
 
+    startSprite = Math::Clamp01(startSprite);
+
     if(renderer == nullptr)
         renderer = spriteRenderer();
 
     // Set default sprite
-    setSprite(0);
+    setSprite(m_sprites.size() * startSprite);
 }
 
 void SpriteAnimator::OnUpdate()

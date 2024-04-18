@@ -22,6 +22,7 @@ private:
 public:
     // Animation speed
     float animationSpeed = 1.0f;
+    float startSprite = 0.0;
 
     template <typename Container>
     void SetSprites(const Container &sprites)
