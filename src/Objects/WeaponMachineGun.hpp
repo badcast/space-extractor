@@ -17,7 +17,7 @@ public:
         setDefaultValues();
     }
 
-    void setDefaultValues();
+    void setDefaultValues() override;
 };
 
 #endif

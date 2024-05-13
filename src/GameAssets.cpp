@@ -1,6 +1,6 @@
 #include "GameAssets.hpp"
 
-_GameAssets assets;
+GameAssets assets;
 
 void LoadAssets()
 {

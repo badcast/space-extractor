@@ -31,7 +31,7 @@ void WParticleEdtitor::OnStart()
     particle->worldSpace = true;
     particle->destroyAfter = false;
     particle->setInterpolates(1, 0.2, 0.4f);
-    particle->setSource(Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("explode-v1"), false));
+    particle->setSource(assets.gameSprites->GetSprite("explode-v1"));
     particle->setColors(Color::red, Color::yellow, Color::transparent);
     particle->setSizes(Vec2::one / 20, Vec2::one / 10);
 

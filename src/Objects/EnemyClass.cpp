@@ -52,9 +52,9 @@ ParticleSystem *putEnemyParticleExplode(Vec2 position)
 {
 
     if(sprite_explode == nullptr)
-        sprite_explode = Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("explode-v1"), false);
+        sprite_explode = assets.gameSprites->GetSprite("explode-v1");
     if(sprite_explode_flow == nullptr)
-        sprite_explode_flow = Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("alert-place-flow"), false);
+        sprite_explode_flow = assets.gameSprites->GetSprite("alert-place-flow");
     if(sprite_drop_drains == nullptr)
         sprite_drop_drains = Primitive::CreateSpriteTriangle(false);
     if(sprite_drop_drains2 == nullptr)
@@ -126,21 +126,28 @@ void Enemy::moveTo(Vec2 targetPoint)
 void EKamikadze::OnAwake()
 {
     SpriteRenderer *spriteRender;
+
+    startPoint = transform()->position();
     transform()->layer(GameLayers::EnemyClass);
     transform()->zOrder(RenderOrders::EnemyOrder);
 
-    spriteRender = AddComponent<SpriteRenderer>();
+    spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
     spriteRender->transform()->zOrder(RenderOrders::EnemyOrder);
-    spriteRender->setSprite(Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("enemy-low")));
+    spriteRender->setSprite(assets.gameSprites->GetSprite("enemy-low"));
     spriteRender->setSize(spriteRender->getSize() / 10);
 
-    startPoint = transform()->position();
-    renderAlertSignal = Primitive::CreateEmptyGameObject({Vec2::up / 4.4f})->AddComponent<SpriteRenderer>();
-    renderAlertSignal->setSprite(Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("alert-enemy")));
-    renderAlertSignal->transform()->setParent(transform(), false);
+    spriteRender->transform()->setParent(transform(), false);
+    spriteRender->transform()->angle(180);
+
+    renderAlertSignal = Primitive::CreateEmptyGameObject({Vec2::down / 4.4f})->AddComponent<SpriteRenderer>();
+    renderAlertSignal->setSprite(assets.gameSprites->GetSprite("alert-enemy"));
+    renderAlertSignal->transform()->setParent(spriteRender->transform(), false);
     renderAlertSignal->setColor(Color::red);
     renderAlertSignal->setSize(Vec2::half);
     renderAlertSignal->gameObject()->SetActive(false);
+
+    // Set Collision Size
+    transform()->AddComponent<Collision>()->collideSize = Vec2::Scale(spriteRender->getSprite()->size(), spriteRender->getSize());
 }
 
 int EKamikadze::getDamageWeight() const

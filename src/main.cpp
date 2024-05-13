@@ -1,4 +1,9 @@
+
+#include <string>
+
 #include "SpaceExtractor.hpp"
+#include "Worlds/WMainMenu.hpp"
+#include "Worlds/WParticleEdtitor.hpp"
 
 #if WIN32
 typedef void *HINSTANCE;
@@ -9,8 +14,8 @@ int main()
 {
     RoninSimulator::Init();
 
-    //auto selectedScreen = RoninSimulator::ShowSplashScreen(false);
-    //if(selectedScreen.first)
+    // auto selectedScreen = RoninSimulator::ShowSplashScreen(false);
+    // if(selectedScreen.first)
     {
 
         RoninSimulator::Show({1024, 768}, false);

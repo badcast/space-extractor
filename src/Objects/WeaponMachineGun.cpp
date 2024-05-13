@@ -5,24 +5,29 @@ void WeaponMachineGun::setDefaultValues()
 {
     this->rotateSpeed = 200;
     this->weight = 125;
-    this->bulletSpeed = 25;
-    this->bulletDelayShot = 0.1f;
+    this->bulletSpeed = 15;
+    this->bulletDelayShot = 0.2f;
     this->bulletThreshold = 10;
     this->damage = 6;
 
     if(bulletPrefab == nullptr)
     {
         SpriteRenderer *sprRender;
-        // GameObject *rootPref = Primitive::CreateEmptyGameObject();
+        GameObject *rootPref;
+
+        rootPref = Primitive::CreateEmptyGameObject();
+        rootPref->SetActive(false);
+
         bulletPrefab = Primitive::CreateEmptyGameObject();
         bulletPrefab->name("Gold Bullet");
-        bulletPrefab->transform()->angle(180);
-        bulletPrefab->SetActive(false);
+        bulletPrefab->transform()->angle(0);
+        bulletPrefab->transform()->setParent(rootPref->transform(), false);
 
         sprRender = bulletPrefab->AddComponent<SpriteRenderer>();
-        sprRender->setSprite(Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("bullet-machine-gun")));
+        sprRender->setSprite(assets.gameSprites->GetSprite("bullet-machine-gun"));
 
-        // bulletPrefab->transform()->setParent(rootPref->transform(), true);
-        // bulletPrefab = rootPref;
+        rootPref->AddComponent<Collision>()->setSizeFrom(sprRender);
+
+        bulletPrefab = rootPref;
     }
 }

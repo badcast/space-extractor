@@ -3,7 +3,7 @@
 
 #include "SpaceDepends.hpp"
 
-extern struct _GameAssets
+extern struct GameAssets
 {
     Asset *gameSprites;
     Asset *gameSounds;

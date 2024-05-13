@@ -8,13 +8,14 @@ struct GameSession
 {
     int waves;
     int wavesN;
-    int enemyPer = 133;
+    int enemyPer = 103;
     float delayed_nextWave = 0;
 } session;
 
 extern ParticleSystem *putEnemyParticleExplode(Vec2 position);
 
 void make_simple_enemy();
+void draw_ready_go();
 
 void WGame::OnUnloading()
 {
@@ -26,8 +27,9 @@ void WGame::OnUnloading()
 void WGame::OnAwake()
 {
     current = this;
-    RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(assets.gameSprites->GetImage("cursor-target"), {16, 16}));
+    RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(assets.gameSprites->GetSprite("cursor-target")->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
+
 }
 
 void WGame::OnStart()
@@ -42,13 +44,13 @@ void WGame::OnStart()
         GameObject *spriteAnimatorObject = Primitive::CreateEmptyGameObject();
         spriteAnimatorObject->AddComponent<SpriteRenderer>();
         SpriteAnimator *spriteAnim = spriteAnimatorObject->AddComponent<SpriteAnimator>();
-        spriteAnim->animationSpeed = 0.1f;
-        spriteAnim->startSprite = i*1.f /nn;
+        spriteAnim->animationSpeed = 0.085f;
+        spriteAnim->startSprite = i * 1.f / nn;
         spriteAnim->SetSprites(assets.asteroids->GetAtlasObject()->GetSprites());
         spriteAnim->spriteRenderer()->setSize(Vec2::one / 2);
 
         constexpr float perf = .5f;
-        spriteAnimatorObject->transform()->position(Vec2 {i * perf-nn/2*perf, 1});
+        spriteAnimatorObject->transform()->position(Vec2 {i * perf - nn / 2 * perf, 1});
     }
     // Set Cursor
     GameSetCursor(PlayerCursor::CusrorTargetAnime);
@@ -60,17 +62,17 @@ void WGame::OnStart()
 
     // Background
     SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
-    spriteRender->setSprite(Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("main-menu-background")));
+    spriteRender->setSprite(assets.gameSprites->GetSprite("main-menu-background"));
     spriteRender->transform()->zOrder(RenderOrders::BackgroundOrder);
 
     ParticleSystem *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
     smoke_particle->gameObject()->name("Particle Smoke");
     smoke_particle->rotate = false;
     smoke_particle->loop = true;
-    smoke_particle->speed = 1;
+    smoke_particle->speed = 2;
     smoke_particle->direction = Vec2::left;
     smoke_particle->interval = 3;
-    smoke_particle->setSource(Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("smoke")));
+    smoke_particle->setSource(assets.gameSprites->GetSprite("smoke"));
     smoke_particle->setInterpolates(10);
     smoke_particle->setSize(Vec2::one * 4);
     smoke_particle->setColors({Color::white, 0}, {Color::white, 128}, {Color::white, 0});
@@ -120,15 +122,6 @@ void WGame::OnUpdate()
     }
 
     Camera::mainCamera()->transform()->Translate(Input::GetAxis() * 0.1f);
-
-    if(Time::frame() + 1 % 120 == 0)
-    {
-        RoninSettings rs;
-        RoninSimulator::GetSettings(&rs);
-
-        rs.selectTextureQuality = (int) !rs.selectTextureQuality;
-        RoninSimulator::SetSettings(&rs);
-    }
 }
 
 void WGame::OnGizmos()
@@ -146,10 +139,13 @@ void WGame::OnGizmos()
 }
 
 float atime = 0;
+float timeoutReadyGo = 0;
 void make_simple_enemy()
 {
     float off, offset_up = -0.05f;
     Vec2 s0, s1;
+
+    draw_ready_go();
 
     int maxCount = session.waves * session.enemyPer;
     int empty = WGame::current->enemies.size();
@@ -170,17 +166,22 @@ void make_simple_enemy()
     {
         session.delayed_nextWave = 0;
         s0 = Camera::ViewportToWorldPoint({0.03f, offset_up});
-        s1 = Camera::ViewportToWorldPoint(Vec2::right);
+        s1 = Camera::ViewportToWorldPoint({1 - 0.03f, offset_up});
         s1.x -= s0.x;
         s1.y = s0.y;
-        off = (s1.x - s0.x) / session.enemyPer;
-        int count = Math::Min<int>(maxCount - session.wavesN, Math::Ceil(session.enemyPer * 0.1f));
+        off = (s1.x - s0.x) / (session.enemyPer * .1f);
+        int count = Math::Min<int>(maxCount - session.wavesN, Math::Ceil(session.enemyPer * .1f));
+
+        if(session.wavesN == 0)
+        {
+            timeoutReadyGo = Time::time() + 2;
+        }
 
         for(int x = 0; x < count; ++x)
         {
             EKamikadze *kamikadze = Primitive::CreateEmptyGameObject()->AddComponent<EKamikadze>();
             kamikadze->gameObject()->name("EKamikadze");
-            Collision *collision = kamikadze->AddComponent<Collision>();
+            Collision *collision = kamikadze->GetComponent<Collision>();
             collision->targetLayer = static_cast<int>(GameLayers::PlayerOrBullet);
             // Om Collision
             kamikadze->AddOnDestroy(
@@ -195,7 +196,7 @@ void make_simple_enemy()
 
             WGame::current->enemies.insert(kamikadze);
 
-            s0.y = Random::Range(s1.y, s1.y * 2);
+            // s0.y = Random::Range(s0.y, s0.y * 2);
             kamikadze->transform()->position(s0);
             kamikadze->gameObject()->SetLayer(static_cast<int>(GameLayers::EnemyClass));
             s0.x += off;
@@ -203,4 +204,20 @@ void make_simple_enemy()
         session.wavesN += count;
         atime = Time::time() + 2;
     }
+}
+
+Sprite *sprite = nullptr;
+
+void draw_ready_go()
+{
+
+    if(timeoutReadyGo > Time::time())
+        return;
+
+    if(sprite == nullptr)
+    {
+        sprite = assets.gameSprites->GetSprite("game-ready-go");
+    }
+
+    RenderUtility::DrawSpriteToScreen(sprite, {0, 0, 1000, 1000});
 }

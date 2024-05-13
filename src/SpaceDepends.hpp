@@ -16,7 +16,6 @@ using namespace RoninEngine::AI;
 class Player;
 class Enemy;
 class Weapon;
-class Collision;
 
 enum GameLayers : int
 {
@@ -47,7 +46,6 @@ enum RenderOrders : int
 #include "Objects/SpriteAnimator.hpp"
 #include "Objects/Weapon.hpp"
 #include "Objects/WeaponMachineGun.hpp"
-#include "Objects/Collision.hpp"
 
 #include "PlayerCursor.hpp"
 

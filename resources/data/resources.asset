@@ -2,6 +2,10 @@
   "class": "Sprite",
   "source": [
     {
+      "name" : "game-ready-go",
+       "ref":"sprites/game-label-ready-go.png"
+    },
+    {
       "name": "main-menu-background",
       "ref": "sprites/main-menu-background.png"
     },

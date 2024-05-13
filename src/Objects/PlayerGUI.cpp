@@ -7,6 +7,9 @@ using namespace RoninEngine::UI;
 class UIPushBoxLay : public UIOverlay
 {
 public:
+    Sprite *xDrawRing;
+    float xDrawAngles;
+
     void OnInit() override;
     void OnDraw(const UIData *const uiData) override;
     void OnDestroy() override;
@@ -33,6 +36,7 @@ void Player::OnGizmos()
 
 void UIPushBoxLay::OnInit()
 {
+    xDrawRing = assets.gameSprites->GetSprite("explode-v1");
 }
 
 void UIPushBoxLay::OnDraw(const UIData *const uiData)
@@ -46,11 +50,11 @@ void UIPushBoxLay::OnDraw(const UIData *const uiData)
     Sprite *corners = uiAtlas->GetSpriteFromName("game-top-corners");
     Sprite *extentHealth = uiAtlas->GetSpriteFromName("game-progress-foreground-mask");
     Sprite *rightRing = uiAtlas->GetSpriteFromName("game-right-ring");
-    static Sprite *xDrawRing = Primitive::CreateSpriteFrom(assets.gameSprites->GetImage("explode-v1"));
-    static float __angles = 0;
+
     rect.w = res.width;
     rect.h = 25;
     RenderUtility::DrawSpriteToScreen(corners, rect);
+
     rect.y = res.height - rect.h;
     RenderUtility::DrawSpriteToScreen(corners, rect);
 
@@ -60,16 +64,17 @@ void UIPushBoxLay::OnDraw(const UIData *const uiData)
     rect.w = rightRing->width();
     rect.h = rightRing->height();
     RenderUtility::DrawSpriteToScreen(rightRing, rect);
+
     rect.w = xDrawRing->width() / 3;
     rect.h = xDrawRing->height() / 3;
     rect.x = res.width - rect.w - 22;
     rect.y = -7;
 
-    __angles += 5;
-    if(__angles > 360)
-        __angles -= __angles;
+    xDrawAngles += 5;
+    if(xDrawAngles > 360)
+        xDrawAngles -= xDrawAngles;
 
-    RenderUtility::DrawSpriteToScreen(xDrawRing, rect, __angles * Math::deg2rad);
+    RenderUtility::DrawSpriteToScreen(xDrawRing, rect, xDrawAngles * Math::deg2rad);
 
     // Draw Healt Point
     rect.x = uiData->rect.x;

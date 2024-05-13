@@ -11,15 +11,14 @@
 
 class Player : public Behaviour
 {
-public:
-    void OnStart();
-    void OnUpdate();
-    void OnGizmos();
-    void OnDestroy();
-
 private:
     void InitPlayerGUI();
     void showShield(Vec2 lookPosition);
+
+protected:
+    float m_timeoutRepairs;
+
+    void onRepairing();
 
 public:
     Weapon *weapon;
@@ -31,6 +30,10 @@ public:
     Transform *gunPoint1, *gunPoint2;
     Transform *playerShield;
     AudioSource *playerAudio;
+
+    bool canRepairs = true;
+    float repairsAfterTime = 1.0f;
+
     int maxHealthPoint = 1000;
     int healthPoint = 0;
     int maxArmoryPoint = 100;
@@ -41,6 +44,12 @@ public:
     std::set<Transform *> bullets;
 
     void applyDamage(int damageValue, Vec2 closestPosition);
+
+public:
+    void OnStart();
+    void OnUpdate();
+    void OnGizmos();
+    void OnDestroy();
 };
 
 #endif
