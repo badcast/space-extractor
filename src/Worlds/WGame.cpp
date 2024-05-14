@@ -4,23 +4,14 @@ using namespace RoninEngine::Runtime;
 
 WGame *WGame::current = nullptr;
 
-struct GameSession
-{
-    int waves;
-    int wavesN;
-    int enemyPer = 103;
-    float delayed_nextWave = 0;
-} session;
-
 extern ParticleSystem *putEnemyParticleExplode(Vec2 position);
 
-void make_simple_enemy();
 void draw_ready_go();
 
 void WGame::OnUnloading()
 {
     current = nullptr;
-    enemies.clear();
+    activeEnemies.clear();
     RoninMemory::free(navMesh);
 }
 
@@ -29,7 +20,6 @@ void WGame::OnAwake()
     current = this;
     RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(assets.gameSprites->GetSprite("cursor-target")->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
-
 }
 
 void WGame::OnStart()
@@ -85,12 +75,10 @@ void WGame::OnStart()
     aus->setVolume(0.3f);
     aus->Play();
 
-    MusicPlayer::setClip(
-        Resources::GetMusicClipSource(Resources::LoadMusicClip(Paths::GetRuntimeDir() + "/data/music/ambient-1.ogg", true)));
+    MusicPlayer::setClip(Resources::GetMusicClipSource(Resources::LoadMusicClip(Paths::GetRuntimeDir() + "/data/music/ambient-1.ogg", true)));
     MusicPlayer::Play();
 
-    session.waves = 1;
-    session.wavesN = 0;
+    enhancer.generateWave(5, 3);
 }
 
 void WGame::OnUpdate()
@@ -98,7 +86,7 @@ void WGame::OnUpdate()
     if(Input::GetKeyDown(KeyboardCode::KB_ESCAPE))
         RoninSimulator::RequestQuit();
 
-    make_simple_enemy();
+    enhancer.doWave();
 
     if(Input::GetMouseDown(MouseMiddle))
         player->transform()->position(Camera::ScreenToWorldPoint(Input::GetMousePointf()));
@@ -127,97 +115,31 @@ void WGame::OnUpdate()
 void WGame::OnGizmos()
 {
     // DRAW WAVE TIME
-    if(session.delayed_nextWave)
+    if(enhancer.state() == EhState::Delay)
     {
         std::string str {"Left time is next wave: "};
-        str += std::to_string(session.delayed_nextWave - Time::time());
+        str += std::to_string(enhancer.after());
         str += "\nEstimated next wars: ";
-        str += std::to_string(session.waves * session.enemyPer);
+        str += std::to_string(enhancer.activeWaveInfo().enemies);
 
         RenderUtility::DrawTextLegacy(Vec2::zero, str, true);
     }
 }
 
-float atime = 0;
-float timeoutReadyGo = 0;
-void make_simple_enemy()
+WGame::WGame() : World("Space Extractor"), navMesh(nullptr), player(nullptr)
 {
-    float off, offset_up = -0.05f;
-    Vec2 s0, s1;
-
-    draw_ready_go();
-
-    int maxCount = session.waves * session.enemyPer;
-    int empty = WGame::current->enemies.size();
-    if(maxCount == session.wavesN || session.delayed_nextWave > Time::time())
-    {
-        if(empty == 0)
-        {
-            if(session.wavesN == maxCount)
-            {
-                atime = 0;
-                session.waves++; // Push next wave
-                session.wavesN = 0;
-                session.delayed_nextWave = Time::time() + 5; // wait 3 sec
-            }
-        }
-    }
-    else if(session.wavesN < maxCount && Time::time() > atime && empty < 2)
-    {
-        session.delayed_nextWave = 0;
-        s0 = Camera::ViewportToWorldPoint({0.03f, offset_up});
-        s1 = Camera::ViewportToWorldPoint({1 - 0.03f, offset_up});
-        s1.x -= s0.x;
-        s1.y = s0.y;
-        off = (s1.x - s0.x) / (session.enemyPer * .1f);
-        int count = Math::Min<int>(maxCount - session.wavesN, Math::Ceil(session.enemyPer * .1f));
-
-        if(session.wavesN == 0)
-        {
-            timeoutReadyGo = Time::time() + 2;
-        }
-
-        for(int x = 0; x < count; ++x)
-        {
-            EKamikadze *kamikadze = Primitive::CreateEmptyGameObject()->AddComponent<EKamikadze>();
-            kamikadze->gameObject()->name("EKamikadze");
-            Collision *collision = kamikadze->GetComponent<Collision>();
-            collision->targetLayer = static_cast<int>(GameLayers::PlayerOrBullet);
-            // Om Collision
-            kamikadze->AddOnDestroy(
-                [](Component *self)
-                {
-                    AudioClip *clip = assets.gameSounds->GetAudioClip("space-explode");
-                    AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.2f);
-                    WGame::current->enemies.erase(self->GetComponent<Enemy>());
-                    if(self->GetComponent<Enemy>()->healthPoint)
-                        putEnemyParticleExplode(self->transform()->position());
-                });
-
-            WGame::current->enemies.insert(kamikadze);
-
-            // s0.y = Random::Range(s0.y, s0.y * 2);
-            kamikadze->transform()->position(s0);
-            kamikadze->gameObject()->SetLayer(static_cast<int>(GameLayers::EnemyClass));
-            s0.x += off;
-        }
-        session.wavesN += count;
-        atime = Time::time() + 2;
-    }
 }
-
-Sprite *sprite = nullptr;
 
 void draw_ready_go()
 {
 
-    if(timeoutReadyGo > Time::time())
-        return;
+    // if(timeoutReadyGo > Time::time())
+    //     return;
 
-    if(sprite == nullptr)
-    {
-        sprite = assets.gameSprites->GetSprite("game-ready-go");
-    }
+    // if(sprite == nullptr)
+    // {
+    //     sprite = assets.gameSprites->GetSprite("game-ready-go");
+    // }
 
-    RenderUtility::DrawSpriteToScreen(sprite, {0, 0, 1000, 1000});
+    // RenderUtility::DrawSpriteToScreen(sprite, {0, 0, 1000, 1000});
 }

@@ -16,7 +16,6 @@ void WeaponMachineGun::setDefaultValues()
         GameObject *rootPref;
 
         rootPref = Primitive::CreateEmptyGameObject();
-        rootPref->SetActive(false);
 
         bulletPrefab = Primitive::CreateEmptyGameObject();
         bulletPrefab->name("Gold Bullet");
@@ -27,6 +26,8 @@ void WeaponMachineGun::setDefaultValues()
         sprRender->setSprite(assets.gameSprites->GetSprite("bullet-machine-gun"));
 
         rootPref->AddComponent<Collision>()->setSizeFrom(sprRender);
+
+        rootPref->SetActive(false);
 
         bulletPrefab = rootPref;
     }
