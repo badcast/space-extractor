@@ -7,8 +7,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 option(USE_SYSRONIN "Using system ronin-engine" ON)
 
-find_package(PkgConfig REQUIRED)
-
 file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 file(GLOB_RECURSE HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp")
@@ -28,7 +26,15 @@ if(NOT USE_SYSRONIN)
   add_subdirectory(RoninEngine)
   target_link_libraries(SpaceExtractor PRIVATE RoninEngine)
 else()
-  pkg_check_modules(RoninEngine REQUIRED RoninEngine)
+
+  find_package(PkgConfig)
+
+  if(NOT MSVC AND PkgConfig_FOUND)
+      pkg_check_modules(RoninEngine REQUIRED RoninEngine)
+  else()
+      find_package(RoninEngine REQUIRED)
+  endif()
+
   target_include_directories(SpaceExtractor PRIVATE ${RoninEngine_INCLUDE_DIRS})
   target_link_libraries(SpaceExtractor PRIVATE ${RoninEngine_LIBRARIES})
 endif()

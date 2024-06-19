@@ -20,6 +20,8 @@ void WGame::OnAwake()
     current = this;
     RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(assets.gameSprites->GetSprite("cursor-target")->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
+
+    ivstars.set(Vec2::up_right, 1.0f, 100, true);
 }
 
 void WGame::OnStart()
@@ -48,7 +50,7 @@ void WGame::OnStart()
     // Create Player
     player = Primitive::CreateEmptyGameObject()->AddComponent<Player>();
     player->gameObject()->name("Player");
-    player->transform()->position(Camera::ViewportToWorldPoint(Vec2 {0.5, 0.85}));
+    player->transform()->position(Camera::ViewportToWorldPoint(Vec2 {0.5, 0.15}));
 
     // Background
     SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
@@ -78,13 +80,15 @@ void WGame::OnStart()
     MusicPlayer::setClip(Resources::GetMusicClipSource(Resources::LoadMusicClip(Paths::GetRuntimeDir() + "/data/music/ambient-1.ogg", true)));
     MusicPlayer::Play();
 
-    enhancer.generateWave(5, 3);
+    enhancer.generateWave(5, 10);
 }
 
 void WGame::OnUpdate()
 {
     if(Input::GetKeyDown(KeyboardCode::KB_ESCAPE))
         RoninSimulator::RequestQuit();
+
+    ivstars.play();
 
     enhancer.doWave();
 
@@ -97,8 +101,8 @@ void WGame::OnUpdate()
     if(Input::GetMouseUp(MouseButton::MouseRight))
     {
         float step = 0;
-        Vec2 lfs = Camera::ViewportToWorldPoint(Vec2::zero);
-        Vec2 rfs = Camera::ViewportToWorldPoint(Vec2::one);
+        Vec2 lfs = Camera::ViewportToWorldPoint({0,1});
+        Vec2 rfs = Camera::ViewportToWorldPoint({1,1});
         for(Transform *enemy : Physics2D::GetRectangleCast(lfs + rfs, lfs - rfs, GameLayers::EnemyClass))
         {
             if(enemy->GetComponent<Enemy>())

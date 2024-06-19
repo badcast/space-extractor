@@ -29,7 +29,6 @@ int main()
 
         RoninSimulator::Simulate();
     }
-
     RoninSimulator::Finalize();
 
     return EXIT_SUCCESS;

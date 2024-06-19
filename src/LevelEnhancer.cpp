@@ -9,7 +9,7 @@ public:
 
     void OnDestroy()
     {
-        WGame::current->enhancer.putObject(ID);
+        WGame::current->enhancer.putObject( ID );
     }
 };
 
@@ -58,7 +58,6 @@ void Enhancer::doWave()
     EhStat stat;
     Vec2 s0, s1;
     float off, offset_up;
-    int maxCount;
 
     auto __spawn__ = [&]() -> GameObject *
     {
@@ -114,19 +113,19 @@ void Enhancer::doWave()
             return;
     }
 
-    int cur = activeWaveInfo().enemies;
+    stat = activeWaveInfo();
 
     // Makeable after checking
-    if(cur < _peekEnemies)
+    if(stat.enemies < _peekEnemies)
     {
-        offset_up = -0.05f;
+        offset_up = 1.1f;
         s0 = Camera::ViewportToWorldPoint({0.03f, offset_up});
         s1 = Camera::ViewportToWorldPoint({1 - 0.03f, offset_up});
         s1.x -= s0.x;
         s1.y = s0.y;
         off = (s1.x - s0.x) / (_numEnemies * _wavePersentage);
 
-        int makeCount = Math::Min<int>(maxCount - cur, Math::Ceil(_peekEnemies));
+        int makeCount = Math::Min<int>(_numEnemies - stat.enemies, Math::Ceil(_peekEnemies));
 
         for(int x = 0; x < makeCount; ++x)
         {
@@ -181,4 +180,5 @@ bool Enhancer::isActive()
 
 void Enhancer::putObject(int id)
 {
+   // std::cout << "Object " << id << " defeat." << std::endl;
 }

@@ -47,12 +47,12 @@ void WParticleEdtitor::OnStart()
     sliderParticleSpeed = GetGUI()->PushSlider(particle->speed, 0.1, 20, pos);
 
     pos.y += pos.h;
-    buttonParticleReset = GetGUI()->PushButton("Reset", {pos.GetXY(), {60, 30}});
+    buttonParticleReset = GetGUI()->PushButton("Reset", {pos.getXY(), {60, 30}});
 
-    buttonCameraBackclear = GetGUI()->PushButton("Back clear", {pos.GetXY() + Vec2 {60, 0}, {60, 30}});
+    buttonCameraBackclear = GetGUI()->PushButton("Back clear", {pos.getXY() + Vec2 {60, 0}, {60, 30}});
 
     pos.y += pos.h;
-    buttonParticleclearReserved = GetGUI()->PushButton("ClearReserve", {pos.GetXY(), {60, 30}});
+    buttonParticleclearReserved = GetGUI()->PushButton("ClearReserve", {pos.getXY(), {60, 30}});
 
     pos.y += pos.h;
     sliderParticleSize = GetGUI()->PushSlider(0.1, 0, 0.5, pos);

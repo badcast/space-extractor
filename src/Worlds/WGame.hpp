@@ -9,6 +9,7 @@
 
 #include "SpaceExtractor.hpp"
 #include "LevelEnhancer.hpp"
+#include "Objects/IVStars.hpp"
 
 class Enhancer;
 
@@ -26,6 +27,7 @@ public:
     Player *player;
     Enhancer enhancer {};
     std::set<Enemy *> activeEnemies;
+    IVStars ivstars {};
 
     WGame();
 
