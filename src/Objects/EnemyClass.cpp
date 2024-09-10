@@ -40,7 +40,7 @@ public:
         particleRef->rotatePerFrame = 120;
         if(transform()->position() == to)
         {
-            if(!World::self()->StateObjectDestruction(this->gameObject()))
+            if(!World::GetCurrentWorld()->StateObjectDestruction(this->gameObject()))
                 this->gameObject()->Destroy(0.3f);
             return;
         }

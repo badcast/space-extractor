@@ -29,21 +29,6 @@ void WGame::OnStart()
     // Create Main Camera
     Primitive::CreateCamera2D();
 
-    // Generate Custom Sprite Animator
-    constexpr int nn = 90;
-    for(int i = 0; i < nn; i++)
-    {
-        GameObject *spriteAnimatorObject = Primitive::CreateEmptyGameObject();
-        spriteAnimatorObject->AddComponent<SpriteRenderer>();
-        SpriteAnimator *spriteAnim = spriteAnimatorObject->AddComponent<SpriteAnimator>();
-        spriteAnim->animationSpeed = 0.085f;
-        spriteAnim->startSprite = i * 1.f / nn;
-        spriteAnim->SetSprites(assets.asteroids->GetAtlasObject()->GetSprites());
-        spriteAnim->spriteRenderer()->setSize(Vec2::one / 2);
-
-        constexpr float perf = .5f;
-        spriteAnimatorObject->transform()->position(Vec2 {i * perf - nn / 2 * perf, 1});
-    }
     // Set Cursor
     GameSetCursor(PlayerCursor::CusrorTargetAnime);
 

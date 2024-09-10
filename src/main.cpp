@@ -6,14 +6,12 @@
 #include "Worlds/WParticleEdtitor.hpp"
 
 #if WIN32
-typedef void *HINSTANCE;
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nShowCmd)
+int WinMain(void *hInstance, void *hPrevInstance, char *lpCmdLine, int nShowCmd)
 #else
 int main()
 #endif
 {
     RoninSimulator::Init();
-
     // auto selectedScreen = RoninSimulator::ShowSplashScreen(false);
     // if(selectedScreen.first)
     {
@@ -24,7 +22,7 @@ int main()
 
         LoadAssets();
 
-        WGame loadWorld;
+        WParticleEdtitor loadWorld;
         RoninSimulator::LoadWorld(&loadWorld);
 
         RoninSimulator::Simulate();

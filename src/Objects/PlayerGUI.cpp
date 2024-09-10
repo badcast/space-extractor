@@ -21,6 +21,7 @@ void Player::InitPlayerGUI()
     GUI *gui = WGame::current->GetGUI();
     Rect topCenter;
     Resolution res = RoninSimulator::GetCurrentResolution();
+
     topCenter.w = 300;
     topCenter.h = 90;
     topCenter.x = (res.width - topCenter.w) / 2;
