@@ -65,7 +65,7 @@ void WGame::OnStart()
     MusicPlayer::setClip(Resources::GetMusicClipSource(Resources::LoadMusicClip(Paths::GetRuntimeDir() + "/data/music/ambient-1.ogg", true)));
     MusicPlayer::Play();
 
-    enhancer.generateWave(5, 10);
+    enhancer.generateWave(5, 10, 1);
 }
 
 void WGame::OnUpdate()

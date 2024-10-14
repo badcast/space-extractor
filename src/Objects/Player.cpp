@@ -5,11 +5,6 @@ char bulletFireStep;
 float bullet_destroy_after = 4;
 Sprite *defaultTurret, *fireTurret;
 
-struct
-{
-    int force;
-    float time;
-} shaking;
 
 void Player::OnStart()
 {

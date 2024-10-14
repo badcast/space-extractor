@@ -4,7 +4,7 @@
 
 using namespace RoninEngine::UI;
 
-class UIPushBoxLay : public UIOverlay
+class UIPushBoxLayer : public UIOverlay
 {
 public:
     Sprite *xDrawRing;
@@ -15,7 +15,7 @@ public:
     void OnDestroy() override;
 };
 
-UIPushBoxLay boxLay {};
+UIPushBoxLayer boxLayer {};
 void Player::InitPlayerGUI()
 {
     GUI *gui = WGame::current->GetGUI();
@@ -27,7 +27,7 @@ void Player::InitPlayerGUI()
     topCenter.x = (res.width - topCenter.w) / 2;
     topCenter.y = 0;
 
-    gui->PushCustomUI(&boxLay, topCenter);
+    gui->PushCustomUI(&boxLayer, topCenter);
 }
 
 void Player::OnGizmos()
@@ -35,12 +35,12 @@ void Player::OnGizmos()
     RenderUtility::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2 {0, 50}), "SCORES: " + std::to_string(scores));
 }
 
-void UIPushBoxLay::OnInit()
+void UIPushBoxLayer::OnInit()
 {
     xDrawRing = assets.gameSprites->GetSprite("explode-v1");
 }
 
-void UIPushBoxLay::OnDraw(const UIData *const uiData)
+void UIPushBoxLayer::OnDraw(const UIData *const uiData)
 {
     Rect rect;
     Atlas *uiAtlas = assets.uiAtlas->GetAtlasObject();
@@ -99,6 +99,6 @@ void UIPushBoxLay::OnDraw(const UIData *const uiData)
     RenderUtility::DrawSpriteToScreen(foreground, rect);
 }
 
-void UIPushBoxLay::OnDestroy()
+void UIPushBoxLayer::OnDestroy()
 {
 }

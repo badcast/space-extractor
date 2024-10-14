@@ -12,6 +12,12 @@
 class Player : public Behaviour
 {
 private:
+    struct
+    {
+        int force;
+        float time;
+    } shaking;
+
     void InitPlayerGUI();
     void showShield(Vec2 lookPosition);
 

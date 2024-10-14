@@ -5,7 +5,7 @@ Vec2 calculateFinalPoint(Vec2 start, Vec2 direction, Vec2 rectMin, Vec2 rectMax)
     direction.normalize();
 
     // Параметры времени для пересечения с границами
-    float tLeft = (rectMin.x - start.x) / -direction.x; // Движемся в сторону X=0
+    float tLeft = (rectMin.x - start.x) / -direction.x;
     float tRight = (rectMax.x - start.x) / -direction.x;
     float tBottom = (rectMin.y - start.y) / -direction.y;
     float tTop = (rectMax.y - start.y) / -direction.y;
