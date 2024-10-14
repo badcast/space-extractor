@@ -22,7 +22,7 @@ int main()
 
         LoadAssets();
 
-        WParticleEdtitor loadWorld;
+        WGame loadWorld;
         RoninSimulator::LoadWorld(&loadWorld);
 
         RoninSimulator::Simulate();

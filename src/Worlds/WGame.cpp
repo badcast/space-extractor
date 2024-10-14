@@ -21,7 +21,7 @@ void WGame::OnAwake()
     RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(assets.gameSprites->GetSprite("cursor-target")->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
 
-    ivstars.set(Vec2::up_right, 1.0f, 100, true);
+    ivstars.set(Vec2::up_right, 1.0f, 1000, true);
 }
 
 void WGame::OnStart()
