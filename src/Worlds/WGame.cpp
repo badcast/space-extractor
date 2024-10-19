@@ -21,7 +21,7 @@ void WGame::OnAwake()
     RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(assets.gameSprites->GetSprite("cursor-target")->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
 
-    ivstars.set(Vec2::up_right, 1.0f, 100, true);
+    ivstars.set(Vec2::up_right, .4f, 220, true);
 }
 
 void WGame::OnStart()
@@ -65,7 +65,7 @@ void WGame::OnStart()
     MusicPlayer::setClip(Resources::GetMusicClipSource(Resources::LoadMusicClip(Paths::GetRuntimeDir() + "/data/music/ambient-1.ogg", true)));
     MusicPlayer::Play();
 
-    enhancer.generateWave(5, 10);
+    enhancer.generateWave(5, 10, 1);
 }
 
 void WGame::OnUpdate()

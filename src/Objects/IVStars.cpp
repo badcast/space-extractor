@@ -1,5 +1,32 @@
 #include "IVStars.hpp"
 
+Vec2 calculateFinalPoint(Vec2 start, Vec2 direction, Vec2 rectMin, Vec2 rectMax) {
+    // Нормализуем вектор направления
+    direction.normalize();
+
+    // Параметры времени для пересечения с границами
+    float tLeft = (rectMin.x - start.x) / -direction.x;
+    float tRight = (rectMax.x - start.x) / -direction.x;
+    float tBottom = (rectMin.y - start.y) / -direction.y;
+    float tTop = (rectMax.y - start.y) / -direction.y;
+
+    // Находим минимальное положительное значение t :)
+    float tCollision = std::numeric_limits<float>::max();
+
+    if (tLeft > 0) tCollision = Math::Min(tCollision, tLeft);
+    if (tRight > 0) tCollision = Math::Min(tCollision, tRight);
+    if (tBottom > 0) tCollision = Math::Min(tCollision, tBottom);
+    if (tTop > 0) tCollision = Math::Min(tCollision, tTop);
+
+    // Вычисляем начальную точку
+    Vec2 initialPoint;
+    initialPoint.x = start.x - tCollision * direction.x;
+    initialPoint.y = start.y - tCollision * direction.y;
+
+    return initialPoint;
+}
+
+
 IVStars::IVStars() : _dir(Vec2::up_right), _speed(2.0f), _stars {}
 {
 }
@@ -15,18 +42,20 @@ void IVStars::set(Vec2 direction, float speed, int count, bool startOfScreen)
     if(speed <= 0)
         return;
 
+    area.setXY(Camera::ViewportToWorldPoint(Vec2::zero));
+    area.setWH(Camera::ViewportToWorldPoint(Vec2::one) - area.getXY());
     _dir = direction.normalized();
     _speed = speed;
 
     IVObj iv;
-    iv.flag = 0;
 
     for(; count--;)
     {
-        Vec2 newPoint = Camera::ViewportToWorldPoint(Random::RandomVector());
+        Vec2 newPoint = Camera::ViewportToWorldPoint(Vec2( Random::Value(), Random::Value()));
 
         iv.obj = Primitive::CreateBox2D(newPoint)->transform();
         iv.obj->spriteRenderer()->setSize(Vec2::one / 60);
+        iv.orig = calculateFinalPoint(iv.obj->position(), _dir, area.getXY(), area.getWH());
         _stars.emplace_back(iv);
     }
 }
@@ -37,16 +66,9 @@ void IVStars::clear()
     _stars.clear();
 }
 
-static Color cc = Color::white;
-Rect s = Rect::one;
-
 void IVStars::play()
 {
-    Rectf area;
     Vec2 point;
-
-    area.setXY(Camera::ViewportToWorldPoint(Vec2::zero));
-    area.setWH(Camera::ViewportToWorldPoint(Vec2::one) - area.getXY());
 
     for(IVObj &self : _stars)
     {
@@ -54,55 +76,13 @@ void IVStars::play()
 
         point = self.obj->position();
 
-        /*
-          // Координаты вершин A и B
-            double Ax = 0, Ay = 0;
-            double Bx = 0, By = 13;
-
-            // Вектор (1,1) для угла C
-            double vector_x = 1, vector_y = 1;
-
-            // Находим разность координат между вершинами A и B
-            double diff_x = Bx - Ax;
-            double diff_y = By - Ay;
-
-            // Находим длину вектора AC
-            double length_AC = sqrt(diff_x * diff_x + diff_y * diff_y);
-
-            // Нормализуем вектор AC
-            double norm_x = diff_x / length_AC;
-            double norm_y = diff_y / length_AC;
-
-            // Находим угол между векторами AC и BC
-            double dot_product = norm_x * vector_x + norm_y * vector_y;
-            double angle_rad = acos(dot_product);
-
-            // Находим координаты вершины C
-            double Cx = Bx + cos(angle_rad) * length_AC;
-            double Cy = By + sin(angle_rad) * length_AC;
-
-
-        */
-
-        if(self.flag == 0 || !Vec2::HasIntersection(point, area))
+        if(!Vec2::HasIntersection(point, area))
         {
-
-            Vec2 _A;
-            Vec2 _C;
-            _A = {area.x, point.y};
-
-            _C = Vec2::Perpendicular(point - _A);
-
-            // Replace to Vec2::Max ()
-            if(_C.x < _A.x)
-                _C.x = _A.x;
-            if(_C.y < _A.y)
-                _C.y = _A.y;
-
-            self.obj->position(_C);
-
-            if(self.flag == 0 && Vec2::HasIntersection(self.obj->position(), area))
-                self.flag = 1;
+            self.obj->position(self.orig);
         }
+
+        RenderUtility::SetColor(Color::white);
+        RenderUtility::DrawLine(self.orig, self.obj->position());
+
     }
 }
