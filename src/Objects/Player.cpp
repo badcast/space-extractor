@@ -5,11 +5,16 @@ char bulletFireStep;
 float bullet_destroy_after = 4;
 Sprite *defaultTurret, *fireTurret;
 
-struct
+
+void DestructPut(GameObject * root)
 {
-    int force;
-    float time;
-} shaking;
+    std::list<SpriteRenderer*> renders;
+
+    if(root == nullptr)
+        return;
+
+    renders = root->GetComponentsAnChilds<SpriteRenderer>();
+}
 
 void Player::OnStart()
 {
@@ -124,6 +129,8 @@ void Player::OnStart()
     }
 
     InitPlayerGUI();
+
+    DestructPut(this->gameObject());
 }
 
 void Player::OnDestroy()
@@ -224,6 +231,7 @@ void Player::OnUpdate()
 
 void Player::onRepairing()
 {
+    // First damage armory, and after health point!
     int *pHP, *pMaxHP;
 
     m_timeoutRepairs = Time::time() + repairsAfterTime;
@@ -241,7 +249,7 @@ void Player::onRepairing()
 
     if(*pHP < *pMaxHP)
     {
-        *pHP += 1;
+        *pHP += repairScore;
     }
 
     *pHP = Math::Min(*pHP, *pMaxHP);

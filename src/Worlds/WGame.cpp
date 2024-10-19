@@ -21,7 +21,7 @@ void WGame::OnAwake()
     RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(assets.gameSprites->GetSprite("cursor-target")->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
 
-    ivstars.set(Vec2::up_right, 1.0f, 100, true);
+    ivstars.set(Vec2::up_right, .4f, 220, true);
 }
 
 void WGame::OnStart()
@@ -65,7 +65,7 @@ void WGame::OnStart()
     MusicPlayer::setClip(Resources::GetMusicClipSource(Resources::LoadMusicClip(Paths::GetRuntimeDir() + "/data/music/ambient-1.ogg", true)));
     MusicPlayer::Play();
 
-    enhancer.generateWave(5, 10);
+    enhancer.generateWave(5, 10, 1);
 }
 
 void WGame::OnUpdate()
@@ -103,13 +103,20 @@ void WGame::OnUpdate()
 
 void WGame::OnGizmos()
 {
+    float time;
+    int nbit;
+
     // DRAW WAVE TIME
-    if(enhancer.state() == EhState::Delay)
+    if(enhancer.state() == WaveState::Delay)
     {
         std::string str {"Left time is next wave: "};
-        str += std::to_string(enhancer.after());
+        time = enhancer.awaitNextWave();
+        nbit = static_cast<int>(str.size());
+        nbit |= snprintf(nullptr, 0, "%.1f", time) << 16;
+        str.resize(str.size() + (nbit >> 16));
+        snprintf(str.data() + (nbit & 0xFFFF), nbit << 16, "%.1f", time);
         str += "\nEstimated next wars: ";
-        str += std::to_string(enhancer.activeWaveInfo().enemies);
+        str += std::to_string(enhancer.getWaveInfo().enemies);
 
         RenderUtility::DrawTextLegacy(Vec2::zero, str, true);
     }

@@ -5,7 +5,7 @@
 
 struct IVObj
 {
-    int flag;
+    Vec2 orig;
     Transform *obj;
 };
 
@@ -14,6 +14,7 @@ class IVStars
 private:
     float _speed;
     Vec2 _dir;
+    Rectf area;
     std::list<IVObj> _stars;
 
 public:

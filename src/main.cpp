@@ -1,4 +1,3 @@
-
 #include <string>
 
 #include "SpaceExtractor.hpp"
@@ -12,17 +11,23 @@ int main()
 #endif
 {
     RoninSimulator::Init();
-    // auto selectedScreen = RoninSimulator::ShowSplashScreen(false);
-    // if(selectedScreen.first)
+     //auto selectedScreen = RoninSimulator::ShowSplashScreen(true);
+     //if(selectedScreen.first)
     {
 
         RoninSimulator::Show({1024, 768}, false);
 
         RoninSimulator::SetDebugMode(true);
 
+        RoninSettings settings;
+
+        RoninSimulator::GetSettings(&settings);
+        settings.verticalSync = true;
+        RoninSimulator::SetSettings(&settings);
+
         LoadAssets();
 
-        WParticleEdtitor loadWorld;
+        WGame loadWorld;
         RoninSimulator::LoadWorld(&loadWorld);
 
         RoninSimulator::Simulate();

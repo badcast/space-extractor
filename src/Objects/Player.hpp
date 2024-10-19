@@ -12,6 +12,12 @@
 class Player : public Behaviour
 {
 private:
+    struct
+    {
+        int force;
+        float time;
+    } shaking;
+
     void InitPlayerGUI();
     void showShield(Vec2 lookPosition);
 
@@ -33,10 +39,11 @@ public:
 
     bool canRepairs = true;
     float repairsAfterTime = 1.0f;
+    int repairScore = 1;
 
-    int maxHealthPoint = 1000;
+    int maxHealthPoint = 100;
     int healthPoint = 0;
-    int maxArmoryPoint = 100;
+    int maxArmoryPoint = 50;
     int armoryPoint = 0;
     int scores = 0;
     float clampAngleLeft = -80, clampAngleRight = 80;

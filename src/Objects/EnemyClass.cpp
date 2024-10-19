@@ -44,6 +44,7 @@ public:
                 this->gameObject()->Destroy(0.3f);
             return;
         }
+
         transform()->position(Vec2::MoveTowards(transform()->position(), to, Time::deltaTime() * 5));
     }
 };
@@ -148,6 +149,13 @@ void EKamikadze::OnAwake()
 
     // Set Collision Size
     transform()->AddComponent<Collision>()->collideSize = Vec2::Scale(spriteRender->getSprite()->size(), spriteRender->getSize());
+
+    ParticleSystem * tracePart = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
+    tracePart->transform()->setParent(transform());
+    tracePart->transform()->localAngle(0);
+    tracePart->setSize(Vec2::one * .1f);
+    tracePart->worldSpace = false;
+    tracePart->setSource(assets.gameSprites->GetSprite("alert-enemy"));
 }
 
 int EKamikadze::getDamageWeight() const
@@ -185,8 +193,11 @@ void EKamikadze::OnUpdate()
     transform()->Translate(transform()->forward() * Time::deltaTime() * enemy_class_info.kamikadze.speed);
     // transform()->position(Vec2::MoveTowards(transform()->position(), targetTo, Time::deltaTime() * enemy_class_info.kamikadze.speed));
 
-    float currentDistance = Vec2::Distance(transform()->position(), targetTo);
+    // Animate size on walk
 
+    // TODO: State walk ?
+
+    float currentDistance = Vec2::Distance(transform()->position(), targetTo);
     if(currentDistance <= getStopDistance())
     {
     }

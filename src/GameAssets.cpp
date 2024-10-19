@@ -22,5 +22,5 @@ void LoadAssets()
         {
             RoninSimulator::ShowMessageFail("Failed load asset " + p);
         }
-    }
+    }    
 }

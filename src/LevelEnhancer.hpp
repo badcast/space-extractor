@@ -16,14 +16,14 @@ enum EhRank
     Hard
 };
 
-enum EhState
+enum WaveState
 {
     Standby,
     Delay,
     Active
 };
 
-struct EhStat
+struct WaveInfo
 {
     int enemies;
     int wave;
@@ -38,12 +38,11 @@ private:
     int _activeWave;
     int _peekEnemies;
     int _activatedEnemies;
+    int _roundEnemies;
 
     float _wavePersentage;
-    float _waveInterval;
-    float _intervals;
-
-    std::vector<int> _evils;
+    float waveTimeOut;
+    float waveInterval;
 
     void _killSession();
 
@@ -54,29 +53,44 @@ public:
 
     Enhancer() = default;
 
-    // Отправить запрос "Приостановить"
+    // Приостанавливает текущую активность системы волн.
     void suspend();
 
-    // Генерирует уровень волны, на основе данных
-    // Количество врагов, и ожидаемое количество волн.
-    // Важно, чтобы количество врагов было больше или равно (>=) на число ожидаемых волн (!)
+    // Восстанавливает текущую активность волн.
+    void resume();
+
+    // Генерирует волну врагов на основе заданных данных.
+    // numEnemies - общее количество врагов,
+    // numWaves - ожидаемое количество волн.
+    // startPercentage - процент врагов, которые будут активны в первой волне (по умолчанию 10%).
+    // waveInterval - интервал между волнами в секундах (по умолчанию 5 секунд).
+    // Возвращает true, если волна успешно сгенерирована.
     bool generateWave(int numEnemies, int numWaves, float startPercentage = 0.1f, float waveInterval = 5.f);
 
+    // Циклический обрабатывает событие волн.
     void doWave();
 
+    // Возвращает общее количество сгенерированных волн.
     int getWaves();
 
-    EhStat activeWaveInfo();
+    // Возвращает информацию о текущей волне.
+    WaveInfo getWaveInfo();
 
-    EhStat peekWaveInfo();
+    // Возвращает информацию о следующей волне без её запуска.
+    WaveInfo peekWaveInfo();
 
-    float after();
+    // Возвращает время ожидания для следующей волне.
+    float awaitNextWave();
 
-    EhState state();
+    // Возвращает текущее состояние системы волн.
+    WaveState state();
 
+    // Проверяет, активна ли система волн.
     bool isActive();
 
+    // Добавляет объект с заданным идентификатором в систему волн.
     void putObject(int id);
+
 };
 
 #endif

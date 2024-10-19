@@ -59,7 +59,7 @@ public:
 class EKamikadze : public Enemy
 {
 private:
-    bool animInverse = true;
+    float animInverse = true;
     SpriteRenderer *renderAlertSignal;
 
 public:

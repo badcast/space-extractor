@@ -4,7 +4,7 @@
 
 using namespace RoninEngine::UI;
 
-class UIPushBoxLay : public UIOverlay
+class UIPushBoxLayer : public UIOverlay
 {
 public:
     Sprite *xDrawRing;
@@ -15,7 +15,7 @@ public:
     void OnDestroy() override;
 };
 
-UIPushBoxLay boxLay {};
+UIPushBoxLayer boxLayer {};
 void Player::InitPlayerGUI()
 {
     GUI *gui = WGame::current->GetGUI();
@@ -27,20 +27,23 @@ void Player::InitPlayerGUI()
     topCenter.x = (res.width - topCenter.w) / 2;
     topCenter.y = 0;
 
-    gui->PushCustomUI(&boxLay, topCenter);
+    gui->PushCustomUI(&boxLayer, topCenter);
 }
 
 void Player::OnGizmos()
 {
+
+    Time::SetTimeScale(Time::GetTimeScale() + Input::GetMouseWheel()/10.f);
+
     RenderUtility::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2 {0, 50}), "SCORES: " + std::to_string(scores));
 }
 
-void UIPushBoxLay::OnInit()
+void UIPushBoxLayer::OnInit()
 {
     xDrawRing = assets.gameSprites->GetSprite("explode-v1");
 }
 
-void UIPushBoxLay::OnDraw(const UIData *const uiData)
+void UIPushBoxLayer::OnDraw(const UIData *const uiData)
 {
     Rect rect;
     Atlas *uiAtlas = assets.uiAtlas->GetAtlasObject();
@@ -54,9 +57,11 @@ void UIPushBoxLay::OnDraw(const UIData *const uiData)
 
     rect.w = res.width;
     rect.h = 25;
+
     RenderUtility::DrawSpriteToScreen(corners, rect);
 
     rect.y = res.height - rect.h;
+
     RenderUtility::DrawSpriteToScreen(corners, rect);
 
     // Draw Right Ring
@@ -71,7 +76,7 @@ void UIPushBoxLay::OnDraw(const UIData *const uiData)
     rect.x = res.width - rect.w - 22;
     rect.y = -7;
 
-    xDrawAngles += 5;
+    xDrawAngles += 200 * Time::deltaTime();
     if(xDrawAngles > 360)
         xDrawAngles -= xDrawAngles;
 
@@ -99,6 +104,6 @@ void UIPushBoxLay::OnDraw(const UIData *const uiData)
     RenderUtility::DrawSpriteToScreen(foreground, rect);
 }
 
-void UIPushBoxLay::OnDestroy()
+void UIPushBoxLayer::OnDestroy()
 {
 }
