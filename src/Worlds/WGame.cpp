@@ -15,13 +15,45 @@ void WGame::OnUnloading()
     RoninMemory::free(navMesh);
 }
 
+GameObject *makeEnemyOnPoint(Vec2 placePoint)
+{
+    Collision *collision;
+    EKamikadze *kamikadze;
+
+    kamikadze = Primitive::CreateEmptyGameObject("EKamikadze")->AddComponent<EKamikadze>();
+    collision = kamikadze->GetComponent<Collision>();
+    if(collision)
+        collision->targetLayer = static_cast<int>(GameLayers::PlayerOrBullet);
+    // On Collision
+    kamikadze->AddOnDestroy(
+        [](Component *self)
+        {
+            AudioClip *clip = globalAssets.gameSounds->GetAudioClip("destroy1");
+            AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.2f);
+            WGame::current->activeEnemies.erase(self->GetComponent<Enemy>());
+        });
+
+    kamikadze->transform()->position(placePoint);
+    kamikadze->gameObject()->SetLayer(static_cast<int>(GameLayers::EnemyClass));
+
+    WGame::current->activeEnemies.insert(kamikadze);
+
+    return kamikadze->gameObject();
+}
+
 void WGame::OnAwake()
 {
     current = this;
-    RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(assets.gameSprites->GetSprite("cursor-target")->getImage(), {16, 16}));
+    Sprite *image;
+
+    image = globalAssets.gameSprites->GetSprite("cursor-target");
+    if(image)
+        RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(image->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
 
     ivstars.set(Vec2::up_right, .4f, 220, true);
+
+    enhancer.setDelegate(makeEnemyOnPoint);
 }
 
 void WGame::OnStart()
@@ -39,7 +71,7 @@ void WGame::OnStart()
 
     // Background
     SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
-    spriteRender->setSprite(assets.gameSprites->GetSprite("main-menu-background"));
+    spriteRender->setSprite(globalAssets.gameSprites->GetSprite("main-menu-background"));
     spriteRender->transform()->zOrder(RenderOrders::BackgroundOrder);
 
     ParticleSystem *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
@@ -49,23 +81,14 @@ void WGame::OnStart()
     smoke_particle->speed = 2;
     smoke_particle->direction = Vec2::left;
     smoke_particle->interval = 3;
-    smoke_particle->setSource(assets.gameSprites->GetSprite("smoke"));
+    smoke_particle->setSource(globalAssets.gameSprites->GetSprite("smoke"));
     smoke_particle->setInterpolates(10);
     smoke_particle->setSize(Vec2::one * 4);
     smoke_particle->setColors({Color::white, 0}, {Color::white, 128}, {Color::white, 0});
     smoke_particle->transform()->position(Camera::ViewportToWorldPoint({1, 0.5f}));
     smoke_particle->transform()->zOrder(RenderOrders::ParticleMainSmokeOrder);
 
-    // Background music
-    AudioSource *aus = Camera::mainCamera()->AddComponent<AudioSource>();
-    aus->setClip(Resources::GetAudioClipSource(Resources::LoadAudioClip(Paths::GetRuntimeDir() + "/data/music/ambient-2.ogg5", true)));
-    aus->setVolume(0.3f);
-    aus->Play();
-
-    MusicPlayer::setClip(Resources::GetMusicClipSource(Resources::LoadMusicClip(Paths::GetRuntimeDir() + "/data/music/ambient-1.ogg", true)));
-    MusicPlayer::Play();
-
-    enhancer.generateWave(5, 10, 1);
+    enhancer.generateWave(100, 100, 30);
 }
 
 void WGame::OnUpdate()
@@ -98,7 +121,14 @@ void WGame::OnUpdate()
         }
     }
 
-    Camera::mainCamera()->transform()->Translate(Input::GetAxis() * 0.1f);
+    if(Input::GetMouseWheel())
+    {
+        float newZoom = Camera::mainCamera()->GetComponent<Camera2D>()->GetZoomOut();
+        newZoom += Input::GetMouseWheel()*5;
+        Camera::mainCamera()->GetComponent<Camera2D>()->SetZoomOut(newZoom);
+    }
+
+    Camera::mainCamera()->transform()->Translate(Input::GetAxis() * Time::deltaTime() * 2);
 }
 
 void WGame::OnGizmos()
@@ -116,15 +146,19 @@ void WGame::OnGizmos()
         str.resize(str.size() + (nbit >> 16));
         snprintf(str.data() + (nbit & 0xFFFF), nbit << 16, "%.1f", time);
         str += "\nEstimated next wars: ";
-        str += std::to_string(enhancer.getWaveInfo().enemies);
+        str += std::to_string(enhancer.getWaveInfo().maxEnemies);
 
         RenderUtility::DrawTextLegacy(Vec2::zero, str, true);
     }
+    else if(enhancer.state() == WaveState::Finish)
+    {
+        RenderUtility::DrawTextLegacy(Vec2::zero, "FINISH!", true, true);
+    }
+
+    RenderUtility::DrawTextLegacy(Vec2::zero, std::to_string(Camera::mainCamera()->GetComponent<Camera2D>()->GetZoomOut()), 1, 1);
 }
 
-WGame::WGame() : World("Space Extractor"), navMesh(nullptr), player(nullptr)
-{
-}
+
 
 void draw_ready_go()
 {

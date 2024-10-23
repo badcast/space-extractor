@@ -25,11 +25,13 @@ public:
 public:
     NavMesh *navMesh;
     Player *player;
-    Enhancer enhancer {};
+    Enhancer enhancer;
     std::set<Enemy *> activeEnemies;
     IVStars ivstars {};
 
-    WGame();
+    WGame() : World("Space Extractor"), navMesh(nullptr), player(nullptr)
+    {
+    }
 
     static WGame *current;
 };

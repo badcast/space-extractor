@@ -2,12 +2,12 @@
   "class": "AudioClip",
   "source": [
     {
-      "name": "space-explode",
-      "ref": "sounds/space-explode.ogg"
+      "name": "destroy1",
+      "ref": "sounds/destroy1.ogg"
     },
     {
       "name": "machinegun-1",
-      "ref": "sounds/shot-machinegun-2.ogg"
+      "ref": ["sounds/player-shot1.ogg","sounds/player-shot2.ogg","sounds/player-shot3.ogg"]
     },
     {
       "name": "machinegun-2",

@@ -1,6 +1,8 @@
 #ifndef _LEVEL_ENHANCER_HPP_
 #define _LEVEL_ENHANCER_HPP_
 
+#include <Worlds/WGame.hpp>
+
 // Алгоритмы для LevelEnhancer -
 enum EhAlgorithm
 {
@@ -18,7 +20,7 @@ enum EhRank
 
 enum WaveState
 {
-    Standby,
+    Finish,
     Delay,
     Active
 };
@@ -26,32 +28,38 @@ enum WaveState
 struct WaveInfo
 {
     int enemies;
+    int maxEnemies;
     int wave;
 };
 
 class Enhancer
 {
 private:
-    int _numWaves;
-    int _numEnemies;
+    int _maxWaves;
+    int _maxEnemies;
 
     int _activeWave;
     int _peekEnemies;
     int _activatedEnemies;
     int _roundEnemies;
+    int _startEnemyCount;
 
-    float _wavePersentage;
-    float waveTimeOut;
-    float waveInterval;
+    float _addPercentage;
+    float _waveTimeOut;
+    float waveDelayTicks;
+
+    WaveInfo _lastWave;
+
+    std::function<GameObject* (Vec2)> _addPoint;
 
     void _killSession();
-
-
 public:
     EhAlgorithm algorithm;
     EhRank rank;
 
     Enhancer() = default;
+
+    void setDelegate(std::function<GameObject *(Vec2)> addPoint);
 
     // Приостанавливает текущую активность системы волн.
     void suspend();
@@ -60,12 +68,13 @@ public:
     void resume();
 
     // Генерирует волну врагов на основе заданных данных.
-    // numEnemies - общее количество врагов,
-    // numWaves - ожидаемое количество волн.
-    // startPercentage - процент врагов, которые будут активны в первой волне (по умолчанию 10%).
-    // waveInterval - интервал между волнами в секундах (по умолчанию 5 секунд).
+    // maxEnemies - общее количество врагов,
+    // maxWaves - ожидаемое количество волн.
+    // startEnemyCount - процент врагов, которые будут активны в первой волне (по умолчанию 1).
+    // waveTimeout - интервал между волнами в секундах (по умолчанию 5 секунд).
+    // addPercentage - процент добавление врагов при след. волнах (по умполчанию 10%).
     // Возвращает true, если волна успешно сгенерирована.
-    bool generateWave(int numEnemies, int numWaves, float startPercentage = 0.1f, float waveInterval = 5.f);
+    bool generateWave(int maxEnemies, int maxWaves, int startEnemyCount = 1, float addPercentage = 0.1f, float waveTimeout = 5.f);
 
     // Циклический обрабатывает событие волн.
     void doWave();
@@ -87,6 +96,9 @@ public:
 
     // Проверяет, активна ли система волн.
     bool isActive();
+
+    // Проверяет, закончился ли система волн.
+    bool isFinished();
 
     // Добавляет объект с заданным идентификатором в систему волн.
     void putObject(int id);

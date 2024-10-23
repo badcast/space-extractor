@@ -1,4 +1,4 @@
-#include <functional>
+#include <ronin/Debug.h>
 
 #include "SpaceExtractor.hpp"
 
@@ -15,20 +15,27 @@ public:
     }
 };
 
-bool Enhancer::generateWave(int numEnemies, int numWaves, float startPercentage, float waveInterval)
+void Enhancer::setDelegate(std::function<GameObject *(Vec2)> addPoint)
 {
-    if(numEnemies < 0)
-        numEnemies = -1;
-    else if(numWaves < 0)
-        numWaves = -1;
+    _addPoint = addPoint;
+}
 
-    waveInterval = 0;
+bool Enhancer::generateWave(int maxEnemies, int maxWaves, int startEnemyCount, float addPercentage, float waveTimeout)
+{
+    if(maxEnemies < 0)
+        maxEnemies = -1;
+    else if(maxWaves < 0)
+        maxWaves = -1;
+
     _peekEnemies = 0;
+    _roundEnemies = 0;
+    _activeWave = 0;
+    _addPercentage = addPercentage;
 
-    _numWaves = numWaves;
-    _wavePersentage = Math::Clamp(startPercentage, 0.01f, 1.0f);
-    waveTimeOut = waveInterval;
-    _numEnemies = numEnemies;
+    _maxWaves = maxWaves;
+    _maxEnemies = maxEnemies;
+    _waveTimeOut = waveTimeout;
+    _startEnemyCount = Math::Clamp<int>(startEnemyCount, 1, maxEnemies);
 
     return true;
 }
@@ -36,10 +43,9 @@ bool Enhancer::generateWave(int numEnemies, int numWaves, float startPercentage,
 WaveState Enhancer::state()
 {
     WaveState _state;
-
-    if(!_numWaves || _numWaves == _activeWave)
-        _state = WaveState::Standby;
-    else if(waveTimeOut != 0.0f && waveInterval != 0.0f)
+    if(!_maxWaves || _maxWaves == _activeWave)
+        _state = WaveState::Finish;
+    else if(waveDelayTicks != 0.0f)
         _state = WaveState::Delay;
     else
         _state = WaveState::Active;
@@ -52,86 +58,69 @@ void Enhancer::doWave()
     WaveInfo stat;
     Vec2 s0, s1;
     float off, offset_up;
+    int x,y;
+    GameObject *objFrom;
 
     switch(state())
     {
         case WaveState::Active:
-            if(WGame::current->activeEnemies.empty() && _roundEnemies == _peekEnemies)
+
+            // Set Begin of
+            if(!WGame::current->activeEnemies.empty() || _roundEnemies != _peekEnemies)
+                break;
+
+            stat = peekWaveInfo();
+            _activeWave = stat.wave;
+            _peekEnemies = stat.maxEnemies;
+
+            // Set End of
+            if(_roundEnemies)
             {
-                // Set new level instructions
-                stat = peekWaveInfo();
-                _activeWave = stat.wave;
-                _peekEnemies = stat.enemies;
-
-                // Init Next Wave
-                waveInterval = Time::time() + waveTimeOut;
+                waveDelayTicks = Time::time() + _waveTimeOut;
                 _roundEnemies = 0;
-
+                return;
             }
             break;
         case WaveState::Delay:
             // Wait timeout
             if(awaitNextWave() == 0.0f)
             {
-                waveInterval = 0; // Invoke
-                break;
+                // Reset Ticks
+                waveDelayTicks = 0;
             }
-        case WaveState::Standby:
+        case WaveState::Finish:
         default:
             return;
     }
 
-    // Makeable after checking
+    // Make after checking
     if(_roundEnemies < _peekEnemies)
     {
+        stat = getWaveInfo();
         offset_up = 1.1f;
         s0 = Camera::ViewportToWorldPoint({0.03f, offset_up});
         s1 = Camera::ViewportToWorldPoint({1 - 0.03f, offset_up});
-        s1.x -= s0.x;
-        s1.y = s0.y;
-        off = (s1.x - s0.x) / (_numEnemies * _wavePersentage);
-        stat = getWaveInfo();
+        off = (s1.x - s0.x) / (stat.maxEnemies);
 
-        int makeCount = Math::Min<int>(_numEnemies - stat.enemies, Math::Ceil(_peekEnemies));
 
-        // Make Clone
-        for(int x = 0; x < makeCount; ++x)
+        // Make Clones
+        y = Math::Min<int>(stat.maxEnemies-_roundEnemies, _peekEnemies);
+        for(x = 0; x < y; ++x)
         {
-            Collision *collision;
-            EKamikadze *kamikadze;
-
-            kamikadze = Primitive::CreateEmptyGameObject("EKamikadze")->AddComponent<EKamikadze>();
-            collision = kamikadze->GetComponent<Collision>();
-            collision->targetLayer = static_cast<int>(GameLayers::PlayerOrBullet);
-            // On Collision
-            kamikadze->AddOnDestroy(
-                [](Component *self)
-                {
-                    AudioClip *clip = assets.gameSounds->GetAudioClip("space-explode");
-                    AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.2f);
-                    WGame::current->activeEnemies.erase(self->GetComponent<Enemy>());
-                    // if(self->GetComponent<Enemy>()->healthPoint)
-                    //     putEnemyParticleExplode(self->transform()->position());
-                });
-
-            WGame::current->activeEnemies.insert(kamikadze);
-
-            // s0.y = Random::Range(s0.y, s0.y * 2);
-            kamikadze->transform()->position(s0);
-            kamikadze->gameObject()->SetLayer(static_cast<int>(GameLayers::EnemyClass));
-            s0.x += off;
+            objFrom = _addPoint(s0);
             // Glud ID
-            kamikadze->gameObject()->AddComponent<EhTracker>()->ID = _activatedEnemies + x;
+            objFrom->AddComponent<EhTracker>()->ID = _activatedEnemies + x;
+            s0.x += off;
         }
 
-        _roundEnemies += makeCount;
-        _activatedEnemies += makeCount;
+        _roundEnemies += y;
+        _activatedEnemies += y;
     }
 }
 
 int Enhancer::getWaves()
 {
-    return _numWaves;
+    return _maxWaves;
 }
 
 WaveInfo Enhancer::getWaveInfo()
@@ -139,6 +128,7 @@ WaveInfo Enhancer::getWaveInfo()
     WaveInfo stat;
 
     stat.enemies = WGame::current->activeEnemies.size();
+    stat.maxEnemies = _peekEnemies;
     stat.wave = _activeWave;
 
     return stat;
@@ -148,18 +138,20 @@ WaveInfo Enhancer::peekWaveInfo()
 {
     WaveInfo stat;
 
-    stat.enemies = Math::Max<int>(1, Math::Ceil(_numEnemies * _wavePersentage));
-    stat.wave = Math::Min(_numWaves, _activeWave + 1);
+    // Every null
+    stat.enemies = 0;
+    stat.maxEnemies = Math::Max<int>(1, Math::Min(_maxEnemies, this->_startEnemyCount));
+    stat.wave = Math::Min(_maxWaves, _activeWave + 1);
 
     return stat;
 }
 
 float Enhancer::awaitNextWave()
 {
-    if(waveInterval == 0.0f)
+    if(waveDelayTicks == 0.0f)
         return -1;
 
-    float t = Math::Max(0.0f, waveInterval - Time::time());
+    float t = Math::Max(0.0f, waveDelayTicks - Time::time());
 
     return t;
 }
@@ -169,7 +161,17 @@ bool Enhancer::isActive()
     return state() == WaveState::Active;
 }
 
+bool Enhancer::isFinished()
+{
+    return state() == WaveState::Finish;
+}
+
 void Enhancer::putObject(int id)
 {
-   // std::cout << "Object " << id << " defeat." << std::endl;
+    std::string str;
+
+    str = "Object ";
+    str += std::to_string(id);
+    str += " defeat.";
+    Debug::Log(str);
 }

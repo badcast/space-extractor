@@ -1,11 +1,23 @@
 #include "WMainMenu.hpp"
 #include "WParticleEdtitor.hpp"
 
+using namespace RoninEngine;
+using namespace RoninEngine::Runtime;
 using namespace RoninEngine::UI;
+
+uid butContinue;
+uid butNewGame;
+uid butOptions;
 
 void onClickAny(uid id)
 {
-    RoninEngine::RoninSimulator::LoadWorld(new WParticleEdtitor );
+    if(id == butNewGame)
+    {
+        RoninSimulator::LoadWorld<WGame>();
+        return;
+    }
+
+    RoninEngine::RoninSimulator::LoadWorld<WParticleEdtitor>();
 }
 
 void WMainMenu::OnStart()
@@ -13,23 +25,27 @@ void WMainMenu::OnStart()
 
     uid lastId;
 
+    // Background
+    GetGUI()->PushPictureBox(globalAssets.gameSprites->GetSprite("main-menu-background"), {{0,0},RoninSimulator::GetCurrentResolution().GetSize()});
+
+    GetGUI()->LayoutNew(RoninEngine::UI::Vertical, {.5, .5, 1, 1});
+
     /////////////////////////////////////////////////////////////////
     /// Load Game
     /////////////////////////////////////////////////////////////////
-    GetGUI()->LayoutNew(RoninEngine::UI::Horizontal, {0, 0, 1, 1});
-    lastId = GetGUI()->LayoutButton("Continue");
+    butContinue = lastId = GetGUI()->LayoutButton("Continue");
     GetGUI()->AddEventListener_Click(lastId, onClickAny);
 
     /////////////////////////////////////////////////////////////////
     /// Play Game
     /////////////////////////////////////////////////////////////////
-    lastId = GetGUI()->LayoutButton("New Game");
+    butNewGame = lastId = GetGUI()->LayoutButton("New Game");
     GetGUI()->AddEventListener_Click(lastId, onClickAny);
 
     /////////////////////////////////////////////////////////////////
     /// Options
     /////////////////////////////////////////////////////////////////
-    lastId = GetGUI()->LayoutButton("Options");
+    butOptions = lastId = GetGUI()->LayoutButton("Options");
     GetGUI()->AddEventListener_Click(lastId, onClickAny);
 
     /////////////////////////////////////////////////////////////////

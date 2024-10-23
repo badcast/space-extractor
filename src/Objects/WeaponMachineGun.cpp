@@ -6,7 +6,7 @@ void WeaponMachineGun::setDefaultValues()
     this->rotateSpeed = 200;
     this->weight = 125;
     this->bulletSpeed = 15;
-    this->bulletDelayShot = 0.2f;
+    this->bulletDelayShot = 0.1f;
     this->bulletThreshold = 10;
     this->damage = 6;
 
@@ -23,7 +23,9 @@ void WeaponMachineGun::setDefaultValues()
         bulletPrefab->transform()->setParent(rootPref->transform(), false);
 
         sprRender = bulletPrefab->AddComponent<SpriteRenderer>();
-        sprRender->setSprite(assets.gameSprites->GetSprite("bullet-machine-gun"));
+        sprRender->setSprite(globalAssets.gameSprites->GetSprite("bullet-machine-gun"));
+
+        clips = globalAssets.gameSounds->GetAudioClips("machinegun-1");
 
         rootPref->AddComponent<Collision>()->setSizeFrom(sprRender);
 

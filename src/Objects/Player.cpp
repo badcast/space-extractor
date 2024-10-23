@@ -31,12 +31,12 @@ void Player::OnStart()
         armoryPoint = maxArmoryPoint;
 
     // Load Sources
-    Sprite *spritePlayerWeapon = assets.gameSprites->GetSprite("player-weapon");
-    Sprite *spritePlayerPlatform = assets.gameSprites->GetSprite("player-platform");
-    Sprite *spriteMuzzleFlash = assets.gameSprites->GetSprite("muzzle-flash");
-    Sprite *spritePlayerShield = assets.gameSprites->GetSprite("player-shield");
+    Sprite *spritePlayerWeapon = globalAssets.gameSprites->GetSprite("player-weapon");
+    Sprite *spritePlayerPlatform = globalAssets.gameSprites->GetSprite("player-platform");
+    Sprite *spriteMuzzleFlash = globalAssets.gameSprites->GetSprite("muzzle-flash");
+    Sprite *spritePlayerShield = globalAssets.gameSprites->GetSprite("player-shield");
 
-    AudioClip *srcAudioMachineGun = assets.gameSounds->GetAudioClip("machinegun-1");
+    AudioClip *srcAudioMachineGun = globalAssets.gameSounds->GetAudioClip("machinegun-1");
 
     // Make player weapon object
     weapon = RoninMemory::alloc<WeaponMachineGun>();
@@ -59,7 +59,7 @@ void Player::OnStart()
         sprRender->setSize(sprRender->getSize() / 4);
     }
 
-    fireTurret = assets.gameSprites->GetSprite("player-weapon-blob");
+    fireTurret = globalAssets.gameSprites->GetSprite("player-weapon-blob");
     /////////////////////////////////////////////////////////////////
     /// Gun Points
     /////////////////////////////////////////////////////////////////
@@ -173,6 +173,7 @@ void Player::OnUpdate()
         GameObject *bulletInstance = Instantiate(weapon->bulletPrefab, origin);
         Collision *bulletCollision = bulletInstance->GetComponent<Collision>();
         Vec2 direction = originObject->forward() + Random::RandomVector() / 1000 * weapon->bulletThreshold;
+        bulletInstance->SetZOrderAll(RenderOrders::BulletOrder, ZOrderBy::Inherit);
         bulletCollision->targetLayer = static_cast<int>(GameLayers::EnemyOrBullet);
         bulletCollision->onCollision = [&](Collision *self_bullet, Collision *target) -> bool
         {

@@ -32,21 +32,18 @@ void Player::InitPlayerGUI()
 
 void Player::OnGizmos()
 {
-
-    Time::SetTimeScale(Time::GetTimeScale() + Input::GetMouseWheel()/10.f);
-
-    RenderUtility::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2 {0, 50}), "SCORES: " + std::to_string(scores));
+    RenderUtility::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2 {50, 50}), "SCORES: " + std::to_string(scores));
 }
 
 void UIPushBoxLayer::OnInit()
 {
-    xDrawRing = assets.gameSprites->GetSprite("explode-v1");
+    xDrawRing = globalAssets.gameSprites->GetSprite("explode-v1");
 }
 
 void UIPushBoxLayer::OnDraw(const UIData *const uiData)
 {
     Rect rect;
-    Atlas *uiAtlas = assets.uiAtlas->GetAtlasObject();
+    Atlas *uiAtlas = globalAssets.uiAtlas->GetAtlasObject();
     Resolution res = RoninSimulator::GetCurrentResolution();
 
     Sprite *foreground = uiAtlas->GetSpriteFromName("game-progress-foreground");
