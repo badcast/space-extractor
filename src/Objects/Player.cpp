@@ -173,6 +173,7 @@ void Player::OnUpdate()
         GameObject *bulletInstance = Instantiate(weapon->bulletPrefab, origin);
         Collision *bulletCollision = bulletInstance->GetComponent<Collision>();
         Vec2 direction = originObject->forward() + Random::RandomVector() / 1000 * weapon->bulletThreshold;
+        bulletInstance->SetZOrderAll(RenderOrders::BulletOrder, ZOrderBy::Inherit);
         bulletCollision->targetLayer = static_cast<int>(GameLayers::EnemyOrBullet);
         bulletCollision->onCollision = [&](Collision *self_bullet, Collision *target) -> bool
         {

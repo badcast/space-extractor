@@ -32,10 +32,7 @@ void Player::InitPlayerGUI()
 
 void Player::OnGizmos()
 {
-
-    Time::SetTimeScale(Time::GetTimeScale() + Input::GetMouseWheel()/10.f);
-
-    RenderUtility::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2 {0, 50}), "SCORES: " + std::to_string(scores));
+    RenderUtility::DrawTextLegacy(Camera::ScreenToWorldPoint(Vec2 {50, 50}), "SCORES: " + std::to_string(scores));
 }
 
 void UIPushBoxLayer::OnInit()

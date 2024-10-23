@@ -5,7 +5,7 @@
  */
 
 #ifndef _SPACE_EXTRACTOR_HPP_
-#define _SPACE_EXTRACTOR_HPP_
+#define _SPACE_EXTRACTOR_HPP_ 1
 
 #include "SpaceDepends.hpp"
 

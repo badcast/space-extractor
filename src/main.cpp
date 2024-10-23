@@ -22,7 +22,8 @@ int main()
         RoninSettings settings;
 
         RoninSimulator::GetSettings(&settings);
-        settings.verticalSync = true;
+        settings.verticalSync = false;
+        //settings.selectRenderBackend = RenderDriverInfo::CPU;
         RoninSimulator::SetSettings(&settings);
 
         LoadAssets();

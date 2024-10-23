@@ -7,6 +7,7 @@
 #ifndef _SPACE_DEPENDS_HPP_
 #define _SPACE_DEPENDS_HPP_
 
+#include <functional>
 #include <ronin/framework.h>
 
 using namespace RoninEngine;
@@ -36,6 +37,7 @@ enum RenderOrders : int
     OtherOrder = 0,
     PlayerOrder,
     EnemyOrder,
+    BulletOrder,
     ParticlesOrder,
     ParticleMainSmokeOrder
 };

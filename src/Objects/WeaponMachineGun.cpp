@@ -6,7 +6,7 @@ void WeaponMachineGun::setDefaultValues()
     this->rotateSpeed = 200;
     this->weight = 125;
     this->bulletSpeed = 15;
-    this->bulletDelayShot = 0.2f;
+    this->bulletDelayShot = 0.1f;
     this->bulletThreshold = 10;
     this->damage = 6;
 
