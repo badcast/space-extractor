@@ -22,12 +22,13 @@ GameObject *makeEnemyOnPoint(Vec2 placePoint)
 
     kamikadze = Primitive::CreateEmptyGameObject("EKamikadze")->AddComponent<EKamikadze>();
     collision = kamikadze->GetComponent<Collision>();
-    collision->targetLayer = static_cast<int>(GameLayers::PlayerOrBullet);
+    if(collision)
+        collision->targetLayer = static_cast<int>(GameLayers::PlayerOrBullet);
     // On Collision
     kamikadze->AddOnDestroy(
         [](Component *self)
         {
-            AudioClip *clip = assets.gameSounds->GetAudioClip("space-explode");
+            AudioClip *clip = globalAssets.gameSounds->GetAudioClip("destroy1");
             AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.2f);
             WGame::current->activeEnemies.erase(self->GetComponent<Enemy>());
         });
@@ -43,7 +44,11 @@ GameObject *makeEnemyOnPoint(Vec2 placePoint)
 void WGame::OnAwake()
 {
     current = this;
-    RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(assets.gameSprites->GetSprite("cursor-target")->getImage(), {16, 16}));
+    Sprite *image;
+
+    image = globalAssets.gameSprites->GetSprite("cursor-target");
+    if(image)
+        RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(image->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
 
     ivstars.set(Vec2::up_right, .4f, 220, true);
@@ -66,7 +71,7 @@ void WGame::OnStart()
 
     // Background
     SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
-    spriteRender->setSprite(assets.gameSprites->GetSprite("main-menu-background"));
+    spriteRender->setSprite(globalAssets.gameSprites->GetSprite("main-menu-background"));
     spriteRender->transform()->zOrder(RenderOrders::BackgroundOrder);
 
     ParticleSystem *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
@@ -76,7 +81,7 @@ void WGame::OnStart()
     smoke_particle->speed = 2;
     smoke_particle->direction = Vec2::left;
     smoke_particle->interval = 3;
-    smoke_particle->setSource(assets.gameSprites->GetSprite("smoke"));
+    smoke_particle->setSource(globalAssets.gameSprites->GetSprite("smoke"));
     smoke_particle->setInterpolates(10);
     smoke_particle->setSize(Vec2::one * 4);
     smoke_particle->setColors({Color::white, 0}, {Color::white, 128}, {Color::white, 0});

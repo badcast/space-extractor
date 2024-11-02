@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <ronin/framework.h>
+#include <ronin/Debug.h>
 
 using namespace RoninEngine;
 using namespace RoninEngine::Runtime;

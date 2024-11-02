@@ -3,14 +3,16 @@
 
 #include "SpaceDepends.hpp"
 
-extern struct GameAssets
+struct GlobalAssets
 {
     Asset *gameSprites;
     Asset *gameSounds;
     Asset *uiAtlas;
     Asset *artefacts;
     Asset *asteroids;
-} assets;
+};
+
+extern GlobalAssets globalAssets;
 
 void LoadAssets();
 

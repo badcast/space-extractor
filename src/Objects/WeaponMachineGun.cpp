@@ -23,7 +23,9 @@ void WeaponMachineGun::setDefaultValues()
         bulletPrefab->transform()->setParent(rootPref->transform(), false);
 
         sprRender = bulletPrefab->AddComponent<SpriteRenderer>();
-        sprRender->setSprite(assets.gameSprites->GetSprite("bullet-machine-gun"));
+        sprRender->setSprite(globalAssets.gameSprites->GetSprite("bullet-machine-gun"));
+
+        clips = globalAssets.gameSounds->GetAudioClips("machinegun-1");
 
         rootPref->AddComponent<Collision>()->setSizeFrom(sprRender);
 

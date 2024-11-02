@@ -28,7 +28,7 @@ int main()
 
         LoadAssets();
 
-        WGame loadWorld;
+        WMainMenu loadWorld;
         RoninSimulator::LoadWorld(&loadWorld);
 
         RoninSimulator::Simulate();

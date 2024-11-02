@@ -37,13 +37,13 @@ void Player::OnGizmos()
 
 void UIPushBoxLayer::OnInit()
 {
-    xDrawRing = assets.gameSprites->GetSprite("explode-v1");
+    xDrawRing = globalAssets.gameSprites->GetSprite("explode-v1");
 }
 
 void UIPushBoxLayer::OnDraw(const UIData *const uiData)
 {
     Rect rect;
-    Atlas *uiAtlas = assets.uiAtlas->GetAtlasObject();
+    Atlas *uiAtlas = globalAssets.uiAtlas->GetAtlasObject();
     Resolution res = RoninSimulator::GetCurrentResolution();
 
     Sprite *foreground = uiAtlas->GetSpriteFromName("game-progress-foreground");
