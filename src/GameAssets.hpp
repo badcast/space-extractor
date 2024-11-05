@@ -5,11 +5,12 @@
 
 struct GlobalAssets
 {
-    Asset *gameSprites;
-    Asset *gameSounds;
-    Asset *uiAtlas;
-    Asset *artefacts;
-    Asset *asteroids;
+    Asset* gameSprites;
+    Asset* gameSounds;
+    Asset* uiAtlas;
+    Asset* artefacts;
+    Asset* asteroids;
+    Asset* maps;
 };
 
 extern GlobalAssets globalAssets;

@@ -3,22 +3,18 @@
 float lastShotTime;
 char bulletFireStep;
 float bullet_destroy_after = 4;
-Sprite *defaultTurret, *fireTurret;
 
-
-void DestructPut(GameObject * root)
+void DestructPut(GameObjectRef root)
 {
-    std::list<SpriteRenderer*> renders;
-
-    if(root == nullptr)
+    std::list<SpriteRendererRef> renders;
+    if(root.isNull())
         return;
-
-    renders = root->GetComponentsAnChilds<SpriteRenderer>();
+    // renders = root->GetComponentsAnChilds<SpriteRenderer>();
 }
 
 void Player::OnStart()
 {
-    SpriteRenderer *sprRender;
+    SpriteRendererRef sprRender;
     shaking = {0, 0};
 
     bullets = {};
@@ -31,10 +27,10 @@ void Player::OnStart()
         armoryPoint = maxArmoryPoint;
 
     // Load Sources
-    Sprite *spritePlayerWeapon = globalAssets.gameSprites->GetSprite("player-weapon");
-    Sprite *spritePlayerPlatform = globalAssets.gameSprites->GetSprite("player-platform");
-    Sprite *spriteMuzzleFlash = globalAssets.gameSprites->GetSprite("muzzle-flash");
-    Sprite *spritePlayerShield = globalAssets.gameSprites->GetSprite("player-shield");
+    SpriteRef spritePlayerWeapon = globalAssets.gameSprites->GetSprite("player-weapon");
+    SpriteRef spritePlayerPlatform = globalAssets.gameSprites->GetSprite("player-platform");
+    SpriteRef spriteMuzzleFlash = globalAssets.gameSprites->GetSprite("muzzle-flash");
+    SpriteRef spritePlayerShield = globalAssets.gameSprites->GetSprite("player-shield");
 
     AudioClip *srcAudioMachineGun = globalAssets.gameSounds->GetAudioClip("machinegun-1");
 
@@ -113,7 +109,7 @@ void Player::OnStart()
     /////////////////////////////////////////////////////////////////
     /// Player shield
     /////////////////////////////////////////////////////////////////
-    Transform *playerShieldPivot = Primitive::CreateEmptyGameObject()->transform();
+    TransformRef playerShieldPivot = Primitive::CreateEmptyGameObject()->transform();
     playerShieldPivot->setParent(transform(), false);
 
     playerShield = Primitive::CreateEmptyGameObject()->transform();
@@ -151,13 +147,14 @@ void Player::OnUpdate()
     // turretRotatePivot->LookAt(target, Vec2::up);
 
     // Clamp angle
-    turretRotatePivot->angle(Math::Clamp(turretRotatePivot->angle(), clampAngleLeft, clampAngleRight));
+    if(canClampAngle)
+        turretRotatePivot->angle(Math::Clamp(turretRotatePivot->angle(), clampAngleLeft, clampAngleRight));
 
     if(Time::frame() % 60 == 0)
         playerShield->LookAt(target);
 
     // Move exists bullets
-    for(Transform *bullet : bullets)
+    for(const TransformRef& bullet : bullets)
     {
         bullet->Translate(bullet->back() * Time::deltaTime() * weapon->bulletSpeed);
     }
@@ -165,29 +162,30 @@ void Player::OnUpdate()
     // Append new bullet on fire
     if(lastShotTime < Time::time() && Input::GetMouseDown(MouseButton::MouseLeft))
     {
-        Transform *originObject = ((bulletFireStep % 2 == 0) ? gunPoint1 : gunPoint2);
+        TransformRef originObject = ((bulletFireStep % 2 == 0) ? gunPoint1 : gunPoint2);
         Vec2 origin = originObject->position();
         if(++bulletFireStep == 2)
             bulletFireStep = 0;
 
-        GameObject *bulletInstance = Instantiate(weapon->bulletPrefab, origin);
-        Collision *bulletCollision = bulletInstance->GetComponent<Collision>();
+        GameObjectRef bulletInstance = Instantiate(weapon->bulletPrefab, origin);
+        CollisionRef bulletCollision = bulletInstance->GetComponent<Collision>();
         Vec2 direction = originObject->forward() + Random::RandomVector() / 1000 * weapon->bulletThreshold;
         bulletInstance->SetZOrderAll(RenderOrders::BulletOrder, ZOrderBy::Inherit);
         bulletCollision->targetLayer = static_cast<int>(GameLayers::EnemyOrBullet);
-        bulletCollision->onCollision = [&](Collision *self_bullet, Collision *target) -> bool
+        bulletCollision->onCollision = [&](CollisionRef self_bullet, CollisionRef target) -> bool
         {
-            Enemy *enemy = target->GetComponent<Enemy>();
+            Ref<Enemy> enemy = std::move(target->GetComponent<Enemy>());
             if(enemy == nullptr)
                 return true;
             enemy->receiveDamage(WGame::current->player->weapon->damage);
-            self_bullet->gameObject()->Destroy(); // destroy object
+            if(self_bullet)
+                self_bullet->gameObject()->Destroy(); // destroy object
             this->scores++;
             return false;
         };
         bulletInstance->transform()->zOrder(RenderOrders::PlayerOrder);
         bulletInstance->transform()->LookAt(origin + direction);
-        bulletInstance->AddOnDestroy([&](GameObject *self) { bullets.erase(self->transform()); });
+        bulletInstance->AddOnDestroy([&](GameObjectRef self) { bullets.erase(self->transform()); });
         bulletInstance->Destroy(bullet_destroy_after);
 
         bullets.insert(bulletInstance->transform());

@@ -15,7 +15,7 @@ public:
     }
 };
 
-void Enhancer::setDelegate(std::function<GameObject *(Vec2)> addPoint)
+void Enhancer::setDelegate(std::function<GameObjectRef(Vec2)> addPoint)
 {
     _addPoint = addPoint;
 }
@@ -59,7 +59,7 @@ void Enhancer::doWave()
     Vec2 s0, s1;
     float off, offset_up;
     int x,y;
-    GameObject *objFrom;
+    GameObjectRef objFrom;
 
     switch(state())
     {
@@ -108,7 +108,6 @@ void Enhancer::doWave()
         for(x = 0; x < y; ++x)
         {
             objFrom = _addPoint(s0);
-            // Glud ID
             objFrom->AddComponent<EhTracker>()->ID = _activatedEnemies + x;
             s0.x += off;
         }
@@ -168,10 +167,4 @@ bool Enhancer::isFinished()
 
 void Enhancer::putObject(int id)
 {
-    std::string str;
-
-    str = "Object ";
-    str += std::to_string(id);
-    str += " defeat.";
-    Debug::Log(str);
 }

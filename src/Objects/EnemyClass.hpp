@@ -16,7 +16,7 @@ enum EnemyAttackMode
     Builder,
 };
 
-struct EnemyInfo
+struct EnemyCharacter
 {
     EnemyAttackMode attackMode;
     int hp;
@@ -28,9 +28,9 @@ struct EnemyInfo
 
 extern struct EnemyClasses
 {
-    EnemyInfo kamikadze;
-    EnemyInfo winderfill;
-    EnemyInfo mathbird;
+    EnemyCharacter kamikadze;
+    EnemyCharacter winderfill;
+    EnemyCharacter mathbird;
 } enemy_class_info;
 
 class Enemy : public Behaviour
@@ -60,7 +60,7 @@ class EKamikadze : public Enemy
 {
 private:
     float animInverse = true;
-    SpriteRenderer *renderAlertSignal;
+    SpriteRendererRef renderAlertSignal;
 
 public:
     EKamikadze() : Enemy(), renderAlertSignal(nullptr)

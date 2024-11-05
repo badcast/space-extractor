@@ -24,10 +24,16 @@ public:
 
 public:
     NavMesh *navMesh;
-    Player *player;
+    Ref<Player> player;
     Enhancer enhancer;
-    std::set<Enemy *> activeEnemies;
+    std::set<Ref<Enemy>> activeEnemies;
     IVStars ivstars {};
+    Terrain2DRef terrain;
+
+    SpriteRef sprite_explode = nullptr;
+    SpriteRef sprite_explode_flow = nullptr;
+    SpriteRef sprite_drop_drains = nullptr;
+    SpriteRef sprite_drop_drains2 = nullptr;
 
     WGame() : World("Space Extractor"), navMesh(nullptr), player(nullptr)
     {

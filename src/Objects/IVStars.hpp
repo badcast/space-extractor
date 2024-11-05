@@ -6,7 +6,7 @@
 struct IVObj
 {
     Vec2 orig;
-    Transform *obj;
+    TransformRef obj;
 };
 
 class IVStars

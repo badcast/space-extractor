@@ -1,5 +1,3 @@
-#include <string>
-
 #include "SpaceExtractor.hpp"
 #include "Worlds/WMainMenu.hpp"
 #include "Worlds/WParticleEdtitor.hpp"
@@ -19,17 +17,16 @@ int main()
 
         RoninSimulator::SetDebugMode(true);
 
-        RoninSettings settings;
+        RoninSettings settings = RoninSettings::GetCurrent();
 
-        RoninSimulator::GetSettings(&settings);
         settings.verticalSync = false;
-        //settings.selectRenderBackend = RenderDriverInfo::CPU;
-        RoninSimulator::SetSettings(&settings);
+
+        settings.renderBackend = RenderDriverInfo::GPU;
+        settings.Apply();
 
         LoadAssets();
 
-        WMainMenu loadWorld;
-        RoninSimulator::LoadWorld(&loadWorld);
+        RoninSimulator::LoadWorld<WMainMenu>();
 
         RoninSimulator::Simulate();
     }

@@ -12,8 +12,8 @@ void WeaponMachineGun::setDefaultValues()
 
     if(bulletPrefab == nullptr)
     {
-        SpriteRenderer *sprRender;
-        GameObject *rootPref;
+        SpriteRendererRef sprRender;
+        GameObjectRef rootPref;
 
         rootPref = Primitive::CreateEmptyGameObject();
 
@@ -22,7 +22,7 @@ void WeaponMachineGun::setDefaultValues()
         bulletPrefab->transform()->angle(0);
         bulletPrefab->transform()->setParent(rootPref->transform(), false);
 
-        sprRender = bulletPrefab->AddComponent<SpriteRenderer>();
+        sprRender = std::move(bulletPrefab->AddComponent<SpriteRenderer>());
         sprRender->setSprite(globalAssets.gameSprites->GetSprite("bullet-machine-gun"));
 
         clips = globalAssets.gameSounds->GetAudioClips("machinegun-1");

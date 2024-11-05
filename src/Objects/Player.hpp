@@ -23,19 +23,20 @@ private:
 
 protected:
     float m_timeoutRepairs;
+    SpriteRef defaultTurret, fireTurret;
 
     void onRepairing();
 
 public:
     Weapon *weapon;
-    Transform *platform;
-    Transform *turretRotatePivot;
-    Transform *turret;
-    Transform *gunPosition;
-    Transform *muzzleFlash;
-    Transform *gunPoint1, *gunPoint2;
-    Transform *playerShield;
-    AudioSource *playerAudio;
+    TransformRef platform;
+    TransformRef turretRotatePivot;
+    TransformRef turret;
+    TransformRef gunPosition;
+    TransformRef muzzleFlash;
+    TransformRef gunPoint1, gunPoint2;
+    TransformRef playerShield;
+    AudioSourceRef playerAudio;
 
     bool canRepairs = true;
     float repairsAfterTime = 1.0f;
@@ -46,9 +47,11 @@ public:
     int maxArmoryPoint = 50;
     int armoryPoint = 0;
     int scores = 0;
-    float clampAngleLeft = -80, clampAngleRight = 80;
 
-    std::set<Transform *> bullets;
+    bool canClampAngle = true;
+    float clampAngleLeft = -90, clampAngleRight = 90;
+
+    std::set<TransformRef> bullets;
 
     void applyDamage(int damageValue, Vec2 closestPosition);
 

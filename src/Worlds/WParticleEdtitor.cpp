@@ -67,7 +67,7 @@ void WParticleEdtitor::OnStart()
     pos.y += pos.h;
     checkBoxParticleRotation = GetGUI()->PushCheckBox(true, "Rotate", pos);
 
-    // GetGUI()->LayoutNew({0, 0, 100, 500});
+    // GetGUI()->LayoutNew(UILayoutDirection::Horizontal, {0, 0, 100, 500});
     // GetGUI()->LayoutLabel("Text");
     // GetGUI()->LayoutButton("Hello ");
 }
