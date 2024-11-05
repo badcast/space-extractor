@@ -6,19 +6,17 @@ float bullet_destroy_after = 4;
 Sprite *defaultTurret, *fireTurret;
 
 
-void DestructPut(GameObject * root)
+void DestructPut(GameObjectRef root)
 {
-    std::list<SpriteRenderer*> renders;
-
-    if(root == nullptr)
+    std::list<SpriteRendererRef> renders;
+    if(root.isNull())
         return;
-
-    renders = root->GetComponentsAnChilds<SpriteRenderer>();
+    // renders = root->GetComponentsAnChilds<SpriteRenderer>();
 }
 
 void Player::OnStart()
 {
-    SpriteRenderer *sprRender;
+    SpriteRendererRef sprRender;
     shaking = {0, 0};
 
     bullets = {};
@@ -31,10 +29,10 @@ void Player::OnStart()
         armoryPoint = maxArmoryPoint;
 
     // Load Sources
-    Sprite *spritePlayerWeapon = globalAssets.gameSprites->GetSprite("player-weapon");
-    Sprite *spritePlayerPlatform = globalAssets.gameSprites->GetSprite("player-platform");
-    Sprite *spriteMuzzleFlash = globalAssets.gameSprites->GetSprite("muzzle-flash");
-    Sprite *spritePlayerShield = globalAssets.gameSprites->GetSprite("player-shield");
+    SpriteRef spritePlayerWeapon = globalAssets.gameSprites->GetSprite("player-weapon");
+    SpriteRef spritePlayerPlatform = globalAssets.gameSprites->GetSprite("player-platform");
+    SpriteRef spriteMuzzleFlash = globalAssets.gameSprites->GetSprite("muzzle-flash");
+    SpriteRef spritePlayerShield = globalAssets.gameSprites->GetSprite("player-shield");
 
     AudioClip *srcAudioMachineGun = globalAssets.gameSounds->GetAudioClip("machinegun-1");
 
@@ -151,7 +149,8 @@ void Player::OnUpdate()
     // turretRotatePivot->LookAt(target, Vec2::up);
 
     // Clamp angle
-    turretRotatePivot->angle(Math::Clamp(turretRotatePivot->angle(), clampAngleLeft, clampAngleRight));
+    if(canClampAngle)
+        turretRotatePivot->angle(Math::Clamp(turretRotatePivot->angle(), clampAngleLeft, clampAngleRight));
 
     if(Time::frame() % 60 == 0)
         playerShield->LookAt(target);
@@ -187,7 +186,7 @@ void Player::OnUpdate()
         };
         bulletInstance->transform()->zOrder(RenderOrders::PlayerOrder);
         bulletInstance->transform()->LookAt(origin + direction);
-        bulletInstance->AddOnDestroy([&](GameObject *self) { bullets.erase(self->transform()); });
+        bulletInstance->AddOnDestroy([&](GameObjectRef self) { bullets.erase(self->transform()); });
         bulletInstance->Destroy(bullet_destroy_after);
 
         bullets.insert(bulletInstance->transform());

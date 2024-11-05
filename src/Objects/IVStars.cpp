@@ -1,16 +1,13 @@
 #include "IVStars.hpp"
 
 Vec2 calculateFinalPoint(Vec2 start, Vec2 direction, Vec2 rectMin, Vec2 rectMax) {
-    // Нормализуем вектор направления
     direction.normalize();
 
-    // Параметры времени для пересечения с границами
     float tLeft = (rectMin.x - start.x) / -direction.x;
     float tRight = (rectMax.x - start.x) / -direction.x;
     float tBottom = (rectMin.y - start.y) / -direction.y;
     float tTop = (rectMax.y - start.y) / -direction.y;
 
-    // Находим минимальное положительное значение t :)
     float tCollision = std::numeric_limits<float>::max();
 
     if (tLeft > 0) tCollision = Math::Min(tCollision, tLeft);
@@ -18,7 +15,6 @@ Vec2 calculateFinalPoint(Vec2 start, Vec2 direction, Vec2 rectMin, Vec2 rectMax)
     if (tBottom > 0) tCollision = Math::Min(tCollision, tBottom);
     if (tTop > 0) tCollision = Math::Min(tCollision, tTop);
 
-    // Вычисляем начальную точку
     Vec2 initialPoint;
     initialPoint.x = start.x - tCollision * direction.x;
     initialPoint.y = start.y - tCollision * direction.y;

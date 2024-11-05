@@ -19,7 +19,7 @@ public:
     float weight;
     int damage;
     std::vector<AudioClip*> clips;
-    GameObject *bulletPrefab;
+    GameObjectRef bulletPrefab;
 
     Weapon() : rotateSpeed(0), bulletSpeed(0), bulletDelayShot(0), bulletThreshold(0), weight(0), damage(0), bulletPrefab(nullptr)
     {

@@ -50,7 +50,7 @@ private:
 
     WaveInfo _lastWave;
 
-    std::function<GameObject* (Vec2)> _addPoint;
+    std::function<GameObjectRef (Vec2)> _addPoint;
 
     void _killSession();
 public:
@@ -59,7 +59,7 @@ public:
 
     Enhancer() = default;
 
-    void setDelegate(std::function<GameObject *(Vec2)> addPoint);
+    void setDelegate(std::function<GameObjectRef(Vec2)> addPoint);
 
     // Приостанавливает текущую активность системы волн.
     void suspend();

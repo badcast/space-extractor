@@ -1,0 +1,13 @@
+{
+    "class": "Sprite",
+    "source": [
+        {
+            "name": "Ground1",
+            "ref": "sprites/grounds/ground1.png"
+        },
+        {
+            "name": "Ground2",
+            "ref": "sprites/grounds/ground2.png"
+        }
+    ]
+}

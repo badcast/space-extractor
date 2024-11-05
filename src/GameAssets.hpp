@@ -10,6 +10,7 @@ struct GlobalAssets
     Asset *uiAtlas;
     Asset *artefacts;
     Asset *asteroids;
+    Asset *maps;
 };
 
 extern GlobalAssets globalAssets;

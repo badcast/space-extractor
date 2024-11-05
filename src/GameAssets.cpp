@@ -12,7 +12,8 @@ void LoadAssets()
         {"sounds.asset", &globalAssets.gameSounds},
         {"ui.asset", &globalAssets.uiAtlas},
         {"artefacts-v1.atlas.asset", &globalAssets.artefacts},
-        {"asteroids-v1.atlas.asset", &globalAssets.asteroids}};
+        {"asteroids-v1.atlas.asset", &globalAssets.asteroids},
+        {"maps.asset", &globalAssets.maps}};
 
     Debug::Log("Load assets ...");
 

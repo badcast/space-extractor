@@ -7,7 +7,6 @@
 #ifndef _SPACE_DEPENDS_HPP_
 #define _SPACE_DEPENDS_HPP_
 
-#include <functional>
 #include <ronin/framework.h>
 #include <ronin/Debug.h>
 

@@ -15,7 +15,7 @@ void WGame::OnUnloading()
     RoninMemory::free(navMesh);
 }
 
-GameObject *makeEnemyOnPoint(Vec2 placePoint)
+GameObjectRef makeEnemyOnPoint(Vec2 placePoint)
 {
     Collision *collision;
     EKamikadze *kamikadze;
@@ -26,7 +26,7 @@ GameObject *makeEnemyOnPoint(Vec2 placePoint)
         collision->targetLayer = static_cast<int>(GameLayers::PlayerOrBullet);
     // On Collision
     kamikadze->AddOnDestroy(
-        [](Component *self)
+        [](ComponentRef self)
         {
             AudioClip *clip = globalAssets.gameSounds->GetAudioClip("destroy1");
             AudioSource::PlayClipAtPoint(clip, self->transform()->position(), 0.2f);
@@ -41,25 +41,36 @@ GameObject *makeEnemyOnPoint(Vec2 placePoint)
     return kamikadze->gameObject();
 }
 
+void makeMap(Terrain2DRef terrain)
+{
+    Sprite *ground1,*ground2;
+    ground1 = globalAssets.maps->GetSprite("Ground1");
+    ground2 = globalAssets.maps->GetSprite("Ground2");
+    terrain->setSize({5,5});
+
+   // terrain->setMesh({0,0,1,1}, ground1);
+    terrain->setMesh({0,0,1,1}, ground2);
+}
+
 void WGame::OnAwake()
 {
     current = this;
     Sprite *image;
-
     image = globalAssets.gameSprites->GetSprite("cursor-target");
     if(image)
         RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(image->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
-
+    terrain = Primitive::CreateEmptyGameObject("Terrain2D")->AddComponent<Terrain2D>();
+    terrain->transform()->zOrder(RenderOrders::BackgroundOrder);
+    makeMap(terrain);
     ivstars.set(Vec2::up_right, .4f, 220, true);
-
     enhancer.setDelegate(makeEnemyOnPoint);
 }
 
 void WGame::OnStart()
 {
     // Create Main Camera
-    Primitive::CreateCamera2D();
+    Primitive::CreateCamera2D()->SetZoomOut(150);
 
     // Set Cursor
     GameSetCursor(PlayerCursor::CusrorTargetAnime);
@@ -67,12 +78,9 @@ void WGame::OnStart()
     // Create Player
     player = Primitive::CreateEmptyGameObject()->AddComponent<Player>();
     player->gameObject()->name("Player");
-    player->transform()->position(Camera::ViewportToWorldPoint(Vec2 {0.5, 0.15}));
-
-    // Background
-    SpriteRenderer *spriteRender = Primitive::CreateEmptyGameObject()->AddComponent<SpriteRenderer>();
-    spriteRender->setSprite(globalAssets.gameSprites->GetSprite("main-menu-background"));
-    spriteRender->transform()->zOrder(RenderOrders::BackgroundOrder);
+    // Set Player to Center position
+    player->transform()->position(Vec2::zero);
+    player->canClampAngle = false;
 
     ParticleSystem *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
     smoke_particle->gameObject()->name("Particle Smoke");
@@ -157,8 +165,6 @@ void WGame::OnGizmos()
 
     RenderUtility::DrawTextLegacy(Vec2::zero, std::to_string(Camera::mainCamera()->GetComponent<Camera2D>()->GetZoomOut()), 1, 1);
 }
-
-
 
 void draw_ready_go()
 {
