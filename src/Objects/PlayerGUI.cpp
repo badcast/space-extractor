@@ -7,7 +7,7 @@ using namespace RoninEngine::UI;
 class UIPushBoxLayer : public UIOverlay
 {
 public:
-    Sprite *xDrawRing;
+    SpriteRef xDrawRing;
     float xDrawAngles;
 
     void OnInit() override;
@@ -43,14 +43,14 @@ void UIPushBoxLayer::OnInit()
 void UIPushBoxLayer::OnDraw(const UIData *const uiData)
 {
     Rect rect;
-    Atlas *uiAtlas = globalAssets.uiAtlas->GetAtlasObject();
+    AtlasRef uiAtlas = globalAssets.uiAtlas->GetAtlasObject();
     Resolution res = RoninSimulator::GetCurrentResolution();
 
-    Sprite *foreground = uiAtlas->GetSpriteFromName("game-progress-foreground");
-    Sprite *extentArmory = uiAtlas->GetSpriteFromName("game-progress-extent");
-    Sprite *corners = uiAtlas->GetSpriteFromName("game-top-corners");
-    Sprite *extentHealth = uiAtlas->GetSpriteFromName("game-progress-foreground-mask");
-    Sprite *rightRing = uiAtlas->GetSpriteFromName("game-right-ring");
+    SpriteRef foreground = uiAtlas->GetSpriteFromName("game-progress-foreground");
+    SpriteRef extentArmory = uiAtlas->GetSpriteFromName("game-progress-extent");
+    SpriteRef corners = uiAtlas->GetSpriteFromName("game-top-corners");
+    SpriteRef extentHealth = uiAtlas->GetSpriteFromName("game-progress-foreground-mask");
+    SpriteRef rightRing = uiAtlas->GetSpriteFromName("game-right-ring");
 
     rect.w = res.width;
     rect.h = 25;

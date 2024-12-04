@@ -3,7 +3,7 @@
 float lastShotTime;
 char bulletFireStep;
 float bullet_destroy_after = 4;
-Sprite *defaultTurret, *fireTurret;
+SpriteRef defaultTurret, fireTurret;
 
 
 void DestructPut(GameObjectRef root)
@@ -111,7 +111,7 @@ void Player::OnStart()
     /////////////////////////////////////////////////////////////////
     /// Player shield
     /////////////////////////////////////////////////////////////////
-    Transform *playerShieldPivot = Primitive::CreateEmptyGameObject()->transform();
+    TransformRef playerShieldPivot = Primitive::CreateEmptyGameObject()->transform();
     playerShieldPivot->setParent(transform(), false);
 
     playerShield = Primitive::CreateEmptyGameObject()->transform();
@@ -156,7 +156,7 @@ void Player::OnUpdate()
         playerShield->LookAt(target);
 
     // Move exists bullets
-    for(Transform *bullet : bullets)
+    for(const TransformRef& bullet : bullets)
     {
         bullet->Translate(bullet->back() * Time::deltaTime() * weapon->bulletSpeed);
     }
@@ -164,19 +164,19 @@ void Player::OnUpdate()
     // Append new bullet on fire
     if(lastShotTime < Time::time() && Input::GetMouseDown(MouseButton::MouseLeft))
     {
-        Transform *originObject = ((bulletFireStep % 2 == 0) ? gunPoint1 : gunPoint2);
+        TransformRef originObject = ((bulletFireStep % 2 == 0) ? gunPoint1 : gunPoint2);
         Vec2 origin = originObject->position();
         if(++bulletFireStep == 2)
             bulletFireStep = 0;
 
-        GameObject *bulletInstance = Instantiate(weapon->bulletPrefab, origin);
-        Collision *bulletCollision = bulletInstance->GetComponent<Collision>();
+        GameObjectRef bulletInstance = Instantiate(weapon->bulletPrefab, origin);
+        CollisionRef bulletCollision = bulletInstance->GetComponent<Collision>();
         Vec2 direction = originObject->forward() + Random::RandomVector() / 1000 * weapon->bulletThreshold;
         bulletInstance->SetZOrderAll(RenderOrders::BulletOrder, ZOrderBy::Inherit);
         bulletCollision->targetLayer = static_cast<int>(GameLayers::EnemyOrBullet);
-        bulletCollision->onCollision = [&](Collision *self_bullet, Collision *target) -> bool
+        bulletCollision->onCollision = [&](CollisionRef self_bullet, CollisionRef target) -> bool
         {
-            Enemy *enemy = target->GetComponent<Enemy>();
+            Ref<Enemy> enemy = std::move(target->GetComponent<Enemy>());
             if(enemy == nullptr)
                 return true;
             enemy->receiveDamage(WGame::current->player->weapon->damage);

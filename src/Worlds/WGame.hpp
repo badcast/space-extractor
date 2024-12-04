@@ -24,9 +24,9 @@ public:
 
 public:
     NavMesh *navMesh;
-    PlayerRef player;
+    Ref<Player> player;
     Enhancer enhancer;
-    std::set<EnemyRef> activeEnemies;
+    std::set<Ref<Enemy>> activeEnemies;
     IVStars ivstars {};
     Terrain2DRef terrain;
 

@@ -60,7 +60,7 @@ class EKamikadze : public Enemy
 {
 private:
     float animInverse = true;
-    SpriteRenderer *renderAlertSignal;
+    SpriteRendererRef renderAlertSignal;
 
 public:
     EKamikadze() : Enemy(), renderAlertSignal(nullptr)

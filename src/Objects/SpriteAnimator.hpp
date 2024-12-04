@@ -13,9 +13,9 @@ class SpriteAnimator : public Behaviour
 {
 private:
     float lastTime;
-    SpriteRenderer *renderer;
+    SpriteRendererRef renderer;
     unsigned m_currentSprite;
-    std::vector<Sprite *> m_sprites;
+    std::vector<SpriteRef> m_sprites;
 
     void setSprite(unsigned spriteIndex);
 

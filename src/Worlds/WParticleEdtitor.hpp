@@ -12,7 +12,7 @@
 class WParticleEdtitor : public World
 {
 public:
-    ParticleSystem* particle;
+    ParticleSystemRef particle;
     WParticleEdtitor() : World("Particle Editor")
     {
     }
@@ -25,10 +25,10 @@ public:
 class TestLevel : public World
 {
 public:
-    Transform *root;
-    Transform *last;
+    TransformRef root;
+    TransformRef last;
 
-    std::vector<Transform *> list;
+    std::vector<TransformRef> list;
 
     int parentN = 10;
     TestLevel() : World("Empty World")
@@ -42,7 +42,7 @@ public:
         last = root;
         for(int x = 0; x < parentN; ++x)
         {
-            Transform *b = Primitive::CreateBox2D()->transform();
+            TransformRef b = Primitive::CreateBox2D()->transform();
             b->transform()->position(last->position() + Vec2::up + Random::RandomVector());
             b->spriteRenderer()->setSize({.5f, 1.0f});
             b->spriteRenderer()->setColor(Color::GetBasicColors()[x % Color::GetBasicColors().size()]);

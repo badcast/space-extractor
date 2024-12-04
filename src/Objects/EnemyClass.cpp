@@ -3,10 +3,10 @@
 
 using namespace RoninEngine::Runtime;
 
-static Sprite *sprite_explode = nullptr;
-static Sprite *sprite_explode_flow = nullptr;
-static Sprite *sprite_drop_drains = nullptr;
-static Sprite *sprite_drop_drains2 = nullptr;
+static SpriteRef sprite_explode = nullptr;
+static SpriteRef sprite_explode_flow = nullptr;
+static SpriteRef sprite_drop_drains = nullptr;
+static SpriteRef sprite_drop_drains2 = nullptr;
 
 /*
     int hp;
@@ -22,12 +22,12 @@ class ParticleMoveOut : public Behaviour
 {
 public:
     float start;
-    ParticleSystem *particleRef;
+    ParticleSystemRef particle;
 
     void OnStart() override
     {
         start = Time::time() + 2;
-        particleRef->rotatePerFrame = 0;
+        particle->rotatePerFrame = 0;
     }
 
     void OnUpdate() override
@@ -37,7 +37,7 @@ public:
 
         Vec2 to;
         to = WGame::current->player->transform()->position();
-        particleRef->rotatePerFrame = 120;
+        particle->rotatePerFrame = 120;
         if(transform()->position() == to)
         {
             if(!World::GetCurrentWorld()->StateObjectDestruction(this->gameObject()))
@@ -49,7 +49,7 @@ public:
     }
 };
 
-ParticleSystem *putEnemyParticleExplode(Vec2 position)
+ParticleSystemRef putEnemyParticleExplode(Vec2 position)
 {
 
     if(sprite_explode == nullptr)
@@ -62,7 +62,7 @@ ParticleSystem *putEnemyParticleExplode(Vec2 position)
         sprite_drop_drains2 = Primitive::CreateSpriteRectangle(false);
 
     // PARTICLE FIRE
-    ParticleSystem *particle = Primitive::CreateEmptyGameObject(position)->AddComponent<ParticleSystem>();
+    ParticleSystemRef particle = Primitive::CreateEmptyGameObject(position)->AddComponent<ParticleSystem>();
     particle->loop = false;
     particle->speed = 2;
     particle->direction = Vec2::zero;
@@ -73,7 +73,7 @@ ParticleSystem *putEnemyParticleExplode(Vec2 position)
     particle->setInterpolates(10);
     particle->setColors({Color::white, 100}, Color::white, {Color::white, 0});
     particle->setSize(Vec2::half / 4);
-    particle->AddComponent<ParticleMoveOut>()->particleRef = particle;
+    particle->AddComponent<ParticleMoveOut>()->particle = particle;
     particle->transform()->zOrder(RenderOrders::ParticlesOrder);
 
     // PARTICLE DROPS DRAINS
@@ -126,7 +126,7 @@ void Enemy::moveTo(Vec2 targetPoint)
 
 void EKamikadze::OnAwake()
 {
-    SpriteRenderer *spriteRender;
+    SpriteRendererRef spriteRender;
 
     startPoint = transform()->position();
     transform()->layer(GameLayers::EnemyClass);
@@ -151,7 +151,7 @@ void EKamikadze::OnAwake()
     if(spriteRender->getSprite())
     transform()->AddComponent<Collision>()->collideSize = Vec2::Scale(spriteRender->getSprite()->size(), spriteRender->getSize());
 
-    ParticleSystem * tracePart = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
+    ParticleSystemRef tracePart = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
     tracePart->transform()->setParent(transform());
     tracePart->transform()->localAngle(0);
     tracePart->setSize(Vec2::one * .1f);
@@ -183,7 +183,7 @@ float EKamikadze::getStopDistance() const
 void EKamikadze::OnUpdate()
 {
     float distance;
-    Player *player = WGame::current->player;
+    Ref<Player> player = WGame::current->player;
     targetTo = player->transform()->position();
 
     distance = 2;

@@ -59,7 +59,7 @@ void Enhancer::doWave()
     Vec2 s0, s1;
     float off, offset_up;
     int x,y;
-    GameObject *objFrom;
+    GameObjectRef objFrom;
 
     switch(state())
     {

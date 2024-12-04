@@ -17,8 +17,8 @@ void WGame::OnUnloading()
 
 GameObjectRef makeEnemyOnPoint(Vec2 placePoint)
 {
-    Collision *collision;
-    EKamikadze *kamikadze;
+    Ref<Collision> collision;
+    Ref<EKamikadze> kamikadze;
 
     kamikadze = Primitive::CreateEmptyGameObject("EKamikadze")->AddComponent<EKamikadze>();
     collision = kamikadze->GetComponent<Collision>();
@@ -36,14 +36,14 @@ GameObjectRef makeEnemyOnPoint(Vec2 placePoint)
     kamikadze->transform()->position(placePoint);
     kamikadze->gameObject()->SetLayer(static_cast<int>(GameLayers::EnemyClass));
 
-    WGame::current->activeEnemies.insert(kamikadze);
+    WGame::current->activeEnemies.insert(StaticCast<Enemy>(kamikadze));
 
     return kamikadze->gameObject();
 }
 
 void makeMap(Terrain2DRef terrain)
 {
-    Sprite *ground1,*ground2;
+    SpriteRef ground1,ground2;
     ground1 = globalAssets.maps->GetSprite("Ground1");
     ground2 = globalAssets.maps->GetSprite("Ground2");
     terrain->setSize({5,5});
@@ -55,10 +55,10 @@ void makeMap(Terrain2DRef terrain)
 void WGame::OnAwake()
 {
     current = this;
-    Sprite *image;
-    image = globalAssets.gameSprites->GetSprite("cursor-target");
-    if(image)
-        RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(image->getImage(), {16, 16}));
+    SpriteRef sprite;
+    sprite = globalAssets.gameSprites->GetSprite("cursor-target");
+    if(sprite)
+        RoninCursor::SetCursor(AssetManager::ConvertImageToCursor(sprite->getImage(), {16, 16}));
     RoninMemory::alloc_self(navMesh, 1000, 1000);
     terrain = Primitive::CreateEmptyGameObject("Terrain2D")->AddComponent<Terrain2D>();
     terrain->transform()->zOrder(RenderOrders::BackgroundOrder);
@@ -82,7 +82,7 @@ void WGame::OnStart()
     player->transform()->position(Vec2::zero);
     player->canClampAngle = false;
 
-    ParticleSystem *smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
+    ParticleSystemRef smoke_particle = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
     smoke_particle->gameObject()->name("Particle Smoke");
     smoke_particle->rotate = false;
     smoke_particle->loop = true;
@@ -119,7 +119,7 @@ void WGame::OnUpdate()
         float step = 0;
         Vec2 lfs = Camera::ViewportToWorldPoint({0,1});
         Vec2 rfs = Camera::ViewportToWorldPoint({1,1});
-        for(Transform *enemy : Physics2D::GetRectangleCast(lfs + rfs, lfs - rfs, GameLayers::EnemyClass))
+        for(Transform* enemy : Physics2D::GetRectangleCast(lfs + rfs, lfs - rfs, GameLayers::EnemyClass))
         {
             if(enemy->GetComponent<Enemy>())
             {
@@ -136,7 +136,7 @@ void WGame::OnUpdate()
         Camera::mainCamera()->GetComponent<Camera2D>()->SetZoomOut(newZoom);
     }
 
-    Camera::mainCamera()->transform()->Translate(Input::GetAxis() * Time::deltaTime() * 2);
+    Camera::mainCamera()->transform()->Translate(Input::      GetAxis() * Time::deltaTime() * 2);
 }
 
 void WGame::OnGizmos()

@@ -33,7 +33,7 @@ public:
     TransformRef turret;
     TransformRef gunPosition;
     TransformRef muzzleFlash;
-    TransformRef gunPoint1, *gunPoint2;
+    TransformRef gunPoint1, gunPoint2;
     TransformRef playerShield;
     AudioSourceRef playerAudio;
 
