@@ -22,7 +22,6 @@ void onClickAny(uid id)
 
 void WMainMenu::OnStart()
 {
-
     uid lastId;
 
     // Background

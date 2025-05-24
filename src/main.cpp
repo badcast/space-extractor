@@ -19,14 +19,14 @@ int main()
 
         RoninSettings settings = RoninSettings::GetCurrent();
 
-        settings.verticalSync = false;
+        settings.verticalSync = true;
 
         settings.renderBackend = RenderDriverInfo::GPU;
         settings.Apply();
 
         LoadAssets();
 
-        RoninSimulator::LoadWorld<WMainMenu>();
+        RoninSimulator::LoadWorld<WGame>();
 
         RoninSimulator::Simulate();
     }

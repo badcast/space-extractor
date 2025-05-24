@@ -18,6 +18,8 @@ public:
     }
 
     void setDefaultValues() override;
+
+    GameObjectRef createBullet() override;
 };
 
 #endif

@@ -51,8 +51,6 @@ public:
     bool canClampAngle = true;
     float clampAngleLeft = -90, clampAngleRight = 90;
 
-    std::set<TransformRef> bullets;
-
     void applyDamage(int damageValue, Vec2 closestPosition);
 
 public:

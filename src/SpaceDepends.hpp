@@ -48,6 +48,7 @@ enum RenderOrders : int
 #include "Objects/SpriteAnimator.hpp"
 #include "Objects/Weapon.hpp"
 #include "Objects/WeaponMachineGun.hpp"
+#include "Objects/BulletDirection.hpp"
 
 #include "PlayerCursor.hpp"
 

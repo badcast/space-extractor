@@ -16,8 +16,6 @@ void Player::OnStart()
 {
     SpriteRendererRef sprRender;
     shaking = {0, 0};
-
-    bullets = {};
     lastShotTime = 0;
     bulletFireStep = 0;
 
@@ -139,12 +137,9 @@ void Player::OnUpdate()
 {
     // Mouse position to world position
     Vec2 target = Camera::ScreenToWorldPoint(Input::GetMousePointf());
-    //    Enemy *e = *(WGame::current->enemies.cbegin());
-    //    target = e->transform()->position();
 
     // Rotate player to Mouse Position
     turretRotatePivot->LookAtLerp(target, Time::deltaTime() * weapon->rotateSpeed);
-    // turretRotatePivot->LookAt(target, Vec2::up);
 
     // Clamp angle
     if(canClampAngle)
@@ -153,42 +148,44 @@ void Player::OnUpdate()
     if(Time::frame() % 60 == 0)
         playerShield->LookAt(target);
 
-    // Move exists bullets
-    for(const TransformRef& bullet : bullets)
-    {
-        bullet->Translate(bullet->back() * Time::deltaTime() * weapon->bulletSpeed);
-    }
-
     // Append new bullet on fire
     if(lastShotTime < Time::time() && Input::GetMouseDown(MouseButton::MouseLeft))
     {
-        TransformRef originObject = ((bulletFireStep % 2 == 0) ? gunPoint1 : gunPoint2);
-        Vec2 origin = originObject->position();
+        TransformRef gunPointOf = ((bulletFireStep % 2 == 0) ? gunPoint1 : gunPoint2);
+        Vec2 origin = gunPointOf->position();
         if(++bulletFireStep == 2)
             bulletFireStep = 0;
 
-        GameObjectRef bulletInstance = Instantiate(weapon->bulletPrefab, origin);
-        CollisionRef bulletCollision = bulletInstance->GetComponent<Collision>();
-        Vec2 direction = originObject->forward() + Random::RandomVector() / 1000 * weapon->bulletThreshold;
-        bulletInstance->SetZOrderAll(RenderOrders::BulletOrder, ZOrderBy::Inherit);
+        GameObjectRef bulletInstance;
+        CollisionRef bulletCollision;
+        Ref<BulletDirection> bulletDirection;
+        /**Add Bullet**/
+        bulletInstance = weapon->createBullet();
+        bulletInstance->transform()->position(origin);
+        bulletInstance->SetActive(true);
+        bulletInstance->transform()->LookAt(origin + (gunPointOf->forward() + Random::RandomVector() / 1000 * weapon->bulletThreshold));
+        /**Add Direction**/
+        bulletDirection = bulletInstance->AddComponent<BulletDirection>();
+        bulletDirection->dir = bulletDirection->transform()->back();
+        bulletDirection->speed = weapon->bulletSpeed;
+        /**Add Collision**/
+        bulletCollision = bulletInstance->GetComponent<Collision>();
         bulletCollision->targetLayer = static_cast<int>(GameLayers::EnemyOrBullet);
         bulletCollision->onCollision = [&](CollisionRef self_bullet, CollisionRef target) -> bool
         {
             Ref<Enemy> enemy = std::move(target->GetComponent<Enemy>());
             if(enemy == nullptr)
                 return true;
+
             enemy->receiveDamage(WGame::current->player->weapon->damage);
             if(self_bullet)
                 self_bullet->gameObject()->Destroy(); // destroy object
             this->scores++;
             return false;
         };
+        bulletInstance->SetZOrderAll(RenderOrders::BulletOrder, ZOrderBy::Inherit);
         bulletInstance->transform()->zOrder(RenderOrders::PlayerOrder);
-        bulletInstance->transform()->LookAt(origin + direction);
-        bulletInstance->AddOnDestroy([&](GameObjectRef self) { bullets.erase(self->transform()); });
         bulletInstance->Destroy(bullet_destroy_after);
-
-        bullets.insert(bulletInstance->transform());
 
         muzzleFlash->position(origin);
         muzzleFlash->spriteRenderer()->enable(true);

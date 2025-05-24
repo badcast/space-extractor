@@ -143,8 +143,7 @@ void EKamikadze::OnAwake()
 
     // Set Collision Size
     if(spriteRender->getSprite())
-    transform()->AddComponent<Collision>()->collideSize = Vec2::Scale(spriteRender->getSprite()->size(), spriteRender->getSize());
-
+        transform()->AddComponent<Collision>()->collideSize = Vec2::Scale(spriteRender->getSprite()->size(), spriteRender->getSize());
     ParticleSystemRef tracePart = Primitive::CreateEmptyGameObject()->AddComponent<ParticleSystem>();
     tracePart->transform()->setParent(transform());
     tracePart->transform()->localAngle(0);

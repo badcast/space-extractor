@@ -3,6 +3,7 @@
 using namespace RoninEngine::Runtime;
 
 WGame *WGame::current = nullptr;
+float zooming;
 
 extern ParticleSystem *putEnemyParticleExplode(Vec2 position);
 
@@ -46,10 +47,10 @@ void makeMap(Terrain2DRef terrain)
     SpriteRef ground1,ground2;
     ground1 = globalAssets.maps->GetSprite("Ground1");
     ground2 = globalAssets.maps->GetSprite("Ground2");
-    terrain->setSize({5,5});
+    terrain->setSize({12,1});
 
-   // terrain->setMesh({0,0,1,1}, ground1);
-    terrain->setMesh({0,0,1,1}, ground2);
+    // terrain->setMesh({0,0,1,1}, ground1);
+    terrain->setMesh({0,0,2,1}, ground1);
 }
 
 void WGame::OnAwake()
@@ -70,8 +71,8 @@ void WGame::OnAwake()
 void WGame::OnStart()
 {
     // Create Main Camera
-    Primitive::CreateCamera2D()->SetZoomOut(150);
-
+    zooming = 150;
+    Primitive::CreateCamera2D()->SetZoomOut(zooming);
     // Set Cursor
     GameSetCursor(PlayerCursor::CusrorTargetAnime);
 
@@ -108,8 +109,8 @@ void WGame::OnUpdate()
 
     enhancer.doWave();
 
-    if(Input::GetMouseDown(MouseMiddle))
-        player->transform()->position(Camera::ScreenToWorldPoint(Input::GetMousePointf()));
+    // if(false && Input::GetMouseDown(MouseMiddle))
+    //     player->transform()->position(Camera::ScreenToWorldPoint(Input::GetMousePointf()));
 
     if(Input::GetKeyDown(KeyboardCode::KB_ESCAPE))
         RoninSimulator::RequestQuit();
@@ -129,14 +130,15 @@ void WGame::OnUpdate()
         }
     }
 
+    Camera2DRef camera = StaticCast<Camera2D>(Camera::mainCamera());
     if(Input::GetMouseWheel())
     {
-        float newZoom = Camera::mainCamera()->GetComponent<Camera2D>()->GetZoomOut();
-        newZoom += Input::GetMouseWheel()*5;
-        Camera::mainCamera()->GetComponent<Camera2D>()->SetZoomOut(newZoom);
+        zooming += Input::GetMouseWheel()*10;
     }
-
-    Camera::mainCamera()->transform()->Translate(Input::      GetAxis() * Time::deltaTime() * 2);
+    zooming=Math::Clamp<float>(zooming, 130, 150);
+    camera->SetZoomOut(Math::Lerp(camera->GetZoomOut(), zooming, Time::deltaTime() * 2));
+    camera->transform()->Translate(Input::GetAxis() * Time::deltaTime() * 2);
+    camera->transform()->position(Vec2::Lerp(camera->transform()->position(), player->transform()->position(), Time::deltaTime() * 2));;
 }
 
 void WGame::OnGizmos()
